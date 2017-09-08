@@ -1,0 +1,82 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1, shrink-to-fit=no">
+    <!-- Use the title from a page's frontmatter if it has one -->
+    <title>On the Site Logo | Programming Included</title>
+    <link href="/stylesheets/config.css" rel="stylesheet" />
+    <link href="/stylesheets/pblog.css" rel="stylesheet" />
+    <script src="/javascripts/site.js"></script>
+  </head>
+  <body>
+  <nav class="article-layout-nav">
+    <ul>
+<a href="/blog">        <img src="/images/site_wide/pilogo.gif" width="50rem" id="pi_logo" alt="Pilogo" />
+</a>    <li>Home</li>
+    <li><a href="/blog">Blog</a></li>
+    <li>Contact</li>
+    </ul>
+</nav>
+  <div class="article-layout">
+    <div class="article_title_div">
+      <h1 id="article_title">On the Site Logo</h1>
+
+      <h2 id="article_subtitle">What Does the Site Logo Represent and How do GIFS Work?</h2>
+
+      <div id="article_pub">
+        <a href="/aboutme">Charles Chen</a>
+      | 2017-09-08 07:10 UTC
+      </div>
+    </div>
+    <br />
+
+    <div class="article-layout-main">
+    <p>
+I guess the first thing I would like to write about would be to discuss the site logo. 
+Why? Mainly because I want something that is related to the first blog to test the new related articles system.
+<br /> <br />
+So about the logo:
+<br /> <br />
+<img src="/images/site_wide/pilogo.gif" width="50rem" alt="Pilogo" />
+<br /> <br />
+The logo represents a P and a I for Programming Included and the I acts as a cursor 
+to edit the text. 
+Now this wouldn't be <i>Programming</i> Included without something more technical!
+<br /> <br />
+I personally found it interesting how many sites forgo GIFs for their static, consistent portions of the logos. 
+Although not many sites mention why this is the case, I do think that most worry about the size of the GIF. However, this GIF is only 2.27 kB compared to 13.1 kB for Google's logo!
+GIF's can be seen as simple playback images that display images in succession or differences in images in succession. As a result, any change that occurs need to be shown as an image and is limited by consistent playback by each layer. 
+<br /> <br />
+In other words, each layer would represent a fixed time slice.
+You can imagine the complexity increases as the object in the GIF involves more and more movement.
+If the GIF experiences rapid movement without a particular pattern, differences occur in different time intervals.
+This means that we need to provide as many images as there are the lowest delay between frames (delta time) that do not illustrate the object moving, otherwise we would suffer loss or choppiness.
+<br /> <br />
+Our logo can be considered as two images worth 128 x 128 pixels each.
+This is because we only have two states, the I there and not:
+<br /> <br />
+<img src="/images/pblog/2017-9/logo_process.jpg" width="50rem" alt="Logo process" />
+<br /> <br />
+Above shows the two actual images that are encoded. Notice the seperation between the I and P. The P acts as the base image.
+While the I stores the difference between the first and second frames. This is GIF animation optimizing that is supported in Gimp.
+<br /> <br />
+I hope everyone enjoyed this article! There is indepth documentation on each byte/bit of the gif which can be found online. I hope everyone who read the word GIF read it as GIF and not GIF ;)
+</p>
+
+
+
+    </div>
+    <div class="article-layout-sidebar">
+<h2> Related Blogs </h2>
+<ul>
+    <li> <a href="/blog/content/2017/09/08/starting/"></a> </li>
+</ul>
+</div>
+
+
+  </div>
+  </body>
+</html>

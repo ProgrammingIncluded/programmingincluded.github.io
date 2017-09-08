@@ -225,9 +225,6 @@ hr {
 h1 {
   font-size: 1.5625em; }
 
-.debug_blue_fill, .aboutme-layout, .left_div, .left_profile_div, .left_links_div, .right_div {
-  border-style: none; }
-
 #channel {
   padding-top: 2rem; }
 
