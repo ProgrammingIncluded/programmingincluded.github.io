@@ -231,6 +231,12 @@ h1 {
 #papers {
   padding-top: 2rem; }
 
+#profile_image {
+  width: 80%; }
+  @media only screen and (min-width: 1000px) {
+    #profile_image {
+      width: 30%; } }
+
 .aboutme-layout {
   padding-top: 1rem; }
   .aboutme-layout::after {

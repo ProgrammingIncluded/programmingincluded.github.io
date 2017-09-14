@@ -231,13 +231,13 @@ h2 {
 
 .article_title {
   text-align: center; }
-  @media only screen and (min-width: 1500px) {
+  @media only screen and (min-width: 1026px) {
     .article_title {
       text-align: left; } }
 
 .article_subtitle {
   text-align: center; }
-  @media only screen and (min-width: 1500px) {
+  @media only screen and (min-width: 1026px) {
     .article_subtitle {
       text-align: left; } }
 
@@ -245,9 +245,10 @@ h2 {
   text-align: center;
   color: grey;
   font-size: 0.7em; }
-  @media only screen and (min-width: 1500px) {
+  @media only screen and (min-width: 1026px) {
     .article_pub {
-      text-align: left; } }
+      text-align: left;
+      font-size: 0.4em; } }
 
 .article-layout {
   padding: 4rem; }
@@ -269,15 +270,17 @@ h2 {
 .article_title_div {
   width: calc(100% - 2rem);
   float: left;
-  margin-left: 1rem;
-  margin-left: calc(8.33333% - 21.66667px + 40px); }
+  margin-left: 1rem; }
+  @media only screen and (min-width: 1026px) {
+    .article_title_div {
+      margin-left: calc(8.33333% - 1.08333rem + 2rem); } }
 
 .article-layout-sidebar {
   width: calc(100% - 2rem);
   float: left;
   margin-left: 1rem;
   margin-bottom: 2rem; }
-  @media only screen and (min-width: 1500px) {
+  @media only screen and (min-width: 1026px) {
     .article-layout-sidebar {
       width: calc(16.66667% - 1.16667rem);
       float: left;
@@ -291,7 +294,7 @@ h2 {
   margin-left: 1rem;
   margin-top: 1rem;
   padding-top: 1rem; }
-  @media only screen and (min-width: 1500px) {
+  @media only screen and (min-width: 1026px) {
     .article-layout-main {
       width: calc(58.33333% - 1.58333rem);
       float: left;
