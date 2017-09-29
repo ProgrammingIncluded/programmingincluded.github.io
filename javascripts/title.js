@@ -22,9 +22,16 @@ function button_move(target, url) {
             ]
         });
 
+        var call = function () {
+            // Hide the objects.
+            $(".pi-title-image").hide();
+            $(target).hide();
+        };
+        setTimeout(call, 100);
+
         // Move the title, why not.
         // Delay timeout.
-        setTimeout(function(){ window.location = url; }, 100);
+        setTimeout(function(){ window.location = url; }, 150);
     }
 }
 
