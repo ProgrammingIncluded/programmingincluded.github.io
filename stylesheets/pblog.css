@@ -278,10 +278,10 @@ h2 {
   margin-bottom: 2rem; }
   @media only screen and (min-width: 1026px) {
     .article-layout-sidebar {
-      width: calc(20.83333% - 1.20833rem);
+      width: calc(25% - 1.25rem);
       float: left;
       margin-left: 1rem;
-      margin-left: calc(8.33333% - 1.08333rem + 2rem);
+      margin-left: calc(4.16667% - 1.04167rem + 2rem);
       margin-bottom: 2rem; } }
 
 .article-layout-main {
@@ -338,6 +338,10 @@ nav > ul > a {
 
 nav > ul > li > a:hover, nav > ul > li > a:active {
   background-color: #ededed; }
+
+.ast {
+  border-bottom-style: groove;
+  padding-bottom: 0.3rem; }
 
 .no_decor {
   text-decoration: none;
