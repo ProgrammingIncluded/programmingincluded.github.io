@@ -7,13 +7,30 @@
           content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <!-- Use the title from a page's frontmatter if it has one -->
     <title>On the Site Logo | Programming Included</title>
+    <!-- Global site tag (gtag.js) - Google Analytics -->
+    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-108057296-1"></script>
+    <script>
+      window.dataLayer = window.dataLayer || [];
+      function gtag(){dataLayer.push(arguments);}
+      gtag('js', new Date());
+
+      gtag('config', 'UA-108057296-1');
+    </script>
     <link href="/stylesheets/pblog.css" rel="stylesheet" />
   </head>
   <body>
-  <nav class="article-layout-nav">
+  <div class="top-banner-cont">
+    <div class="top-banner-center">
+        <br />
+        <br />
+<a href="/" style="text-decoration: none;">            <img src="/images/site_wide/pilogo.gif" width="50rem" id="pi_logo" alt="Pilogo" />
+</a>         <br />
+        Programming Included
+    </div>
+</div>
+<nav class="article-layout-nav">
     <ul>
-<a href="/">        <img src="/images/site_wide/pilogo.gif" width="50rem" id="pi_logo" alt="Pilogo" />
-</a>    <li><a href="/blog">Blog</a> </li>
+    <li><a href="/blog">Blog</a> </li>
     <li><a href="/aboutme">About</a></li>
     </ul>
 </nav>
@@ -64,13 +81,50 @@ There is indepth documentation on each byte/bit of the gif which can be found on
 
 
     </div>
+    <br />
+    <div class="related-articles">
     <div class="article-layout-sidebar">
-<h2> Related Blogs </h2>
+<h2> Related Articles </h2>
 <ul>
+        <li> <a href="/blog/content/2018/01/04/blog-v0-2-improving-the-user-experience/">Blog v0.2&#58; Improving the Blog Reading User Experience</a> </li>
         <li> <a href="/blog/content/2017/09/08/starting/">Blog v0.1&#58; Starting a New Blog</a> </li>
 </ul>
 </div>
 
+
+    </div>
+
+    <br /> <br />
+  
+    <div class="comments_section">
+      <div id='disqus_thread'></div>
+<script type='text/javascript'>
+//<![CDATA[
+                  var disqus_shortname = 'programmingincluded';
+          
+    (function() {
+        var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+        dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+//]]>
+</script>
+<noscript>Please enable JavaScript to view the <a href='http://disqus.com/?ref_noscript'>comments powered by Disqus.</a></noscript>
+<a href='http://disqus.com' class='dsq-brlink'>comments powered by <span class='logo-disqus'>Disqus</span></a>
+
+      <script type="text/javascript">
+//<![CDATA[
+    var disqus_shortname = 'programmingincluded';
+    (function () {
+        var s = document.createElement('script'); s.async = true;
+        s.type = 'text/javascript';
+        s.src = '//' + disqus_shortname + '.disqus.com/count.js';
+        (document.getElementsByTagName('HEAD')[0] || document.getElementsByTagName('BODY')[0]).appendChild(s);
+    }());
+//]]>
+</script>
+
+    </div>
 
   </div>
   </body>

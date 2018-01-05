@@ -231,12 +231,6 @@ h1 {
 h2 {
   margin-bottom: 0; }
 
-.comments_section {
-  width: calc(100% - 2rem);
-  float: left;
-  margin-left: 1rem;
-  padding-top: 3rem; }
-
 .article_title {
   text-align: center; }
   @media only screen and (min-width: 1026px) {
@@ -283,7 +277,6 @@ h2 {
   width: calc(100% - 2rem);
   float: left;
   margin-left: 1rem;
-  margin-top: 2rem;
   margin-bottom: 2rem; }
   @media only screen and (min-width: 1026px) {
     .article-layout-sidebar {
@@ -298,7 +291,7 @@ h2 {
   float: left;
   margin-left: 1rem;
   margin-top: 1rem;
-  padding-top: 3rem; }
+  padding-top: 1rem; }
   @media only screen and (min-width: 1026px) {
     .article-layout-main {
       width: calc(66.66667% - 1.66667rem);
