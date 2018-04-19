@@ -279,6 +279,9 @@ h2 {
   float: left;
   margin-left: 1rem; }
 
+.related-articles > li {
+  list-style-type: circle; }
+
 .article-layout-sidebar {
   width: calc(100% - 2rem);
   float: left;
