@@ -224,8 +224,10 @@ hr {
   margin: 1.5em 0; }
 
 /* Font Definitions */
+* {
+  font-size: 0.7rem; }
+
 h1 {
-  font-size: 1.5625em;
   margin-bottom: 0; }
 
 h2 {
@@ -238,19 +240,20 @@ h2 {
   padding-top: 3rem; }
 
 .article_title {
-  text-align: center; }
+  text-align: left;
+  font-size: 1.5rem; }
   @media only screen and (min-width: 1026px) {
     .article_title {
       text-align: left; } }
 
 .article_subtitle {
-  text-align: center; }
+  text-align: left; }
   @media only screen and (min-width: 1026px) {
     .article_subtitle {
       text-align: left; } }
 
 .article_pub {
-  text-align: center;
+  text-align: left;
   color: grey;
   font-size: 0.7em; }
   @media only screen and (min-width: 1026px) {
@@ -258,7 +261,8 @@ h2 {
       text-align: left; } }
 
 .article-layout {
-  padding: 4rem; }
+  padding: 2rem;
+  padding-top: 3rem; }
   .article-layout::after {
     clear: both;
     content: "";
@@ -268,7 +272,7 @@ h2 {
   width: calc(100% - 2rem);
   float: left;
   margin-left: 1rem;
-  margin-bottom: 2rem;
+  margin-bottom: 0.5rem;
   margin-left: 0;
   overflow: hidden;
   background-color: #F6F6F6;
@@ -301,7 +305,7 @@ h2 {
   float: left;
   margin-left: 1rem;
   margin-top: 1rem;
-  padding-top: 3rem; }
+  padding-top: 1rem; }
   @media only screen and (min-width: 1026px) {
     .article-layout-main {
       width: calc(66.66667% - 1.66667rem);
@@ -320,28 +324,35 @@ h2 {
   left: 0;
   text-align: center;
   margin-top: 0;
-  margin-bottom: 3rem; }
+  margin-bottom: 2rem; }
 
 .top-banner-center {
   display: inline-block;
-  height: 120px; }
+  height: 60px; }
 
 /*Nav Bar Code*/
 nav > ul {
   list-style-type: none;
-  padding: 0.5rem 1rem;
+  padding-right: 1rem;
+  padding-left: 1rem;
+  padding-top: 0.5%;
+  padding-bottom: 0.5%;
   margin-right: 0;
   border-bottom: 1px solid #dddcdc;
   border-top: 1px solid #dddcdc; }
 
 nav > ul > li {
   display: inline;
-  padding-left: 2rem; }
+  padding-left: 4rem; }
 
 nav > ul > li > a:link, nav > ul > li > a:visited {
   background-color: #F6F6F6;
   color: black;
-  padding: 0.5rem 1rem;
+  padding-right: 1rem;
+  padding-left: 1rem;
+  padding-top: 0.5%;
+  padding-bottom: 0.5%;
+  margin-right: 0;
   margin: 0 0;
   text-decoration: none; }
 
@@ -362,3 +373,7 @@ nav > ul > li > a:hover, nav > ul > li > a:active {
 a img {
   border: 0;
   border-style: none; }
+
+.ytv {
+  width: 60%;
+  height: auto; }
