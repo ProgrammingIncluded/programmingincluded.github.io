@@ -299,10 +299,10 @@ section {
     margin-top: 1rem; } }
 
 #f_sec {
-  height: 175em; }
+  height: 185em; }
   @media only screen and (min-width: 1026px) {
     #f_sec {
-      height: 60em; } }
+      height: 70em; } }
 
 #s_sec {
   height: 45em; }
