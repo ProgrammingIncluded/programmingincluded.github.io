@@ -299,10 +299,10 @@ section {
     margin-top: 1rem; } }
 
 #f_sec {
-  height: 185em; }
+  height: 210em; }
   @media only screen and (min-width: 1026px) {
     #f_sec {
-      height: 70em; } }
+      height: 85em; } }
 
 #s_sec {
   height: 45em; }
@@ -488,3 +488,7 @@ section {
 
 #form h1 {
   color: #F6D55C; }
+
+a {
+  font-size: 1em;
+  color: cadetblue; }
