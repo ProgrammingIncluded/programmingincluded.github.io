@@ -228,16 +228,26 @@ h1 {
   font-size: 1.5625em; }
 
 #channel {
-  padding-top: 2rem; }
+  padding-top: 3rem; }
+
+#general_direction {
+  padding-top: 1.2rem; }
+
+#talks {
+  padding-top: 1.2rem; }
 
 #papers {
-  padding-top: 2rem; }
+  padding-top: 1.2rem; }
 
 #profile_image {
   width: 75%; }
   @media only screen and (min-width: 1000px) {
     #profile_image {
       width: 400px; } }
+
+.indent {
+  padding-left: 2rem;
+  padding-right: 2rem; }
 
 .aboutme-layout {
   padding-top: 1rem; }
@@ -286,3 +296,8 @@ h1 {
       margin-left: 3rem;
       padding-right: 10%;
       padding-bottom: 1rem; } }
+
+.nvgreen {
+  color: #76B900;
+  margin: 0;
+  padding: 0; }
