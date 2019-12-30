@@ -6,6 +6,7 @@
 
 .article-right-block {
   border-left-style: solid;
+  border-width: 0.5px;
   width: 10%;
   height: 100%;
   margin: 0;
@@ -31,4 +32,4 @@
   background-color: #FA8C9B; }
 
 .blog-block {
-  background-color: #DCF98C; }
+  background-color: #e0ff8acc; }
