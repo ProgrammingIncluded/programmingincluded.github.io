@@ -389,8 +389,10 @@ a img {
   border-style: none; }
 
 .ytv {
-  width: 60%;
-  height: 250px; }
+  width: 100%; }
+  @media only screen and (min-width: 1026px) {
+    .ytv {
+      width: 60%; } }
 
 p {
   text-indent: 1.5rem; }

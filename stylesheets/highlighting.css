@@ -200,3 +200,7 @@
 .rouge-gutter {
     width: 2rem;
 }
+
+.rouge-code {
+    overflow: auto;
+}
