@@ -1,0 +1,23 @@
+created: 20180927064153388
+modified: 20190901232556614
+tags: 
+title: Technical Organizing Guidelines
+tmap.id: 1f3d645e-6b88-4364-9a2f-a5d83425c62e
+type: text/vnd.tiddlywiki
+
+Below you will find the general heuristics behind the idea of tagging and other technical organizations that make Meditations work as it does. This page is mainly for future self or curious individuals to keep track of how the notebook will be organized.
+
+!! Table of Contents
+The table of contents page resides in the sidebar. Any tiddler marked with the ~TableOfContents tag will be added here. It is required that the first link on the ~TableOfContents should be a Hub Page.
+
+!! Hub Pages
+Hub pages are pages solely for introducing a topic and then linking to several smaller tiddlers. They act as hubs to other resources and acts as topic organizers. Table of contents will be filled with them. Hub pages generally do not introduce more content than necessary.
+
+!! Tags
+Tags are used in two different ways. Camel case tags will be reserved specially for listing a tiddler in a hub page or table of contents. Lower case tags are used for categorization. This means that a tiddler can have two of the same tags but one lower case and one uppercase.
+
+!! Normal Pages
+A thought or idea linked from a hub page or a normal page.
+
+!! Floating Pages
+Pages that are not linked by other pages nor are they linked from hub pages.

@@ -1,0 +1,12 @@
+created: 20180927233519861
+modified: 20190901232555555
+tags: expository [[Table Of Contents]]
+title: By Scripture
+tmap.id: 2a5a211b-7b77-427d-8c22-39fb228ea44d
+type: text/vnd.tiddlywiki
+
+Here you will find links to pages grouped by book and chapter. Due to the nature of random notes, thoughts, and ideas there may be overlap of verses by each tiddle. But that is why there is also grouping by topic.
+
+<div class="tc-table-of-contents">
+<<toc-selective-expandable 'By Scripture'>>
+</div>
