@@ -1,0 +1,37 @@
+author: ProgrammingIncluded
+core-version: >=5.0.8
+created: 20200102082635355
+dependents: 
+description: TSSRE: Tiddly static site reader/exporter
+list: ReadMe Export TestRemote
+modified: 20200102082635355
+plugin-type: plugin
+source: https://github.com/ProgrammingIncluded/TiddlyStaticServerReaderExporter
+title: $:/plugins/programmingincluded/tssre
+type: application/json
+version: 0.0.1
+
+{
+    "tiddlers": {
+        "$:/plugins/programmingincluded/tssre/Export": {
+            "title": "$:/plugins/programmingincluded/tssre/Export",
+            "caption": "TSSRE",
+            "text": "\r\nYour host folder should contain `.tid` files necessary to run tiddlywiki and contains your tiddler data.\r\nMake sure that your host can deliver these `.tid` files.\r\nThis is the same folder setup used by ~NodeJS version of ~TiddlyWiki under `tiddlers` folder.\n\n''You must have a server-client TiddlyWiki setup for this to work''\n\nExport current wiki with static html:\r\n<$button message=\"tssre-export\">\r\n    Export\r\n</$button>\n\n<br />"
+        },
+        "$:/plugins/programmingincluded/tssre/ReadMe": {
+            "title": "$:/plugins/programmingincluded/tssre/ReadMe",
+            "text": "Publishing TiddlyWiki site to locations like github.io in such a way as to reduce the filesize of index.html."
+        },
+        "$:/plugins/programmingincluded/tssre/TestRemote": {
+            "title": "$:/plugins/programmingincluded/tssre/TestRemote",
+            "caption": "TSSRE",
+            "text": "The following tests and makes sure that the remote given is setup to run a TSSRE exported wiki file.\n\nHost: <$edit-text tiddler=\"$:config/tssre/host\" tag=\"input\" default=\"\"/>\r\n<br />\r\nExample: [[http://www.yourhost.com/tiddlers | \"\"]]\n\n\r\nTests if the host has a valid TSSRE setup. Use after export:\r\n<$button message=\"tssre-test\">\r\n    Test Host\r\n</$button>"
+        },
+        "$:/plugins/programmingincluded/tssre/tssre.js": {
+            "title": "$:/plugins/programmingincluded/tssre/tssre.js",
+            "text": "/*\\\r\ntitle: $:/plugins/programmingincluded/tssre/tssre.js\r\ntype: application/javascript\r\nmodule-type: startup\r\n\r\n\\*/\r\n(function() {\r\n    \r\n    var REMOTE_TIDDLER_FILE = \"$:/config/tssre/remote-tiddlers\";\r\n    var HOST_TIDDLER = \"$:config/tssre/host\";\r\n    var NOTIFICATION_TIDDLER = \"$:/config/tssre/notification\";\r\n    var TIDDLER_CACHE = [];\r\n\r\n    // Function to setup list of available tiddlers and save it as a tiddler file\r\n    // This will work if on NodeJS server\r\n    var saveTiddlerNames = function(callback) {\r\n        var tiddlers = $tw.wiki.getTiddlers();\r\n        var skinny = [];\r\n        tiddlers.forEach((item) => {\r\n            if (TIDDLER_CACHE.includes(item)) {\r\n                return ;\r\n            }\r\n\r\n            TIDDLER_CACHE.push(item);\r\n            // Create a skinny link like the webapi\r\n            var json = $tw.wiki.getTiddler(item);\r\n            var result = {};\r\n            [\"title\", \"tags\", \"type\"].forEach((t)=> {\r\n                result[t] = json.fields[t];\r\n            });\r\n            [\"created\", \"modified\"].forEach((t) => {\r\n                if (json.fields[t] != undefined) {\r\n                    result[t] = json.fields[t].valueOf();\r\n                } else {\r\n                    result[t] = json.fields[t];\r\n                }\r\n            });\r\n            skinny.push(result);\r\n        });\r\n        var tiddlerJson = JSON.stringify(skinny);\r\n        $tw.wiki.setTiddlerData(REMOTE_TIDDLER_FILE, tiddlerJson);\r\n    };\r\n\r\n    var notify = function(msg) {\r\n        $tw.wiki.setTiddlerData(NOTIFICATION_TIDDLER, msg);\r\n        $tw.notifier.display(NOTIFICATION_TIDDLER);\r\n    }\r\n\r\n    var getHost = function() {\r\n        var host = $tw.wiki.getTiddlerText(HOST_TIDDLER, undefined);\r\n    \r\n        // Try to use local host if not available\r\n        if (host == undefined || host == \"\") {\r\n            host = document.location.protocol + \":/\" + document.location.host;\r\n        }\r\n    \r\n        // Remove extra slash at the end if added by accident\r\n        if (host.charAt(host.length - 1) == '/')\r\n            host = host.substring(0, host.length - 1);\r\n    \r\n        return host;\r\n    }\r\n\r\n    var checkIsValidHost = function(host) {\r\n        // Remove any and all invalid windows values and add underscores instead. As seen in filesystem adaptor.\r\n        var remoteFilename = REMOTE_TIDDLER_FILE.replace(/<|>|\\:|\\\"|\\||\\?|\\*|\\^|\\//g,\"_\");\r\n\r\n        // Check to see if special file exists on host\r\n        $tw.utils.httpRequest({\r\n            url: host + \"/\" + remoteFilename + \".tid\",\r\n            callback: function(err, data, request) {\r\n                if (data == null) {\r\n                    notify(\"Failed to get TSSRE setup at: \" + host);\r\n                } else {\r\n                    notify(\"Valid TSSRE setup found at: \" + host);\r\n                }\r\n            }\r\n        });\r\n    };\r\n\r\n\r\n    exports.startup = function() {\r\n        // Save tiddler names on save\r\n        $tw.rootWidget.addEventListener(\"tm-save-wiki\", function (event) {\r\n            saveTiddlerNames();\r\n            return true;\r\n        });\r\n\r\n        // Save tiddler names on auto-save\r\n        $tw.rootWidget.addEventListener(\"tm-auto-save-wiki\", function (event) {\r\n            saveTiddlerNames();\r\n            return true;\r\n        });\r\n\r\n        $tw.rootWidget.addEventListener(\"tssre-export\", function (event) {\r\n            // Set tiddler file with all the meta data\r\n            saveTiddlerNames();\r\n            notify(\"Saved TSSRE data at: \" + REMOTE_TIDDLER_FILE);\r\n            return true;\r\n        });\r\n\r\n        $tw.rootWidget.addEventListener(\"tssre-test\", function (event) {\r\n            // Get the host that is inputted by user\r\n            var host = getHost();\r\n            // Just check if remote has our custom TSSRE file\r\n            checkIsValidHost(host);\r\n            return true;\r\n        });\r\n    }\r\n\r\n })();",
+            "type": "application/javascript",
+            "module-type": "startup"
+        }
+    }
+}
