@@ -378,8 +378,8 @@ h3 {
   grid-template-columns: auto; }
   @media (min-width: 1600px) {
     .article-layout {
-      -ms-grid-columns: auto auto;
-      grid-template-columns: auto auto; } }
+      -ms-grid-columns: 60% auto;
+      grid-template-columns: 60% auto; } }
 .article-layout-nav {
   margin-bottom: 0.5rem;
   margin-left: 0;
@@ -464,6 +464,9 @@ nav > ul > li > a:hover, nav > ul > li > a:active {
   border-bottom-style: groove;
   padding-bottom: 0.3rem;
   margin-bottom: 0.3rem; }
+
+.asst {
+  font-size: 1.10rem; }
 
 .no_decor {
   text-decoration: none;
