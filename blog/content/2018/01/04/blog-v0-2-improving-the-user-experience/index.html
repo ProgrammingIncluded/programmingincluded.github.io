@@ -7,6 +7,7 @@
           content="width=device-width, initial-scale=1, shrink-to-fit=no">
     <!-- Use the title from a page's frontmatter if it has one -->
     <title>Blog v0.2&#58; Improving the Blog Reading User Experience | Programming Included</title>
+
     <!-- Global site tag (gtag.js) - Google Analytics -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=UA-108057296-1"></script>
     <script>
@@ -16,15 +17,17 @@
 
       gtag('config', 'UA-108057296-1');
     </script>
+
     <link href="/stylesheets/highlighting.css" rel="stylesheet" />
     <link href="/stylesheets/pblog.css" rel="stylesheet" />
   </head>
+
   <body>
-  <div class="top-banner-cont">
+    <div class="top-banner-cont">
     <div class="top-banner-center">
         <br />
         <br />
-<a href="/" style="text-decoration: none;">            <img src="/images/site_wide/pilogo.gif" width="50rem" id="pi_logo" alt="Pilogo" />
+<a href="/" style="text-decoration: none;">            <img src="/images/site_wide/pilogo.gif" width="50rem" id="pi_logo" alt="" />
 </a>         <br />
         Programming Included
     </div>
@@ -35,18 +38,19 @@
     <li><a href="/blog">Blog</a> </li>
     </ul>
 </nav>
-  <div class="article-layout">
-    <div class="article_title_div">
+    <div class="article-layout">
+      <div class="article-layout-main">
+        <div class="article_title_div">
 
-      <h1 class="article_title">Blog v0.2&#58; Improving the Blog Reading User Experience</h1>
+          <h1 class="article_title">Blog v0.2&#58; Improving the Blog Reading User Experience</h1>
 
-      <h2 class="article_subtitle">Comment Sections, Buttons, and Aesthetics</h2>
+          <h2 class="article_subtitle">Comment Sections, Buttons, and Aesthetics</h2>
 
-    </div>
-    <br /> 
 
-    <div class="article-layout-main">
-    <p>
+        </div>
+
+        <br /> <br />
+        <p>
 As the new year begins and as the winter quarter is about to start, I wanted to update the website once more. 
 For those who have been following the website layouts, there are several changes to the website that I have been doing incrementally.
 This post will be an attempt to capture most, if not, all of the changes that were significant.
@@ -77,7 +81,7 @@ Fun fact: Within the Recent Posts/Blogs page, the article headers do not exhibit
 Immediately after posting v0.1, I made a change to the logo. A change was made to the logo cursor so that a sleeker, thinner feel can be given.
 
 <br /> <br />
-<img src="/images/pblog/2018-1/logo_snapshot.gif" width="50rem" alt="Logo snapshot" />
+<img src="/images/pblog/2018-1/logo_snapshot.gif" width="50rem" alt="" />
 <br /> <br />
 
 Furthermore, this logo plays better with the placing of the logo. Now I utilize HTML font underneath to represent the website's name.
@@ -87,7 +91,7 @@ Somethings I want to be able to do in the future is to be able to add captions t
 easier to skim and read. Really this is all about ease of use for the user in this case.
 
 <br /> <br />
-<img src="/images/pblog/2018-1/snapshot.jpg" width="5000rem" alt="Snapshot" />
+<img src="/images/pblog/2018-1/snapshot.jpg" width="5000rem" alt="" />
 <br /> <br />
 
 Finally there was a change to the placement of the logo. The logo has now been moved to the top. I did this because the website felt a little cramped 
@@ -105,7 +109,7 @@ I introduced a comment section down below each blog. I used a service <a href="h
 static in nature, that is, without any backend, to host comments (Comments require a backend support in order to store data.)
 
 <br /> <br />
-<img src="/images/pblog/2018-1/disqus.jpg" width="5000rem" alt="Disqus" /> 
+<img src="/images/pblog/2018-1/disqus.jpg" width="5000rem" alt="" /> 
 <br /> <br />
 
 My decision to implement a discussion sections is in hopes that people will be able to ask any questions in the future. Currently the content in the blog is not
@@ -123,10 +127,10 @@ I added some custom helpers to help with some blog formatting. All of these chan
 For those who are interested in making their own blog and would like to know what tools I am using: I am using Middleman with Github as hosting.
 Until next time! Looking forward to continuous updates in the future.
 </p>
-    </div>
-    <br />
-    <div class="article-layout-sidebar">
-      <div class="related-articles">
+      </div>
+
+      <div class="article-layout-sidebar">
+        <div class="related-articles">
 <h2> Related Articles </h2>
 <ul>
     <ul>
@@ -135,12 +139,9 @@ Until next time! Looking forward to continuous updates in the future.
     </ul>
 </ul>
 </div>
-    </div>
-
-    <br /> <br />
-  
-    <div class="comments_section">
-      <div id='disqus_thread'></div>
+      </div>
+      <div class="comments_section">
+        <div id='disqus_thread'></div>
 <script type='text/javascript'>
 //<![CDATA[
                   var disqus_shortname = 'programmingincluded';
@@ -155,7 +156,7 @@ Until next time! Looking forward to continuous updates in the future.
 <noscript>Please enable JavaScript to view the <a href='http://disqus.com/?ref_noscript'>comments powered by Disqus.</a></noscript>
 <a href='http://disqus.com' class='dsq-brlink'>comments powered by <span class='logo-disqus'>Disqus</span></a>
 
-      <script type="text/javascript">
+        <script type="text/javascript">
 //<![CDATA[
     var disqus_shortname = 'programmingincluded';
     (function () {
@@ -167,8 +168,7 @@ Until next time! Looking forward to continuous updates in the future.
 //]]>
 </script>
 
+      </div>
     </div>
-
-  </div>
   </body>
 </html>
