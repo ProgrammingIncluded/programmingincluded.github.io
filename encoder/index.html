@@ -1,32 +1,10 @@
-<!doctype html>
-<html>
-  <head>
-    <meta charset="utf-8">
-    <meta http-equiv="x-ua-compatible" content="ie=edge">
-    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
-    <!-- Use the title from a page's frontmatter if it has one -->
-    <title>Encoder</title>
-    <link href="/stylesheets/config.css" rel="stylesheet" />
-    <link href="/stylesheets/pblog.css" rel="stylesheet" />
-    
-    <!-- Global site tag (gtag.js) - Google Analytics -->
-    <script async src="https://www.googletagmanager.com/gtag/js?id=UA-108057296-1"></script>
-    <script>
+<!doctype html> <html> <head> <meta charset=utf-8> <meta http-equiv=x-ua-compatible content="ie=edge"> <meta name=viewport content="width=device-width, initial-scale=1, shrink-to-fit=no"> <title>Encoder</title> <link href="/stylesheets/config.css" rel=stylesheet /> <link href="/stylesheets/pblog.css" rel=stylesheet /> <script async src="https://www.googletagmanager.com/gtag/js?id=UA-108057296-1"></script> <script>
       window.dataLayer = window.dataLayer || [];
       function gtag(){dataLayer.push(arguments);}
       gtag('js', new Date());
 
       gtag('config', 'UA-108057296-1');
-    </script>
-  </head>
-  <body>
-    <script src="/javascripts/jsaes.js"></script>
-<script src="/javascripts/sjcl.js"></script>
-<script src="/javascripts/sjcl-bytes.js"></script>
-<script src="/javascripts/encoder.js"></script>
-<script src="/javascripts/jquery-3.2.1.min.js"></script>
-
-<script>
+    </script> </head> <body> <script src="/javascripts/jsaes.js"></script> <script src="/javascripts/sjcl.js"></script> <script src="/javascripts/sjcl-bytes.js"></script> <script src="/javascripts/encoder.js"></script> <script src="/javascripts/jquery-3.2.1.min.js"></script> <script>
     function encoder() {
         var pass = $("#pass").val();
         var convert = $("#convert").val();
@@ -54,32 +32,10 @@
     $(document).ready(function(){
         $("#encode").click(encoder);
     });
-</script>
-<div style="padding:2rem;">
-    <div style="font-size:1rem;">
-    Below you will find the mechanism used to encode my encoded webpages. This is a simple algorithm with SHA-256 hashing and AES encryption.
-    I use this very site to encode my html before hardcoding it into Javascript.
-
-    Due to ASCII limitations, the output is in JSON.
-    </div>
-
-    <br />
-
-    <textarea id="pass" rows="1" cols="25">
+</script> <div style="padding:2rem;"> <div style="font-size:1rem;"> Below you will find the mechanism used to encode my encoded webpages. This is a simple algorithm with SHA-256 hashing and AES encryption. I use this very site to encode my html before hardcoding it into Javascript. Due to ASCII limitations, the output is in JSON. </div> <br/> <textarea id=pass rows=1 cols=25>
         Password Here
-    </textarea>
-
-    <textarea id="convert" rows="4" cols="50">
+    </textarea> <textarea id=convert rows=4 cols=50>
         Input Text Here
-    </textarea>
-
-    <br />
-    <button id="encode" type="button">Encode</button>
-    <br /> <br />
-
-    <textarea id="output" rows="4" cols="50">
+    </textarea> <br/> <button id=encode type=button>Encode</button> <br/> <br/> <textarea id=output rows=4 cols=50>
     Output Goes Here
-    </textarea>
-</div>
-  </body>
-</html>
+    </textarea> </div> </body> </html>
