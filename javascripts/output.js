@@ -1,1 +1,15 @@
-var toggle=!0;$(document).ready(function(){$("body").keyup(function(g){84==g.which&&(toggle?($("img").fadeOut(),toggle=!1):($("img").fadeIn(),toggle=!0))})});
+var toggle = true;
+$(document).ready(function() {
+    $("body").keyup(function(e) {
+        if(e.which == 84){
+            if(toggle){
+                $("img").fadeOut();
+                toggle = false;
+            }
+            else{
+                $("img").fadeIn();
+                toggle = true;
+            }
+        }
+    });
+});
