@@ -27,7 +27,18 @@ function createTableOfContents() {
     var maxDisplayDepth = 4;
     // Searches through all h* but may not dispaly everything.
     var searchDepths = [1, 2, 3, 4, 5, 6];
-    var toc = $(".table-of-contents");
+
+    var toc = null;
+    if ($(window).width() < MAX_MOBILE_WIDTH) {
+        toc = $(".mid-bar-island .table-of-contents").first();
+        $(".side-bar-island .table-of-contents").hide();
+        $("#table-of-contents-header").hide();
+    }
+    else {
+        toc = $(".side-bar-island .table-of-contents").first();
+        $(".mid-bar-island").hide();
+    }
+
     toc.text("");
 
     var search = []
@@ -84,12 +95,8 @@ function createTableOfContents() {
             anime({
                 targets: elem[0],
                 opacity: [
-                    {value: 0.3, duration: 400},
+                    {value: 0.2, duration: 400},
                     {value: 1, duration: 400},
-                ],
-                backgroundColor: [
-                    {value: "#8ba8c7", duration: 800},
-                    {value: $("body").css("background-color"), duration: 0},
                 ],
                 easing: "linear"
             })
