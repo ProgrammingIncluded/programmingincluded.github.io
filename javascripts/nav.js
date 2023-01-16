@@ -24,11 +24,11 @@ function toggleOnSideBar(setOn, delay) {
 
 function createTableOfContents() {
     // Go through the article and grab each header.
-    var maxDisplayDepth = 4;
+    let maxDisplayDepth = 4;
     // Searches through all h* but may not dispaly everything.
-    var searchDepths = [1, 2, 3, 4, 5, 6];
+    let searchDepths = [1, 2, 3, 4, 5, 6];
 
-    var toc = null;
+    let toc = null;
     if ($(window).width() < MAX_MOBILE_WIDTH) {
         toc = $(".mid-bar-island .table-of-contents").first();
         $(".side-bar-island .table-of-contents").hide();
@@ -41,15 +41,15 @@ function createTableOfContents() {
 
     toc.text("");
 
-    var search = []
+    let search = []
     searchDepths.forEach((v) => {
         search.push(`.article-layout-main-body h${v}`);
     });
 
-    var typed = [];
+    let typed = [];
     $(search.join(", ")).each(function() {
-        for (var i = 0; i < searchDepths.length; ++i) {
-            var d = searchDepths[i];
+        for (let i = 0; i < searchDepths.length; ++i) {
+            let d = searchDepths[i];
             if($(this).is(`h${d}`)) {
                 typed.push([d, $(this).text(), $(this)]);
                 break;
@@ -60,36 +60,37 @@ function createTableOfContents() {
     if (typed.length == 0) {
         toc.hide();
         $("#table-of-contents-header").hide();
+        $(".mid-bar-island").hide();
         return;
     }
 
     // Normalize so that the largest depth is pursuied.
-    var min = typed.reduce((min, value) => {return Math.min(min, value[0])}, searchDepths.length + 1);
-    var subtract = min - 1;
+    let min = typed.reduce((min, value) => {return Math.min(min, value[0])}, searchDepths.length + 1);
+    let subtract = min - 1;
     typed = typed.map((e) => { return [e[0] - subtract, e[1], e[2]]; });
 
-    var context = [toc];
+    let context = [toc];
     typed.forEach((v) => {
-        var depth = v[0];
-        var text = v[1];
-        var elem = v[2];
+        let depth = v[0];
+        let text = v[1];
+        let elem = v[2];
 
         if (context.length >= depth + 1) {
             context = context.slice(0, depth + 1);
         } else if(context.length < depth + 1) {
-            var diff = depth - context.length + 1;
-            var root = null;
-            for (var i = 1; i < diff + 1; ++i) {
+            let diff = depth - context.length + 1;
+            let root = null;
+            for (let i = 1; i < diff + 1; ++i) {
                 root = context[context.length + i - 2];
-                var newDom = $("<ul>")
+                let newDom = $("<ul>")
                 root.append(newDom)
                 context.push(newDom)
             }
         }
 
-        var dom = context[depth];
-        var list = $("<li>");
-        var href = $("<a>", {text: text})
+        let dom = context[depth];
+        let list = $("<li>");
+        let href = $("<a>", {text: text})
         href.click(() => {
             elem[0].scrollIntoView();
             anime({
@@ -110,12 +111,40 @@ function createTableOfContents() {
 $(document).ready(() => {
     createTableOfContents();
 
+    let island = $(".side-bar-island");
+    // Grab location in relative
+    let origin = island.offset().top;
+
+    // Set to absolute
+    island.css({position: "fixed"})
+    let newScroll = $(document).scrollTop();
+    var animated = (newScroll > LIMIT);
+    var animating = false;
     $(window).on("scroll", () => {
-        var newScroll = $(document).scrollTop();
+        newScroll = $(document).scrollTop();
+        console.log(animating);
+
+        if (!animated && newScroll <= LIMIT) {
+            let nv = -newScroll + origin;
+            island.css({top: `${nv}px`});
+        } else if (!animating && animated && newScroll < 2) {
+            // Reset the position and state only if we hit top.
+            animated = false;
+        } else if(!animating && !animated && newScroll > LIMIT) {
+            animated = true;
+            animating = true;
+            anime({
+                targets: island[0],
+                top: origin,
+                easing: "easeOutQuad",
+                duration: 500,
+                complete: (anim) => { animating = false; }
+            });
+        }
         toggleOnSideBar(newScroll <= LIMIT, 1000);
     })
 
-    var sidebar = $(".article-layout-sidebar")
+    let sidebar = $(".article-layout-sidebar")
     sidebar.hover(
         () => {
             // Only check hover if scrolled beyond.
