@@ -1,0 +1,132 @@
+<!doctype html> <html> <head> <meta charset=utf-8> <meta http-equiv=x-ua-compatible content="ie=edge"> <meta name=viewport content="width=device-width, initial-scale=1, shrink-to-fit=no"> <title>Writing a Particle Pixel Simulator in Rust | Programming Included</title> <link href="/stylesheets/highlighting.css" rel=stylesheet /> <link href="/stylesheets/pblog.css" rel=stylesheet /> <script src="/javascripts/anime.min.js"></script> <script src="/javascripts/jquery-3.6.0.min.js"></script> <script src="/javascripts/nav.js"></script> </head> <body> <div class=top-banner-cont> <div class=top-banner-center> <br/> <br/> <a href="/" style="text-decoration: none;"> <img src="/images/site_wide/pilogo.gif" width=50rem id=pi_logo alt=""/> </a> <br/> Programming Included </div> </div> <nav class=article-layout-nav> <ul> <li><a href="/aboutme">About</a></li> <li><a href="/blog">Blog</a> </li> </ul> </nav> <div class=article-layout> <div class=article-layout-main> <div class=article_title_div> <h1 class=article_title>Writing a Particle Pixel Simulator in Rust</h1> <h2 class=article_subtitle>A Physics Particle Game</h2> <div class=article_pub> <a href="/aboutme">Charles Chen</a> | 2023-08-23 17:31 PST </div> </div> <div class=mid-bar-island> <h2> Table of Contents </h2> <div class=table-of-contents> </div> </div> <div class=article-layout-main-body> <h2 id=particlers>Particle.rs</h2> <p>Below is a simple Sand-game like Simulator game that I wrote over last weekend using Rust and <a href="https://bevyengine.org/">Bevy</a>.</p> <script type=module>
+  import init from '/javascripts/games/particlers_v1/sand_simulator.js';
+  init();
+
+  let setCanvas = () => {
+    let game = $("canvas");
+    game.detach();
+    let outDiv = $("#game");
+    outDiv.append(game);
+
+    let body = $(".article-layout-main-body");
+    let ratio = ((body.width() - 24) / 1024);
+    // Set the margin offsets
+    game.css({
+      "transform-origin": "0 0",
+      "transform": `scale(${ratio})`,
+    });
+
+    outDiv.height(game.height() * ratio);
+    outDiv.width(game.width() * ratio);
+  };
+  $(document).ready(() => {
+      setTimeout(setCanvas, 1000);
+  });
+</script> <div id=game></div> <p>Left-click to emit particles. Press <code>s</code> to emit sand and <code>w</code> to emit water. <code>r</code> to reset the grid. On mobile, hold to spawn particle. Use two fingers and tap to get change particle spawn type.</p> <h2 id=what-are-particle-based-simulator-games>What are Particle-Based Simulator Games?</h2> <h3 id=powder-game-2>Powder Game 2</h3> <p>Growing up, I remembered playing a game made from a Japanese Developer called <a href="http://dan-ball.jp/en/javagame/dust2/">Powder Game 2</a> made by Dan-Ball JP.</p> <p>In it you can spawn different types of particles that each have unique properties and would interact with one another. There are basic particles like sand that drop easily and pile up. Then there were gases that would expand and go upwards. Little me was excited to see c-4 particles interact with fire particles to produce fascinating explosions!</p> <p>Levels can be saved and shared among registered users. Even now the levels are saved and snapshotted by various users and produce some fascinating works / contraptions.</p> <p>Here is one made by Billy G. based-off a <a href="http://dan-ball.jp/en/javagame/dust2/?code=89743">Knight and Dragon</a>.</p> <div class=image-unit><img src="/images/pblog/2023/powder_game_2_dragon.png" alt="Knight and Dragon in Powder Game 2" width="100%"/><br/><i class=image-subtitle> image: Knight and Dragon in Powder Game 2</i></div> <p>The dragon's mouth have some emitters setup where fire expels from the dragon which burns the knight.</p> <p>The complexity of the engine is such that users can create tensile based materials. Here is one called <a href="http://dan-ball.jp/en/javagame/dust2/?code=55635">"Strength Block"</a> that was one of the top rated creations since 2017 made by skyk:</p> <div class=image-unit><img src="/images/pblog/2023/powder_game_2_tensil.png" alt="Tensil Cube in Powder Game 2" width="100%"/><br/><i class=image-subtitle> image: Tensil Cube in Powder Game 2</i></div> <p>Powder Game 2 really was quite an interesting type of game. Young me would attempt to build different structures like a child at a playground if said child was provided the opportunity to then ignite the sandbox with fuel and fire.</p> <h3 id=sandspiel>Sandspiel</h3> <p>Sandspiel was a project after Powder Game 2 and by the time it was released, I had not played it as a child. However, Sandspiel was worth a mention as I found it recently on their website and found the developer's journey to writing their own clone which inspired me to go on the same path.</p> <p>To my surprise, they had written the game several times and the latest edition is in Rust, one which I had also set out to pursue. I had not read their code, however, as I wanted to come in with fresh eyes and try the problem myself.</p> <p>The original creators actually wrote a <a href="https://maxbittker.com/making-sandspiel">blog post</a> and you can find their game here <a href="https://sandspiel.club/">Sandspiel</a>.</p> <h3 id=noita>Noita</h3> <p>Another honorable mention: <a href="https://store.steampowered.com/app/881100/Noita/">Noita</a> was a game produced in 2020 that is an action rogue-like with a unique twist: the world is based-off a simulated pixel environment. I bought the game during early access and have enjoyed it ever since.</p> <div class=image-unit><img src="/images/pblog/2023/noita.png" alt="Noita, every pixel is simulated" width="100%"/><br/><i class=image-subtitle> image: Noita, every pixel is simulated</i></div> <p>The game is fully of chaotic interactions and there are secrets hidden in the world. It takes the idea of simulation and procedural generation of the sand-genre to another level. There are parallel universes, secret spells, and special particle interactions waiting to discover in the world of Noita. But be warned, this game is chaotic and hard in nature!</p> <h2 id=writing-particlers>Writing Particle.rs</h2> <p>Setting out, I wanted to write in Rust to support Web-assembly and sharpen my own Rust skills. Below are some notable highlights in my implementation.</p> <h3 id=pixel-metadata>Pixel Metadata</h3> <p>Most online discussions and implementations seem to get into very lowlevel C++ struct. Given my weekend time constraint, I wanted to implement it as quickly as possible.</p> <p>I knew early on through some research, the simulator I wanted to emulate should include some physics-esque drop and slide which would make the game feel snappier. The following is what I ultimately used to encode the pixels:</p> <div class=highlight><pre class="highlight rust"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+11
+12
+13
+14
+15
+16
+17
+18
+19
+</pre></td><td class=rouge-code><pre><span class="k">enum</span> <span class="n">PixelType</span> <span class="p">{</span>
+    <span class="n">AIR</span><span class="p">,</span>
+    <span class="n">SAND</span><span class="p">,</span>
+    <span class="n">WATER</span>
+<span class="p">}</span>
+
+<span class="k">enum</span> <span class="n">PixelColor</span> <span class="p">{</span>
+    <span class="n">SANDA</span><span class="p">,</span>
+    <span class="n">SANDB</span><span class="p">,</span>
+    <span class="n">SANDC</span><span class="p">,</span>
+    <span class="n">WATER</span><span class="p">,</span>
+    <span class="n">AIR</span>
+<span class="p">}</span>
+
+<span class="k">pub</span> <span class="k">struct</span> <span class="n">PixelData</span> <span class="p">{</span>
+    <span class="n">pixel_type</span><span class="p">:</span> <span class="n">PixelType</span><span class="p">,</span>
+    <span class="n">color</span><span class="p">:</span> <span class="n">PixelColor</span><span class="p">,</span>
+    <span class="n">velocity</span><span class="p">:</span> <span class="n">Vec2</span>
+<span class="p">}</span>
+</pre></td></tr></tbody></table></code></pre></div> <p>The compactness of the struct could be tighter, however the implementation is sufficiently efficient for my use-case. Furthermore, without any chunk-ing optimizations (where we only update areas where there is movement), the game runs buttersmooth on desktop, even in the browser!</p> <h3 id=the-basic-cellular-rules>The Basic Cellular Rules</h3> <div class=image-unit><img src="/images/pblog/2023/particle_movement.png" alt="Falling particle positions" width="100%"/><br/><i class=image-subtitle> image: Falling particle positions</i></div> <p>The most basic of particle-based games is akin to a cellular automata game, starting the update loop from the bottom of the screen upwards:</p> <ul> <li>Drop particle down one tile if available (DD).</li> <li>Drop to bottom left if available (DL).</li> <li>Drop to bottom right if available (DR).</li> <li>Stop otherwise.</li> </ul> <p>Water and fluids are similar however adds two more rules to this before terminating:</p> <ul> <li>Move fluid left if left tile is available (LL).</li> <li>Move fluid right if right tile is available (RR).</li> <li>Stop otherwise.</li> </ul> <p>Notice how the movement of the particle goes from left first then right. This behavior produces a zigzag pattern where sand must first occupy and slide left-ward. We can do better.</p> <h3 id=sliding-and-updating-randomly>Sliding and Updating Randomly</h3> <p>A few updates to the rules help even out dropping behavior.</p> <ul> <li>Rather than updating particles left and then right first, we randomly select a direction to check.</li> </ul> <p>Now our hills form more naturally:</p> <div class=video-unit><video width="100%" controls=""> <source src="/videos/particlers_v1/random_drop_only.mp4" type="video/mp4" class=video-link /> </video></div> <p>However, with just the rule above, water looks a bit off.</p> <div class=video-unit><video width="100%" controls=""> <source src="/videos/particlers_v1/left_update_only.mp4" type="video/mp4" class=video-link /> </video></div> <p>Notice how water flows to the right faster than the left. In this case, the update of the board is first done on the right before the left. As a result, the water flows more naturally in one direction. It is important that the <code>global</code> update per-particle also switches from left to right and vice versa.</p> <ul> <li>Rather than to update particles from the bottom left first, we randomly select left or right updates.</li> </ul> <p>With these two updates, sand flows naturally and water updates properly.</p> <p>From this exercise, I found how to exchange for loop iterators conditionally using Rust's helper libraries:</p> <div class=highlight><pre class="highlight rust"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+</pre></td><td class=rouge-code><pre><span class="k">fn</span> <span class="nf">screen_update_iterator</span><span class="p">(</span>
+    <span class="n">rev</span><span class="p">:</span> <span class="nb">bool</span><span class="p">,</span>
+<span class="p">)</span> <span class="k">-&gt;</span> <span class="nn">itertools</span><span class="p">::</span><span class="nb">Either</span><span class="o">&lt;</span><span class="k">impl</span> <span class="nb">Iterator</span><span class="o">&lt;</span><span class="n">Item</span> <span class="o">=</span> <span class="nb">usize</span><span class="o">&gt;</span><span class="p">,</span> <span class="k">impl</span> <span class="nb">Iterator</span><span class="o">&lt;</span><span class="n">Item</span> <span class="o">=</span> <span class="nb">usize</span><span class="o">&gt;&gt;</span> <span class="p">{</span>
+    <span class="k">if</span> <span class="o">!</span><span class="n">rev</span> <span class="p">{</span>
+        <span class="nn">itertools</span><span class="p">::</span><span class="nn">Either</span><span class="p">::</span><span class="nf">Left</span><span class="p">(</span><span class="mi">0</span><span class="o">..</span><span class="n">WINDOW_SIZE</span><span class="p">)</span>
+    <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
+        <span class="nn">itertools</span><span class="p">::</span><span class="nn">Either</span><span class="p">::</span><span class="nf">Right</span><span class="p">((</span><span class="mi">0</span><span class="o">..</span><span class="n">WINDOW_SIZE</span><span class="p">)</span><span class="nf">.rev</span><span class="p">())</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+</pre></td></tr></tbody></table></code></pre></div> <p>This iterator returns an <code>Either</code> type. A special <code>Either</code> is necessary here as Rust treats <code>0..WINDOW_SIZE.rev()</code> as a separate type than <code>0..WINDOW_SIZE</code>. The reason for this is how <code>traits</code> are not concrete types and <code>Iterators</code> are traits. You can find more information <a href="https://users.rust-lang.org/t/beginner-using-rev-with-a-range/29337/4">here</a>.</p> <h3 id=simulating-acceleration>Simulating Acceleration</h3> <p>To make things snappier, each pixel is provided with a velocity component to track acceleration.</p> <ul> <li>Add a velocity to each particle and update velocity for each move.</li> </ul> <p>The velocity idea was based-off a video I found on <a href="https://www.youtube.com/watch?v=VLZjd_Y1gJ8">Youtube</a>. Once again, I didn't look at any source code but took the concepts and ran with it.</p> <div class=image-unit><img src="/images/pblog/2023/sand_diagonal.png" alt="Diagonal Movement of a Particle" width="100%"/><br/><i class=image-subtitle> image: Diagonal Movement of a Particle</i></div> <p>Once velocity is introduced, a particle can travel more than one tile per tick. Similar to the above video, we performance basic linear-collision path tracing to check if a particle could move among the tiles. If so, move the tiles, otherwise, stop at the collision point. Velocity is removed if collision occurs otherwise velocity is compounded for the next frame.</p> <p>This idea seems simple on paper but bugs took a while to iron out. Here's one during development:</p> <div class=video-unit><video width="100%" controls=""> <source src="/videos/particlers_v1/weird_sand_bug.mp4" type="video/mp4" class=video-link /> </video></div> <p>With some fine-tweaking:</p> <ul> <li>Slow slide rate and fast fall for sand.</li> <li>High slide rate and fast fall for water</li> <li>Preserve x-axis velocity when transitioning from fall to slide rules.</li> </ul> <p>Emergent behavior begins to appear. The sand in my implementation seems to be with a certain delay that I really find to be soothing, similar to real sand. Sand would often slide at the bottom first moving along large chunks above. The behavior emerges as sand has a high slide friction with fast drop-rate.</p> <p>Water has low slide-friction and high drop-rate. This meant that water can easily fly farther away from the source and ends up producing particle-like droplets.</p> <div class=video-unit><video width="100%" controls=""> <source src="/videos/particlers_v1/sand_done.mp4" type="video/mp4" class=video-link /> </video></div> <p>Here's a snippet of the code on how linear movement is calculated per pixel:</p> <div class=highlight><pre class="highlight rust"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
+2
+3
+4
+5
+6
+7
+8
+9
+10
+</pre></td><td class=rouge-code><pre><span class="k">let</span> <span class="n">m</span><span class="p">:</span> <span class="nb">f32</span> <span class="o">=</span> <span class="n">velocity</span><span class="py">.y</span> <span class="o">/</span> <span class="n">velocity</span><span class="py">.x</span><span class="p">;</span>
+<span class="k">let</span> <span class="n">b</span><span class="p">:</span> <span class="nb">f32</span> <span class="o">=</span> <span class="n">src_y</span> <span class="k">as</span> <span class="nb">f32</span> <span class="o">-</span> <span class="p">(</span><span class="n">m</span> <span class="o">*</span> <span class="n">src_x</span> <span class="k">as</span> <span class="nb">f32</span><span class="p">);</span>
+
+<span class="k">let</span> <span class="k">mut</span> <span class="n">start_x</span><span class="p">:</span> <span class="nb">usize</span> <span class="o">=</span> <span class="n">src_x</span><span class="p">;</span>
+<span class="k">let</span> <span class="k">mut</span> <span class="n">start_y</span><span class="p">:</span> <span class="nb">usize</span> <span class="o">=</span> <span class="n">src_y</span><span class="p">;</span>
+
+<span class="k">let</span> <span class="n">dest_x</span><span class="p">:</span> <span class="nb">i32</span> <span class="o">=</span> <span class="n">velocity</span><span class="py">.x</span><span class="nf">.abs</span><span class="p">()</span> <span class="k">as</span> <span class="nb">i32</span> <span class="o">+</span> <span class="mi">1</span><span class="p">;</span>
+<span class="k">for</span> <span class="n">dx</span> <span class="k">in</span> <span class="mi">1</span><span class="o">..</span><span class="p">(</span><span class="n">dest_x</span><span class="nf">.abs</span><span class="p">())</span> <span class="p">{</span>
+  <span class="c1">// We use m * dx + b to check all paths.</span>
+<span class="p">}</span>
+</pre></td></tr></tbody></table></code></pre></div> <p>Most of the code is basic derivation of a linear equation and then checking each position of a quantized x input. Further optimizations can be done here using linear equations though the optimizations may be little compared to chunking algorithms.</p> <h2 id=takeaways>Takeaways</h2> <p>Overall, the project was a fun weekend excursion. I've picked up a few Rust tricks like conditional iterators as well as apply basic linear equations on a discrete space. I am hoping to continue to iterate on this project in the future and seeing if I can add more features to it. Once more, Rust has demonstrated the agile development cycles and the ability to use WASM, its portability.</p> <p>There are lots of things I wish to explore in this implementation however I ran out of time. Things like chunking (the reduction of rows to update to the top most rows of a particle body) as well as explosion dynamics. Perhaps we will leave this for next time.</p> </div> </div> <div class=article-layout-sidebar> <div class=side-bar-island> <h2 id=table-of-contents-header> Table of Contents </h2> <div class=table-of-contents> Ruh-roh. Looks like something went wrong :( <br/> </div> <h2> Related Articles </h2> <div class=related-articles> <br/> <ul> <li> <a href="/blog/content/2023/01/18/rust-vs-cpp/">Rust vs Modern C++ Part 1</a> </li> <li> <a href="/blog/content/2021/11/14/lunarequinox/">Things I've Learned Making&#58; Lunar=Nox</a> </li> <li> <a href="/blog/content/2019/12/29/raspberryconway/">Raspberry's Game of Life</a> </li> </ul> </div> </div> </div> <div class=comments_section> <div id=disqus_thread></div> <script>
+//<![CDATA[
+                  var disqus_shortname = 'programmingincluded';
+          
+    (function() {
+        var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
+        dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
+        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
+    })();
+//]]>
+</script> <noscript>Please enable JavaScript to view the <a href='http://disqus.com/?ref_noscript'>comments powered by Disqus.</a></noscript> <a href='http://disqus.com' class=dsq-brlink>comments powered by <span class=logo-disqus>Disqus</span></a> <script>
+//<![CDATA[
+    var disqus_shortname = 'programmingincluded';
+    (function () {
+        var s = document.createElement('script'); s.async = true;
+        s.type = 'text/javascript';
+        s.src = '//' + disqus_shortname + '.disqus.com/count.js';
+        (document.getElementsByTagName('HEAD')[0] || document.getElementsByTagName('BODY')[0]).appendChild(s);
+    }());
+//]]>
+</script> </div> </div> <script type="text/javascript">
+if (typeof gaJsHost == 'undefined') {
+  var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
+  document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+}
+</script>
+<script type="text/javascript">
+try {
+var pageTracker = _gat._getTracker("UA-108057296-1");
+pageTracker._trackPageview();
+} catch(err) {}</script>
+</body> </html>
