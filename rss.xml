@@ -1,4 +1,340 @@
-<?xml version="1.0" encoding="UTF-8"?><rss xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom" version="2.0"><channel><title><![CDATA[ProgrammingIncluded]]></title><description><![CDATA[ProgrammingIncluded]]></description><link>https://programmingincluded.com/</link><generator>metalsmith-feed</generator><lastBuildDate>Mon, 17 Feb 2025 05:30:41 GMT</lastBuildDate><atom:link href="https://programmingincluded.com/rss.xml" rel="self" type="application/rss+xml"/><author><![CDATA[Charles H. Chen]]></author><item><title><![CDATA[Writing a Particle Pixel Simulator in Rust]]></title><description><![CDATA[<!doctype html>
+<?xml version="1.0" encoding="UTF-8"?><rss xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom" version="2.0"><channel><title><![CDATA[ProgrammingIncluded]]></title><description><![CDATA[ProgrammingIncluded]]></description><link>https://programmingincluded.com/</link><generator>metalsmith-feed</generator><lastBuildDate>Mon, 17 Feb 2025 09:35:02 GMT</lastBuildDate><atom:link href="https://programmingincluded.com/rss.xml" rel="self" type="application/rss+xml"/><author><![CDATA[Charles H. Chen]]></author><item><title><![CDATA[Blog v1&#58; From Ruby to NodeJS]]></title><description><![CDATA[<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark-reasonable.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script>hljs.highlightAll();</script>
+
+    <title>
+      Blog v1&#58; From Ruby to NodeJS
+    </title>
+
+    <link type="text/css" rel="stylesheet" href="/stylesheets/pblog.css">
+
+    <script src="/javascripts/anime.min.js"></script>
+    <script src="/javascripts/jquery-3.6.0.min.js"></script>
+    <script src="/javascripts/nav.js"></script>
+  </head>
+  <body>
+    <div class="top-banner-cont">
+        <div class="top-banner-center">
+            <br />
+            <br />
+            <a href="/" style="text-decoration: none;">
+                <image src="/images/site_wide/pilogo.gif" id="pi_logo" />
+            </a>
+            <br />
+            ProgrammingIncluded
+    
+        <div id="connection-icons">
+            <a href="https://www.linkedin.com/in/chencharlesh/" style="text-decoration: none;">
+                <image src="/images/site_wide/icons8-linked-in-48.png" id="linkedin_logo" />
+            </a>
+            <a href="/rss.xml" style="text-decoration: none;">
+                <image src="/images/site_wide/icons8-rss-48.png" id="rss_logo" />
+            </a>
+        </div>
+        </div>
+    </div>
+    
+    <nav class="article-layout-nav">
+        <ul>
+        <li><a href="/aboutme">About</a></li>
+        <li><a href="/blog">Blog</a></li>
+        </ul>
+    </nav>
+
+    <div class="article-layout">
+      <div class="article-layout-main">
+        <div class="article_title_div">
+
+          <h1 class="article_title">Blog v1&#58; From Ruby to NodeJS</h1>
+
+          <h2 class="article_subtitle">A Journey from Middleman to Metalsmith and What I Learned</h2>
+
+          <div class="article_pub">
+            <a href="/aboutme">Charles Chen</a> |
+            Sun 2025-02-16 07:53 PM GMT-8
+          </div>
+
+        </div>
+
+        <div class="mid-bar-island">
+          <h2> Table of Contents </h2>
+          <div class="table-of-contents">
+          </div>
+        </div>
+
+        <div class="article-layout-main-body">
+          <p>By the time you read this post, my website should now be built using a new backend, <a href="https://metalsmith.io/">MetalSmith</a> written in Javascript.</p>
+<p>Did you know what this website was first written using Ruby using <a href="https://middlemanapp.com/basics/install/">Middleman</a>?
+I was just starting to learn web design when I created the website. Having now been 5 years in the fast-paced tech industry, my tastes and preferences have changed.</p>
+<p>It's been almost 1.5 years since my last post and I hope with the recent additons to the website, I can focus more on the synthesis of blogs.
+Why not kick start the month with a rewrite of the website's static site generator? I hope to highlight a few fun technological things as well as factors for my I
+chose the tools that I did.</p>
+<h2>A Historical Recap</h2>
+<p>Looking at my commits, this website has come a long way, here is some timeline:</p>
+<h3>2017: The Website that was Birthed in a College Dorm</h3>
+<p>At this stage, the website was a glorified <code>about me</code> page with a small blog section. Raw HTML posts with Middleman were my method of posting, writing was a chore as I had to write every new break line.
+Technically the backend was written with <code>.html.erb</code> files which were server-based HTML files that are compiled. Similar to PHP side-html files.</p>
+<p><strong>Why Middleman?</strong></p>
+<ul>
+<li>Easy generation of blog-like sites by supporting html to pagination.</li>
+<li>Auto generation of url's without <code>index.html</code>.</li>
+<li>Plugins allowed for easy image and recommendation optimizations.</li>
+<li><code>sass</code> support which isa more-powerful <code>css</code> variant at the time.</li>
+</ul>
+<p>I remember these features as being revolutionary at the time but things have changed a lot since then, especially with libraries from <code>sass</code> now that <code>css</code> supports more features.
+Libraries like <code>bourbon</code> was revolutionary at the time allowing for creation of grid-boxes making dynamic websites for mobile easier.
+But these tools have largely been <a href="https://thoughtbot.com/blog/you-might-not-need-bourbon">uneeded now</a> with modern <code>css</code>.</p>
+<p>I barely knew Ruby and had some projects in PHP + HTML/CSS. HTML5 was still a stranger to me
+and the idea of NodeJS and Javascript was still foreign to me. I knew I wanted a portfolio website but didn't know what to make of it.</p>
+<p>Little did I know most of my skills I learn here would help protoype my <a href="/pdf/Improv-live-coding-in-slide-presentations_LAS-2019.pdf">thesis project</a>.</p>
+<p>I had posted a <a href="/blog/content/2017/09/08/starting/">blog update</a> to kick start this site.</p>
+<h3>2018: New Aesthetic Changes, adding Disqus, and Ruby Helpers.</h3>
+<p>By this stage, I had added a couple of plugins of Disqus and then a few Ruby helpers. I knew that I wanted to add more features and abilities and so started adding additional
+helpers so that I can modify HTML constructs as need-be.</p>
+<p>Here are a few helpers I would define under <code>config.rb</code> for my <code>Middleman</code> instance:</p>
+<pre><code class="language-ruby"># For use on header generations so that line headers were more apparent.
+def ast(title_name)
+  return '&lt;h2 class=&quot;ast&quot;&gt;' + title_name + '&lt;/h2&gt;'
+end
+
+# Article subsection title
+def asst(title_name)
+  return '&lt;h3 class=&quot;asst&quot;&gt;' + title_name + '&lt;/h3&gt;'
+end
+
+# Defining helpers for easy of rendering HTML using Ruby `.erb` files.
+def pimage(src, params={}, &amp;block)
+  defaults = {alt: &quot;&quot;, link: &quot;&quot;, width: &quot;100%&quot;}
+  params = defaults.update(params)
+
+  final_str = image_tag(src, alt: params[:alt], width: params[:width])
+  unless params[:link].empty?
+    final_str = '&lt;a href=&quot;' + params[:link] + '&quot; class=&quot;image-link&quot;&gt;' + final_str + '&lt;/a&gt;'
+  end
+
+  unless params[:alt].empty?
+    final_str += '&lt;br /&gt;&lt;i class=&quot;image-subtitle&quot;&gt; image: ' + params[:alt] + '&lt;/i&gt;'
+  end
+
+  if block_given?
+    custom_append = block.call final_str
+    return CGI.unescapeHTML('&lt;div class=&quot;image-unit&quot;&gt;' + custom_append + '&lt;/div&gt;')
+  end
+    return CGI.unescapeHTML('&lt;div class=&quot;image-unit&quot;&gt;' + final_str + '&lt;/div&gt;')
+end
+</code></pre>
+<p>Ruby allowed these helpers during the processing phase and added additional flexibility, here is one from the <a href="/blog/content/2021/11/14/lunarequinox/">Lunar=Nox post</a>:</p>
+<pre><code class="language-ruby">&lt;%= pimage &quot;pblog/2021/equinox_thumbnail.png&quot;, link: &quot;https://programmingincluded.itch.io/lunarequinox&quot; do
+    |img_html|
+        + img_html \
+        + '&lt;br /&gt; &lt;i class=&quot;image-subtitle&quot;&gt; image: Game Jam 2020 Submission! ' \
+        + 'You can find the game' \
+        + '&lt;a href=&quot;https://programmingincluded.itch.io/lunarequinox&quot;&gt; here &lt;/a&gt;&lt;/i&gt;'
+    end %&gt;
+</code></pre>
+<p>This change allowed me not only to render the image with custom link, but also to inject a custom subtitle with link support.
+With Ruby, the ability to create helpers and the wrap it in a compile-side language was powerful and useful in edge-cases.</p>
+<p>Ruby showed its strength with its strong out-of-the-box support of plugins such as Disqus but also allowed for powerful helper constructs.
+I wouldn't recommend doing this now as I think this greatly complicates the render pipeline, however when everything was compile-side <code>*.html.erb</code> it was fairly easy to implement.</p>
+<h3>2019: Better Listing of Articles</h3>
+<p>Around 2019, after my work with a Javascript <code>Electron</code> based project for my paper, <a href="/pdf/Improv-live-coding-in-slide-presentations_LAS-2019.pdf">Improv</a>. My CSS and Javascript skills grew significantly and I took the time
+to flush out the blog index page tapping more into the Ruby ecosystem.</p>
+<div class="image-unit"><image src="/images/pblog/2025/index-snapshot-2025-2.png" width="100%" alt="Index page, the blue used to be red." target="blank" /><br /><i class="image-subtitle"> image: Index page, the blue used to be red.</i></div>
+<p>The index page we see today with the cards and category render on the top-right hand side was more-or-less the same since then.</p>
+<h3>2021: Ruby Upgrades and Middleman Upgrades</h3>
+<p>Around this time, the Ruby version I used was becoming hard to procure and install on Windows. So I updated my Ruby version and upgraded Middleman.
+This broke a few of my plugins and forced me fork a few plugins. Vital plugins such as the one used to create my related articles section began breaking as some of them were tied to custom Windows build binaries
+that were no longer supported.</p>
+<p>At this point they were minor inconveniences, perhaps standard to software maintenance. The idea of a rewrite began to brew in my mind however.</p>
+<h3>2023: Dynamic Table of Contents and Signs of Age</h3>
+<p>A time-skip happened as I started working at Nvidia. The first few years were quite busy so I only focused on writing a couple of articles.
+But in the process that year, I decided to add a dynamic side-bar after noticing them appear throughout the tech landscape.</p>
+<p>Around this time, I also supported <code>markdown</code> rendering on the render pipeline. So my files became <code>.html.md.erb</code>.</p>
+<div class="image-unit"><image src="/images/pblog/2025/sidebar-snapshot-2025-2.png" width="100%" alt="Client side table of contents." target="blank" /><br /><i class="image-subtitle"> image: Client side table of contents.</i></div>
+<p>The sidebar was entirely written with <code>JQuery</code> and otherwise vanilla Javascript. I am sure there are probably libraries out there now but this was written partly as a way for me to learn.
+I needed a client-side way to render TOC and at the time my backend was in Ruby still so it was not immediately clear to me the way to go.</p>
+<h4>Painful Build Troubles</h4>
+<p>It was around this time I ran into lots of build troubles that had accumulated over the years:</p>
+<ul>
+<li>I created a custom docker image to stabilize my Ruby version.</li>
+<li>My recommendation plugin started breaking as the plugin was no longer maintained.
+<ul>
+<li>I had to create a custom fork.</li>
+</ul>
+</li>
+<li>Middleman rendering started breaking for some of my exotic files because the checksum check was broken.
+<ul>
+<li>I believe one of my plugins had miss interpreted a few files if a certain keyword appeared causing checksum errors.</li>
+</ul>
+</li>
+<li>A <code>build.py</code> was introduced so that I would work around the problem by skipping broken checksum files and then injecting them to the payload.</li>
+</ul>
+<p>I started to consider a rewrite in the world of <code>NodeJs</code> and came across <code>Metalsmith</code>.
+This rewrite would start in 2023, but I wouldn't come back to it until 2025... as I started becoming busy once more.</p>
+<h3>2025: Brand New Backend: Metalsmith</h3>
+<p>In 2023, I had chosen <code>Metalsmith</code> and had started a <code>feat-v2</code> branch with a basic render pipeline setup. But it wasn't a couple days ago did I start seriously
+looking into the ecosystem and hooking up the framework. It took about 16 hours of continuous porting between 2 years ago me and now to finally finish the port.</p>
+<p>But what led me to choose <code>Metalsmith</code> and why <code>NodeJS</code>? I want to dedicate the rest of the article on this topic as well as highlight a few neat features.</p>
+<h2>Why Metalsmith?</h2>
+<p>After almost 8 years of maintaining the website, I've developed a list of things I wanted to support or have learned.</p>
+<h3>NodeJS Meant Options</h3>
+<p>For me <code>NodeJS</code> became my go-to web development language. Over the years I had worked with <a href="https://www.meteor.com/">meteor</a> for my thesis project, <a href="https://browserify.org/">browserify</a> for the frontend, as well as <a href="https://angular.dev/">Angular</a>.
+With recent experience with <a href="https://vite.dev/">vite.js</a> it only solidified my preference in <code>NodeJS</code>. These are just the <code>NodeJs</code> frameworks, I had also learned <code>Laravel</code> pre-2020 days. All these various frameworks made me realize the surprising amount of options available,
+each with slightly different ways of doing things.</p>
+<p>At somepoint, I had toyed with writing my own backend framework with <code>Handlebars</code> and <code>webpack</code> though I had forgotten what I was using it for. Regardless, these skills proved useful as almost every framework can be reduced down to a few components:</p>
+<ul>
+<li>Backend templating engine for rendering and compiling down to html deliverables.</li>
+<li>Frontend Javascript package which allows for interactive UI elements.</li>
+<li>Live Web Debugging which allows for fast development cycles.</li>
+<li>Good logging for large server projects.</li>
+</ul>
+<p>If you have these few components set, it makes things a lot easier to maintain. What <code>NodeJs</code> provided were options along each of these pillars in making a good web language.</p>
+<blockquote>
+<p>To me, NodeJs meant the ability to customize every step of the web pipeline.</p>
+</blockquote>
+<p>Ruby (more specifically Ruby on Rails) felt revolutionary at the time, introduce <code>Gem.lock</code> files and template rendering when compared to alternatives such as <code>PHP</code> at the time. However, much of what <code>ROR</code> offerred could be found in <code>NodeJs</code> ecosystem.
+<code>ROR</code> in comparison felt much more rigid albeit faster in prototyping.</p>
+<h4>What About Other Languages?</h4>
+<p>I had considered Rust as a potential but the ecosystem still feels too young. <code>NodeJs</code> seems to me equally if not more flexible ecosystem compared to <code>ROR</code>.</p>
+<p>As a result, I ended up looking into the <code>NodeJs</code> ecosystem for a good static site generator.</p>
+<h3>Easily Extensible</h3>
+<p>I needed a framework that wasn't too rigid. There were some framework where it only accepted <code>Markdown</code> and generated a very standard site. However, I wanted something more customizable and something I can dissect in case I ever I need
+to in house a plugin for easy maintenance.</p>
+<p>At its core, <code>Metalsmith</code> is about extensbility and is not very vocal about how things should be structured. Instead it provides concepts of out the box:</p>
+<ul>
+<li>Virtual Files and Metadata</li>
+<li>Plugins</li>
+<li>Queriable Regex for Selecting Files</li>
+</ul>
+<p>A pipeline composes of plugins and transformations of a virtual file system represented by a single dictionary.</p>
+<p>Each file from a folder is given an object with content and metadata encoded. Each <code>plugin</code> introduced would transform and operate on this list of files:</p>
+<pre><code class="language-javascript">let files = {
+  &quot;path_to_file.html&quot;: {metadata_1: &quot;&quot;, content: &quot;&quot;},
+  &quot;folder/naother.html&quot;: {metadata_1: &quot;&quot;, content: &quot;&quot;}
+}
+
+// Modifying the render pipeline is as simple as modifying the dictionary and path:
+files[&quot;new_file.html&quot;] = {...}
+</code></pre>
+<p>The pipeline for <code>Metalsmith</code> effectively becomes a chain of functions each mutating the dicionary.</p>
+<pre><code class="language-javascript">let plugin = (files, metalsmith) =&gt; {
+  // mutate `files` or read meta-metadata from `metalsmith`.
+}
+</code></pre>
+<p>Here is what a basic config file looks like:</p>
+<pre><code class="language-javascript">// Read markdown files from source recursively and output html files in build folder.
+let ms = Metalsmith(&quot;working_directory&quot;)
+  .source('./source')
+  .destination('./build')
+  .use(inPlace({transform: &quot;markdown-it&quot;}))
+  .build()
+</code></pre>
+<p>Any plugin becomes a file signature of <code>(files, metalsmith)</code> which makes it easy to onboard.
+As of the time of this writing, most features supported out-of-the-box by many static site-generators are instead packaged as plugins. Furthermore, many of these plugins use <code>NodeJS</code> libraries under-the-hood.</p>
+<p>Examples like:</p>
+<ul>
+<li><code>metalsmith/collections</code> which groups files, sorts them, and indexes them then exposes them as metadata.</li>
+<li><code>metalsmith/layouts</code> uses tried and true <a href="https://handlebarsjs.com/">handlebars.js</a> to render re-usable side-wide templates.</li>
+</ul>
+<p>These are plugins maintained by the official devs which makes it easier to onboard too.</p>
+<h3>Support a Simple and Stable Content Encoding</h3>
+<p>Since 2017, <code>Markdown</code> has gained significantly popularity both in documentation as well as blog-like frameworks. Having made the switch to <code>Markdown</code> in <code>Middleman</code> at somepoint,
+I knew at that point that writing in <code>Markdown</code> was the way to go for me, specifically <code>Markdown</code> with custom HTML support. That way I can focus on the content and media generation rather
+than wrap my head around how the HTML will render.</p>
+<p>With <code>Metalsmith</code> this was achievable with a simple plugin: <code>metalsmith-inplace</code> which renders your documents in-place using <a href="https://github.com/jstransformers/jstransformer"><code>jstransformer</code></a> libraries.
+For my AI friends, <code>jstransformer</code> is not about transformers in neural network architecture but rather it is a library for standardizing well known language compilers in Javascript into a single interface.</p>
+<pre><code class="language-javascript">import inPlace from '@metalsmith/in-place'
+
+// It is as easy as three lines of code!
+Metalsmith(&quot;working_dir&quot;)
+  .use(inPlace({transform: &quot;markdown-it&quot;, engineOptions: {html: true}}))
+  .build()
+</code></pre>
+<h3>Template and Compile-Time Rendering</h3>
+<p>To make porting easy and also powerful, I knew I needed something that would support templating. As mentioned above, <code>metalsmith/layouts</code> would support what I needed.
+Most of my code was not compatible with <code>css</code> however and I needed a <code>sass</code> backend, thankfully there was <code>metalsmith/sass</code> package.</p>
+<p>This was what sealed the deal for me, the <code>sass</code> support as I needed a way to port easily. The <code>sass</code> work was done around 2023, it took sometime to remove outdated dependencies and move most into pure <code>sass</code> and <code>flex-grid</code> implementations.</p>
+<p>Another familiar addition was <code>handlebars.js</code> support. Now my files can be rendered using the extension <code>.html.md.hbs</code> which correlates well with my old workflow.</p>
+<h2>Happily Ever After?</h2>
+<p><code>Metalsmith</code> did have its limitations. When I first looked into <code>Metalsmith</code>, the project was about 2.5 years old, with the first official build in 2020. Coming into 2025, the project is now 5 years old, however it is still well maintained.
+Some 3rd party plugins, however, saw little action and some of them consolidated to <a href="https://github.com/emmercm/metalsmith-plugins/tree/main/packages/metalsmith-collections-related">large repos</a>.
+But even then, the repos had little or few issues. Perhaps it is because the framework wasn't as popular, the plugins not as well used, or just well written?</p>
+<p>The core plugins and core project do not have this issue however. Furthermore, most of the plugins I used worked well probably thanks to how the project incentivizes small plugins.</p>
+<h3>Lots of Plugins Meant Some Didn't Work</h3>
+<p>That being said, some were hard to wrangle and utilize. Certain plugins I had hoped to rely-upon did not work well with my setup such as <code>metalsmith-collections-related</code> which had trouble in Windows as it requires
+a C++ build internally probably for the tokenization of articles.</p>
+<p>I ended up folding my own pipeline for recommenders using a simple tag-based system for now. That's for another article!</p>
+<h3>Lots of Plugins Meant Steeper Learning Curve</h3>
+<p>Another one was the long onboarding. When multiple plugins are involved, order of registration of plugins become important.
+I had an issue with how my <code>collections</code> were rendering URLs because I had modified my URLs using a custom pipeline render to parse my specialized naming scheme.
+But I couldn't just wait until after my custom rename plugin because of how my in-place and layout renders dependended on the collection's metadata.</p>
+<p>I ended up having to write my own work-around post-collections pipeline to fix the URL after reading the code on how the <code>collections</code> plugin stored its metadata.
+Now it may seem a bit hard, but to me, because of how transparent and short the plugins are, it did not take me more than an hour to implement a solution.</p>
+<p>To get to where I am today, I read through the plugin writing doc in its entirety to fully grasp how <code>Metalsmith</code> worked. After that reading, everything fit like a puzzle piece.
+I eneded up writing a pipeline to support how the website was generated from <code>Middleman</code>:</p>
+<ul>
+<li>Related blogs pipeline</li>
+<li>Custom blogs file path transformation.</li>
+<li>Register my own partials for <code>Handlebars.js</code></li>
+<li>Register my own helpers for <code>Handlebars.js</code> using <code>handlebars-helpers</code></li>
+</ul>
+<h2>Where to go from Here?</h2>
+<p>As it stands, most of the features of my old workflow has been ported over except for <code>Disqus</code> which I decided to deprecate given the lack of usage. I can render just like before using <code>helpers</code>:</p>
+<pre><code class="language-markdown">## Markdown Works!
+{{pimage &quot;custom_image&quot; alt-&quot;custom text&quot;}}
+
+All my workflow now exists in Markdown and added html supported if need-be.
+</code></pre>
+<p>Using <code>handlebars.js</code> I can register almost any function if not already supported by <code>handlebars-helpers</code> which expedite the flow.</p>
+<p>I hope this workflow will last me a few years until some dependency chain breaks and I am forced to dockerize yet again. But hopefully by then, Rust will grow mature enough for me to use it as a static website generator.
+I am already familiar with <code>Zola</code> however found it too rigid for my tastes.</p>
+<p>Perhaps Rust will eventually provide plenty of tools to mix and match my webstack just like <code>NodeJs</code> one day?
+Perhaps WebAssembly will replace Javascript? Perhaps.</p>
+
+        </div>
+      </div>
+
+      <div class="article-layout-sidebar">
+        <div class="side-bar-island">
+            <h2 id="table-of-contents-header"> Table of Contents </h2>
+            <div class="table-of-contents">
+                Ruh-roh. Looks like something went wrong :(
+                <br />
+            </div>
+        
+            <h2> Related Articles </h2>
+            <div class="related-articles">
+                <br />
+                        <ul>
+                            <li> 
+                            <a href="/blog\content\2018\01\04\blog-v0-2-improving-the-user-experience">Blog v0.2&#58; Improving the Blog Reading User Experience</a>
+                            </li>
+                        </ul>
+                        <ul>
+                            <li> 
+                            <a href="/blog\content\2017\09\08\starting">Blog v0.1&#58; Starting a New Blog</a>
+                            </li>
+                        </ul>
+                        <ul>
+                            <li> 
+                            <a href="/blog\content\2017\09\08\on-the-site-logo">On the Site Logo</a>
+                            </li>
+                        </ul>
+            </div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
+]]></description><link>https://programmingincluded.com/blog/content/2025/02/16/metalsmith-upgrade</link><guid isPermaLink="true">https://programmingincluded.com/blog/content/2025/02/16/metalsmith-upgrade</guid><dc:creator><![CDATA[Charles Chen]]></dc:creator><pubDate>Mon, 17 Feb 2025 03:53:00 GMT</pubDate></item><item><title><![CDATA[Writing a Particle Pixel Simulator in Rust]]></title><description><![CDATA[<!doctype html>
 <html>
   <head>
     <meta charset="utf-8">
@@ -1426,6 +1762,11 @@ Until next time! Looking forward to continuous updates in the future.</p>
                 <br />
                         <ul>
                             <li> 
+                            <a href="/blog\content\2025\02\16\metalsmith-upgrade">Blog v1&#58; From Ruby to NodeJS</a>
+                            </li>
+                        </ul>
+                        <ul>
+                            <li> 
                             <a href="/blog\content\2017\09\08\starting">Blog v0.1&#58; Starting a New Blog</a>
                             </li>
                         </ul>
@@ -2129,6 +2470,11 @@ While the I stores the difference between the first and second frames. This is G
                 <br />
                         <ul>
                             <li> 
+                            <a href="/blog\content\2025\02\16\metalsmith-upgrade">Blog v1&#58; From Ruby to NodeJS</a>
+                            </li>
+                        </ul>
+                        <ul>
+                            <li> 
                             <a href="/blog\content\2018\01\04\blog-v0-2-improving-the-user-experience">Blog v0.2&#58; Improving the Blog Reading User Experience</a>
                             </li>
                         </ul>
@@ -2239,6 +2585,11 @@ Which will be linked... eventually. Only big updates will have blog posts to sho
             <h2> Related Articles </h2>
             <div class="related-articles">
                 <br />
+                        <ul>
+                            <li> 
+                            <a href="/blog\content\2025\02\16\metalsmith-upgrade">Blog v1&#58; From Ruby to NodeJS</a>
+                            </li>
+                        </ul>
                         <ul>
                             <li> 
                             <a href="/blog\content\2018\01\04\blog-v0-2-improving-the-user-experience">Blog v0.2&#58; Improving the Blog Reading User Experience</a>
