@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?><rss xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom" version="2.0"><channel><title><![CDATA[ProgrammingIncluded]]></title><description><![CDATA[ProgrammingIncluded]]></description><link>https://programmingincluded.com/</link><generator>metalsmith-feed</generator><lastBuildDate>Mon, 17 Feb 2025 04:49:24 GMT</lastBuildDate><atom:link href="https://programmingincluded.com/rss.xml" rel="self" type="application/rss+xml"/><author><![CDATA[Charles H. Chen]]></author><item><title><![CDATA[Writing a Particle Pixel Simulator in Rust]]></title><description><![CDATA[<!doctype html>
+<?xml version="1.0" encoding="UTF-8"?><rss xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom" version="2.0"><channel><title><![CDATA[ProgrammingIncluded]]></title><description><![CDATA[ProgrammingIncluded]]></description><link>https://programmingincluded.com/</link><generator>metalsmith-feed</generator><lastBuildDate>Mon, 17 Feb 2025 05:30:41 GMT</lastBuildDate><atom:link href="https://programmingincluded.com/rss.xml" rel="self" type="application/rss+xml"/><author><![CDATA[Charles H. Chen]]></author><item><title><![CDATA[Writing a Particle Pixel Simulator in Rust]]></title><description><![CDATA[<!doctype html>
 <html>
   <head>
     <meta charset="utf-8">
@@ -26,12 +26,22 @@
             <br />
             <br />
             <a href="/" style="text-decoration: none;">
-                <image src="/images/site_wide/pilogo.gif" width="50rem" id="pi_logo" />
+                <image src="/images/site_wide/pilogo.gif" id="pi_logo" />
             </a>
-             <br />
-            Programming Included
+            <br />
+            ProgrammingIncluded
+    
+        <div id="connection-icons">
+            <a href="https://www.linkedin.com/in/chencharlesh/" style="text-decoration: none;">
+                <image src="/images/site_wide/icons8-linked-in-48.png" id="linkedin_logo" />
+            </a>
+            <a href="/rss.xml" style="text-decoration: none;">
+                <image src="/images/site_wide/icons8-rss-48.png" id="rss_logo" />
+            </a>
+        </div>
         </div>
     </div>
+    
     <nav class="article-layout-nav">
         <ul>
         <li><a href="/aboutme">About</a></li>
@@ -299,12 +309,22 @@ of a particle body) as well as explosion dynamics. Perhaps we will leave this fo
             <br />
             <br />
             <a href="/" style="text-decoration: none;">
-                <image src="/images/site_wide/pilogo.gif" width="50rem" id="pi_logo" />
+                <image src="/images/site_wide/pilogo.gif" id="pi_logo" />
             </a>
-             <br />
-            Programming Included
+            <br />
+            ProgrammingIncluded
+    
+        <div id="connection-icons">
+            <a href="https://www.linkedin.com/in/chencharlesh/" style="text-decoration: none;">
+                <image src="/images/site_wide/icons8-linked-in-48.png" id="linkedin_logo" />
+            </a>
+            <a href="/rss.xml" style="text-decoration: none;">
+                <image src="/images/site_wide/icons8-rss-48.png" id="rss_logo" />
+            </a>
+        </div>
         </div>
     </div>
+    
     <nav class="article-layout-nav">
         <ul>
         <li><a href="/aboutme">About</a></li>
@@ -812,12 +832,22 @@ the borrw checker section of our article.</p>
             <br />
             <br />
             <a href="/" style="text-decoration: none;">
-                <image src="/images/site_wide/pilogo.gif" width="50rem" id="pi_logo" />
+                <image src="/images/site_wide/pilogo.gif" id="pi_logo" />
             </a>
-             <br />
-            Programming Included
+            <br />
+            ProgrammingIncluded
+    
+        <div id="connection-icons">
+            <a href="https://www.linkedin.com/in/chencharlesh/" style="text-decoration: none;">
+                <image src="/images/site_wide/icons8-linked-in-48.png" id="linkedin_logo" />
+            </a>
+            <a href="/rss.xml" style="text-decoration: none;">
+                <image src="/images/site_wide/icons8-rss-48.png" id="rss_logo" />
+            </a>
+        </div>
         </div>
     </div>
+    
     <nav class="article-layout-nav">
         <ul>
         <li><a href="/aboutme">About</a></li>
@@ -943,12 +973,22 @@ By the end of the jam, I was scrambling to push assets and reject certain animat
             <br />
             <br />
             <a href="/" style="text-decoration: none;">
-                <image src="/images/site_wide/pilogo.gif" width="50rem" id="pi_logo" />
+                <image src="/images/site_wide/pilogo.gif" id="pi_logo" />
             </a>
-             <br />
-            Programming Included
+            <br />
+            ProgrammingIncluded
+    
+        <div id="connection-icons">
+            <a href="https://www.linkedin.com/in/chencharlesh/" style="text-decoration: none;">
+                <image src="/images/site_wide/icons8-linked-in-48.png" id="linkedin_logo" />
+            </a>
+            <a href="/rss.xml" style="text-decoration: none;">
+                <image src="/images/site_wide/icons8-rss-48.png" id="rss_logo" />
+            </a>
+        </div>
         </div>
     </div>
+    
     <nav class="article-layout-nav">
         <ul>
         <li><a href="/aboutme">About</a></li>
@@ -1181,12 +1221,22 @@ Specific algorithms and all. I look forward to be able to share that knowledge a
             <br />
             <br />
             <a href="/" style="text-decoration: none;">
-                <image src="/images/site_wide/pilogo.gif" width="50rem" id="pi_logo" />
+                <image src="/images/site_wide/pilogo.gif" id="pi_logo" />
             </a>
-             <br />
-            Programming Included
+            <br />
+            ProgrammingIncluded
+    
+        <div id="connection-icons">
+            <a href="https://www.linkedin.com/in/chencharlesh/" style="text-decoration: none;">
+                <image src="/images/site_wide/icons8-linked-in-48.png" id="linkedin_logo" />
+            </a>
+            <a href="/rss.xml" style="text-decoration: none;">
+                <image src="/images/site_wide/icons8-rss-48.png" id="rss_logo" />
+            </a>
+        </div>
         </div>
     </div>
+    
     <nav class="article-layout-nav">
         <ul>
         <li><a href="/aboutme">About</a></li>
@@ -1281,12 +1331,22 @@ learning techniques can be done better. Such as temporal difference learning.</p
             <br />
             <br />
             <a href="/" style="text-decoration: none;">
-                <image src="/images/site_wide/pilogo.gif" width="50rem" id="pi_logo" />
+                <image src="/images/site_wide/pilogo.gif" id="pi_logo" />
             </a>
-             <br />
-            Programming Included
+            <br />
+            ProgrammingIncluded
+    
+        <div id="connection-icons">
+            <a href="https://www.linkedin.com/in/chencharlesh/" style="text-decoration: none;">
+                <image src="/images/site_wide/icons8-linked-in-48.png" id="linkedin_logo" />
+            </a>
+            <a href="/rss.xml" style="text-decoration: none;">
+                <image src="/images/site_wide/icons8-rss-48.png" id="rss_logo" />
+            </a>
+        </div>
         </div>
     </div>
+    
     <nav class="article-layout-nav">
         <ul>
         <li><a href="/aboutme">About</a></li>
@@ -1408,12 +1468,22 @@ Until next time! Looking forward to continuous updates in the future.</p>
             <br />
             <br />
             <a href="/" style="text-decoration: none;">
-                <image src="/images/site_wide/pilogo.gif" width="50rem" id="pi_logo" />
+                <image src="/images/site_wide/pilogo.gif" id="pi_logo" />
             </a>
-             <br />
-            Programming Included
+            <br />
+            ProgrammingIncluded
+    
+        <div id="connection-icons">
+            <a href="https://www.linkedin.com/in/chencharlesh/" style="text-decoration: none;">
+                <image src="/images/site_wide/icons8-linked-in-48.png" id="linkedin_logo" />
+            </a>
+            <a href="/rss.xml" style="text-decoration: none;">
+                <image src="/images/site_wide/icons8-rss-48.png" id="rss_logo" />
+            </a>
+        </div>
         </div>
     </div>
+    
     <nav class="article-layout-nav">
         <ul>
         <li><a href="/aboutme">About</a></li>
@@ -1505,12 +1575,22 @@ Until next time! Looking forward to continuous updates in the future.</p>
             <br />
             <br />
             <a href="/" style="text-decoration: none;">
-                <image src="/images/site_wide/pilogo.gif" width="50rem" id="pi_logo" />
+                <image src="/images/site_wide/pilogo.gif" id="pi_logo" />
             </a>
-             <br />
-            Programming Included
+            <br />
+            ProgrammingIncluded
+    
+        <div id="connection-icons">
+            <a href="https://www.linkedin.com/in/chencharlesh/" style="text-decoration: none;">
+                <image src="/images/site_wide/icons8-linked-in-48.png" id="linkedin_logo" />
+            </a>
+            <a href="/rss.xml" style="text-decoration: none;">
+                <image src="/images/site_wide/icons8-rss-48.png" id="rss_logo" />
+            </a>
+        </div>
         </div>
     </div>
+    
     <nav class="article-layout-nav">
         <ul>
         <li><a href="/aboutme">About</a></li>
@@ -1614,12 +1694,22 @@ low frequencies. So the moral of the story is, good mics still matter! Or do the
             <br />
             <br />
             <a href="/" style="text-decoration: none;">
-                <image src="/images/site_wide/pilogo.gif" width="50rem" id="pi_logo" />
+                <image src="/images/site_wide/pilogo.gif" id="pi_logo" />
             </a>
-             <br />
-            Programming Included
+            <br />
+            ProgrammingIncluded
+    
+        <div id="connection-icons">
+            <a href="https://www.linkedin.com/in/chencharlesh/" style="text-decoration: none;">
+                <image src="/images/site_wide/icons8-linked-in-48.png" id="linkedin_logo" />
+            </a>
+            <a href="/rss.xml" style="text-decoration: none;">
+                <image src="/images/site_wide/icons8-rss-48.png" id="rss_logo" />
+            </a>
+        </div>
         </div>
     </div>
+    
     <nav class="article-layout-nav">
         <ul>
         <li><a href="/aboutme">About</a></li>
@@ -1718,12 +1808,22 @@ This is a lot with the mentality of research. Calculus was invented as a process
             <br />
             <br />
             <a href="/" style="text-decoration: none;">
-                <image src="/images/site_wide/pilogo.gif" width="50rem" id="pi_logo" />
+                <image src="/images/site_wide/pilogo.gif" id="pi_logo" />
             </a>
-             <br />
-            Programming Included
+            <br />
+            ProgrammingIncluded
+    
+        <div id="connection-icons">
+            <a href="https://www.linkedin.com/in/chencharlesh/" style="text-decoration: none;">
+                <image src="/images/site_wide/icons8-linked-in-48.png" id="linkedin_logo" />
+            </a>
+            <a href="/rss.xml" style="text-decoration: none;">
+                <image src="/images/site_wide/icons8-rss-48.png" id="rss_logo" />
+            </a>
+        </div>
         </div>
     </div>
+    
     <nav class="article-layout-nav">
         <ul>
         <li><a href="/aboutme">About</a></li>
@@ -1830,12 +1930,22 @@ These features cater to better data science applications.</p>
             <br />
             <br />
             <a href="/" style="text-decoration: none;">
-                <image src="/images/site_wide/pilogo.gif" width="50rem" id="pi_logo" />
+                <image src="/images/site_wide/pilogo.gif" id="pi_logo" />
             </a>
-             <br />
-            Programming Included
+            <br />
+            ProgrammingIncluded
+    
+        <div id="connection-icons">
+            <a href="https://www.linkedin.com/in/chencharlesh/" style="text-decoration: none;">
+                <image src="/images/site_wide/icons8-linked-in-48.png" id="linkedin_logo" />
+            </a>
+            <a href="/rss.xml" style="text-decoration: none;">
+                <image src="/images/site_wide/icons8-rss-48.png" id="rss_logo" />
+            </a>
+        </div>
         </div>
     </div>
+    
     <nav class="article-layout-nav">
         <ul>
         <li><a href="/aboutme">About</a></li>
@@ -1939,12 +2049,22 @@ and it allowed me to excel in that particular field.</p>
             <br />
             <br />
             <a href="/" style="text-decoration: none;">
-                <image src="/images/site_wide/pilogo.gif" width="50rem" id="pi_logo" />
+                <image src="/images/site_wide/pilogo.gif" id="pi_logo" />
             </a>
-             <br />
-            Programming Included
+            <br />
+            ProgrammingIncluded
+    
+        <div id="connection-icons">
+            <a href="https://www.linkedin.com/in/chencharlesh/" style="text-decoration: none;">
+                <image src="/images/site_wide/icons8-linked-in-48.png" id="linkedin_logo" />
+            </a>
+            <a href="/rss.xml" style="text-decoration: none;">
+                <image src="/images/site_wide/icons8-rss-48.png" id="rss_logo" />
+            </a>
+        </div>
         </div>
     </div>
+    
     <nav class="article-layout-nav">
         <ul>
         <li><a href="/aboutme">About</a></li>
@@ -2051,12 +2171,22 @@ While the I stores the difference between the first and second frames. This is G
             <br />
             <br />
             <a href="/" style="text-decoration: none;">
-                <image src="/images/site_wide/pilogo.gif" width="50rem" id="pi_logo" />
+                <image src="/images/site_wide/pilogo.gif" id="pi_logo" />
             </a>
-             <br />
-            Programming Included
+            <br />
+            ProgrammingIncluded
+    
+        <div id="connection-icons">
+            <a href="https://www.linkedin.com/in/chencharlesh/" style="text-decoration: none;">
+                <image src="/images/site_wide/icons8-linked-in-48.png" id="linkedin_logo" />
+            </a>
+            <a href="/rss.xml" style="text-decoration: none;">
+                <image src="/images/site_wide/icons8-rss-48.png" id="rss_logo" />
+            </a>
+        </div>
         </div>
     </div>
+    
     <nav class="article-layout-nav">
         <ul>
         <li><a href="/aboutme">About</a></li>
