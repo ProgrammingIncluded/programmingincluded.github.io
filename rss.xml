@@ -1,0 +1,2128 @@
+<?xml version="1.0" encoding="UTF-8"?><rss xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom" version="2.0"><channel><title><![CDATA[ProgrammingIncluded]]></title><description><![CDATA[ProgrammingIncluded]]></description><link>https://programmingincluded.com/</link><generator>metalsmith-feed</generator><lastBuildDate>Mon, 17 Feb 2025 04:49:24 GMT</lastBuildDate><atom:link href="https://programmingincluded.com/rss.xml" rel="self" type="application/rss+xml"/><author><![CDATA[Charles H. Chen]]></author><item><title><![CDATA[Writing a Particle Pixel Simulator in Rust]]></title><description><![CDATA[<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark-reasonable.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script>hljs.highlightAll();</script>
+
+    <title>
+      Writing a Particle Pixel Simulator in Rust
+    </title>
+
+    <link type="text/css" rel="stylesheet" href="/stylesheets/pblog.css">
+
+    <script src="/javascripts/anime.min.js"></script>
+    <script src="/javascripts/jquery-3.6.0.min.js"></script>
+    <script src="/javascripts/nav.js"></script>
+  </head>
+  <body>
+    <div class="top-banner-cont">
+        <div class="top-banner-center">
+            <br />
+            <br />
+            <a href="/" style="text-decoration: none;">
+                <image src="/images/site_wide/pilogo.gif" width="50rem" id="pi_logo" />
+            </a>
+             <br />
+            Programming Included
+        </div>
+    </div>
+    <nav class="article-layout-nav">
+        <ul>
+        <li><a href="/aboutme">About</a></li>
+        <li><a href="/blog">Blog</a></li>
+        </ul>
+    </nav>
+
+    <div class="article-layout">
+      <div class="article-layout-main">
+        <div class="article_title_div">
+
+          <h1 class="article_title">Writing a Particle Pixel Simulator in Rust</h1>
+
+          <h2 class="article_subtitle">A Physics Particle Game</h2>
+
+          <div class="article_pub">
+            <a href="/aboutme">Charles Chen</a> |
+            Wed 2023-08-23 10:31 AM GMT-7
+          </div>
+
+        </div>
+
+        <div class="mid-bar-island">
+          <h2> Table of Contents </h2>
+          <div class="table-of-contents">
+          </div>
+        </div>
+
+        <div class="article-layout-main-body">
+          <h2>Particle.rs</h2>
+<p>Below is a simple Sand-game like Simulator game that I wrote over last weekend using Rust and <a href="https://bevyengine.org/">Bevy</a>.</p>
+<script type=module>
+  import init from '/games/particlers_v1/sand_simulator.js';
+  init();
+
+  let setCanvas = () => {
+    let game = $("canvas");
+    game.detach();
+    let outDiv = $("#game");
+    outDiv.append(game);
+
+    let body = $(".article-layout-main-body");
+    let ratio = ((body.width() - 24) / 1024);
+    // Set the margin offsets
+    game.css({
+      "transform-origin": "0 0",
+      "transform": `scale(${ratio})`,
+    });
+
+    outDiv.height(game.height() * ratio);
+    outDiv.width(game.width() * ratio);
+  };
+  $(document).ready(() => {
+      setTimeout(setCanvas, 3000);
+  });
+</script>
+<div id="game"></div>
+<p>Left-click to emit particles. Press <code>s</code> to emit sand and <code>w</code> to emit water. <code>r</code> to reset the grid. On mobile, hold to spawn particle. Use two fingers and tap to get
+change particle spawn type.</p>
+<h2>What are Particle-Based Simulator Games?</h2>
+<h3>Powder Game 2</h3>
+<p>Growing up, I remembered playing a game made from a Japanese Developer called <a href="http://dan-ball.jp/en/javagame/dust2/">Powder Game 2</a> made by Dan-Ball JP.</p>
+<p>In it you can spawn different types of particles that each have unique properties and would interact with one another.
+There are basic particles like sand that drop easily and pile up. Then there were gases that would expand and go upwards.
+Little me was excited to see c-4 particles interact with fire particles to produce fascinating explosions!</p>
+<p>Levels can be saved and shared among registered users.
+Even now the levels are saved and snapshotted by various users and produce some fascinating works / contraptions.</p>
+<p>Here is one made by Billy G. based-off a <a href="http://dan-ball.jp/en/javagame/dust2/?code=89743">Knight and Dragon</a>.</p>
+<div class="image-unit"><image src="/images/pblog/2023/powder_game_2_dragon.png" width="100%" alt="Knight and Dragon in Powder Game 2" target="blank" /><br /><i class="image-subtitle"> image: Knight and Dragon in Powder Game 2</i></div>
+<p>The dragon's mouth have some emitters setup where fire expels from the dragon which burns the knight.</p>
+<p>The complexity of the engine is such that users can create tensile based materials. Here is one called <a href="http://dan-ball.jp/en/javagame/dust2/?code=55635">&quot;Strength Block&quot;</a>
+that was one of the top rated creations since 2017 made by skyk:</p>
+<div class="image-unit"><image src="/images/pblog/2023/powder_game_2_tensil.png" width="100%" alt="Tensil Cube in Powder Game 2" target="blank" /><br /><i class="image-subtitle"> image: Tensil Cube in Powder Game 2</i></div>
+<p>Powder Game 2 really was quite an interesting type of game. Young me would attempt to build different structures like a child at a playground
+if said child was provided the opportunity to then ignite the sandbox with fuel and fire.</p>
+<h3>Sandspiel</h3>
+<p>Sandspiel was a project after Powder Game 2 and by the time it was released, I had not played it as a child.
+However, Sandspiel was worth a mention as I found it recently on their website and found the developer's journey to writing their own clone which inspired me to go on
+the same path.</p>
+<p>To my surprise, they had written the game several times and the latest edition is in Rust, one which I had also set out to pursue.
+I had not read their code, however, as I wanted to come in with fresh eyes and try the problem myself.</p>
+<p>The original creators actually wrote a <a href="https://maxbittker.com/making-sandspiel">blog post</a> and you can find their game here <a href="https://sandspiel.club/">Sandspiel</a>.</p>
+<h3>Noita</h3>
+<p>Another honorable mention: <a href="https://store.steampowered.com/app/881100/Noita/">Noita</a> was a game produced in 2020 that is an action rogue-like with a unique twist: the world is based-off a simulated pixel environment.
+I bought the game during early access and have enjoyed it ever since.</p>
+<div class="image-unit"><image src="/images/pblog/2023/noita.png" width="100%" alt="Noita, every pixel is simulated" target="blank" /><br /><i class="image-subtitle"> image: Noita, every pixel is simulated</i></div>
+<p>The game is fully of chaotic interactions and there are secrets hidden in the world. It takes the idea of simulation and procedural generation of the sand-genre to another level.
+There are parallel universes, secret spells, and special particle interactions waiting to discover in the world of Noita. But be warned, this game is chaotic and hard in nature!</p>
+<h2>Writing Particle.rs</h2>
+<p>Setting out, I wanted to write in Rust to support Web-assembly and sharpen my own Rust skills. Below are some notable highlights in my implementation.</p>
+<h3>Pixel Metadata</h3>
+<p>Most online discussions and implementations seem to get into very lowlevel C++ struct. Given my weekend time constraint, I wanted to implement it as quickly as possible.</p>
+<p>I knew early on through some research, the simulator I wanted to emulate should include some physics-esque drop and slide which would make the game feel snappier.
+The following is what I ultimately used to encode the pixels:</p>
+<pre><code class="language-rust">enum PixelType {
+    AIR,
+    SAND,
+    WATER
+}
+
+enum PixelColor {
+    SANDA,
+    SANDB,
+    SANDC,
+    WATER,
+    AIR
+}
+
+pub struct PixelData {
+    pixel_type: PixelType,
+    color: PixelColor,
+    velocity: Vec2
+}
+</code></pre>
+<p>The compactness of the struct could be tighter, however the implementation is sufficiently efficient for my use-case.
+Furthermore, without any chunk-ing optimizations (where we only update areas where there is movement), the game runs buttersmooth on desktop, even in the browser!</p>
+<h3>The Basic Cellular Rules</h3>
+<div class="image-unit"><image src="/images/pblog/2023/particle_movement.png" width="100%" alt="Falling particle positions" target="blank" /><br /><i class="image-subtitle"> image: Falling particle positions</i></div>
+<p>The most basic of particle-based games is akin to a cellular automata game, starting the update loop from the bottom of the screen upwards:</p>
+<ul>
+<li>Drop particle down one tile if available (DD).</li>
+<li>Drop to bottom left if available (DL).</li>
+<li>Drop to bottom right if available (DR).</li>
+<li>Stop otherwise.</li>
+</ul>
+<p>Water and fluids are similar however adds two more rules to this before terminating:</p>
+<ul>
+<li>Move fluid left if left tile is available (LL).</li>
+<li>Move fluid right if right tile is available (RR).</li>
+<li>Stop otherwise.</li>
+</ul>
+<p>Notice how the movement of the particle goes from left first then right. This behavior produces a zigzag pattern where sand must first occupy and slide left-ward.
+We can do better.</p>
+<h3>Sliding and Updating Randomly</h3>
+<p>A few updates to the rules help even out dropping behavior.</p>
+<ul>
+<li>Rather than updating particles left and then right first, we randomly select a direction to check.</li>
+</ul>
+<p>Now our hills form more naturally:</p>
+<div class="video-unit"><video width="100%" controls><source src="/videos/particlers_v1/random_drop_only.mp4" type="video/mp4" class="video-link"></video></div>
+<p>However, with just the rule above, water looks a bit off.</p>
+<div class="video-unit"><video width="100%" controls><source src="/videos/particlers_v1/left_update_only.mp4" type="video/mp4" class="video-link"></video></div>
+<p>Notice how water flows to the right faster than the left. In this case, the update of the board is first done on the right before the left.
+As a result, the water flows more naturally in one direction. It is important that the <code>global</code> update per-particle also switches
+from left to right and vice versa.</p>
+<ul>
+<li>Rather than to update particles from the bottom left first, we randomly select left or right updates.</li>
+</ul>
+<p>With these two updates, sand flows naturally and water updates properly.</p>
+<p>From this exercise, I found how to exchange for loop iterators conditionally using Rust's helper libraries:</p>
+<pre><code class="language-rust">fn screen_update_iterator(
+    rev: bool,
+) -&gt; itertools::Either&lt;impl Iterator&lt;Item = usize&gt;, impl Iterator&lt;Item = usize&gt;&gt; {
+    if !rev {
+        itertools::Either::Left(0..WINDOW_SIZE)
+    } else {
+        itertools::Either::Right((0..WINDOW_SIZE).rev())
+    }
+}
+</code></pre>
+<p>This iterator returns an <code>Either</code> type. A special <code>Either</code> is necessary here as Rust treats <code>0..WINDOW_SIZE.rev()</code> as a separate type than <code>0..WINDOW_SIZE</code>.
+The reason for this is how <code>traits</code> are not concrete types and <code>Iterators</code> are traits. You can find more information <a href="https://users.rust-lang.org/t/beginner-using-rev-with-a-range/29337/4">here</a>.</p>
+<h3>Simulating Acceleration</h3>
+<p>To make things snappier, each pixel is provided with a velocity component to track acceleration.</p>
+<ul>
+<li>Add a velocity to each particle and update velocity for each move.</li>
+</ul>
+<p>The velocity idea was based-off a video I found on <a href="https://www.youtube.com/watch?v=VLZjd_Y1gJ8">Youtube</a>. Once again, I didn't look at any source code but took the concepts and ran with it.</p>
+<div class="image-unit"><image src="/images/pblog/2023/sand_diagonal.png" width="100%" alt="Diagonal Movement of a Particle" target="blank" /><br /><i class="image-subtitle"> image: Diagonal Movement of a Particle</i></div>
+<p>Once velocity is introduced, a particle can travel more than one tile per tick. Similar to the above video, we performance basic linear-collision path tracing to check if a particle could move
+among the tiles. If so, move the tiles, otherwise, stop at the collision point. Velocity is removed if collision occurs otherwise velocity is compounded for the next frame.</p>
+<p>This idea seems simple on paper but bugs took a while to iron out. Here's one during development:</p>
+<div class="video-unit"><video width="100%" controls><source src="/videos/particlers_v1/weird_sand_bug.mp4" type="video/mp4" class="video-link"></video></div>
+<p>With some fine-tweaking:</p>
+<ul>
+<li>Slow slide rate and fast fall for sand.</li>
+<li>High slide rate and fast fall for water</li>
+<li>Preserve x-axis velocity when transitioning from fall to slide rules.</li>
+</ul>
+<p>Emergent behavior begins to appear. The sand in my implementation seems to be with a certain delay that I really find to be soothing, similar to real sand. Sand would often slide at the bottom first
+moving along large chunks above. The behavior emerges as sand has a high slide friction with fast drop-rate.</p>
+<p>Water has low slide-friction and high drop-rate. This meant that water can easily fly farther away from the source and ends up producing particle-like droplets.</p>
+<div class="video-unit"><video width="100%" controls><source src="/videos/particlers_v1/sand_done.mp4" type="video/mp4" class="video-link"></video></div>
+<p>Here's a snippet of the code on how linear movement is calculated per pixel:</p>
+<pre><code class="language-rust">let m: f32 = velocity.y / velocity.x;
+let b: f32 = src_y as f32 - (m * src_x as f32);
+
+let mut start_x: usize = src_x;
+let mut start_y: usize = src_y;
+
+let dest_x: i32 = velocity.x.abs() as i32 + 1;
+for dx in 1..(dest_x.abs()) {
+  // We use m * dx + b to check all paths.
+}
+</code></pre>
+<p>Most of the code is basic derivation of a linear equation and then checking each position of a quantized x input. Further optimizations can be done here using linear equations
+though the optimizations may be little compared to chunking algorithms.</p>
+<h2>Takeaways</h2>
+<p>Overall, the project was a fun weekend excursion. I've picked up a few Rust tricks like conditional iterators as well as apply
+basic linear equations on a discrete space. I am hoping to continue to iterate on this project in the future and seeing if I can add more features to it.
+Once more, Rust has demonstrated the agile development cycles and the ability to use WASM, its portability.</p>
+<p>There are lots of things I wish to explore in this implementation however I ran out of time. Things like chunking (the reduction of rows to update to the top most rows
+of a particle body) as well as explosion dynamics. Perhaps we will leave this for next time.</p>
+
+        </div>
+      </div>
+
+      <div class="article-layout-sidebar">
+        <div class="side-bar-island">
+            <h2 id="table-of-contents-header"> Table of Contents </h2>
+            <div class="table-of-contents">
+                Ruh-roh. Looks like something went wrong :(
+                <br />
+            </div>
+        
+            <h2> Related Articles </h2>
+            <div class="related-articles">
+                <br />
+                        <ul>
+                            <li> 
+                            <a href="/blog\content\2023\01\18\rust-vs-cpp">Rust vs Modern C++ Part 1</a>
+                            </li>
+                        </ul>
+                        <ul>
+                            <li> 
+                            <a href="/blog\content\2021\11\14\lunarequinox">Things I've Learned Making&#58; Lunar=Nox</a>
+                            </li>
+                        </ul>
+                        <ul>
+                            <li> 
+                            <a href="/blog\content\2019\12\29\raspberryconway">Raspberry's Game of Life</a>
+                            </li>
+                        </ul>
+            </div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
+]]></description><link>https://programmingincluded.com/blog/content/2023/08/23/sand-simulator</link><guid isPermaLink="true">https://programmingincluded.com/blog/content/2023/08/23/sand-simulator</guid><dc:creator><![CDATA[Charles Chen]]></dc:creator><pubDate>Wed, 23 Aug 2023 17:31:00 GMT</pubDate></item><item><title><![CDATA[Rust vs Modern C++ Part 1]]></title><description><![CDATA[<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark-reasonable.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script>hljs.highlightAll();</script>
+
+    <title>
+      Rust vs Modern C++ Part 1
+    </title>
+
+    <link type="text/css" rel="stylesheet" href="/stylesheets/pblog.css">
+
+    <script src="/javascripts/anime.min.js"></script>
+    <script src="/javascripts/jquery-3.6.0.min.js"></script>
+    <script src="/javascripts/nav.js"></script>
+  </head>
+  <body>
+    <div class="top-banner-cont">
+        <div class="top-banner-center">
+            <br />
+            <br />
+            <a href="/" style="text-decoration: none;">
+                <image src="/images/site_wide/pilogo.gif" width="50rem" id="pi_logo" />
+            </a>
+             <br />
+            Programming Included
+        </div>
+    </div>
+    <nav class="article-layout-nav">
+        <ul>
+        <li><a href="/aboutme">About</a></li>
+        <li><a href="/blog">Blog</a></li>
+        </ul>
+    </nav>
+
+    <div class="article-layout">
+      <div class="article-layout-main">
+        <div class="article_title_div">
+
+          <h1 class="article_title">Rust vs Modern C++ Part 1</h1>
+
+          <h2 class="article_subtitle">The Basics&#58; Datastructures, Lambdas, and Heap</h2>
+
+          <div class="article_pub">
+            <a href="/aboutme">Charles Chen</a> |
+            Wed 2023-01-18 12:16 AM GMT-8
+          </div>
+
+        </div>
+
+        <div class="mid-bar-island">
+          <h2> Table of Contents </h2>
+          <div class="table-of-contents">
+          </div>
+        </div>
+
+        <div class="article-layout-main-body">
+          <h2>Yet Another Rust Introduction</h2>
+<p>These past few months, we have seen a rise in the usage of Rust throughout many different organizations.
+Rust was written in 2010, designed by <em>Graydon Hoare</em> at Mozilla research. Much have been said about the benefits of Rust already but to name a few. Rust can:</p>
+<ul>
+<li>Guarantee memory safety outside of <code>unsafe</code> blocks.</li>
+<li>High level, zero-cost abstractions enable fast performance.</li>
+<li>Rust is almost as fast C and can even beat out C++ (<a href="https://benchmarksgame-team.pages.debian.net/benchmarksgame/fastest/rust.html">source</a>).</li>
+</ul>
+<p>Several well-known, battle-tested teams are switching over to Rust:</p>
+<ul>
+<li>Rust is now in <a href="https://security.googleblog.com/2021/04/rust-in-linux-kernel.html">Android</a></li>
+<li>Rust is slowly growing in <a href="https://github.com/Rust-for-Linux">Linux</a></li>
+<li>Rust was swapped with Go at <a href="https://discord.com/blog/why-discord-is-switching-from-go-to-rust">Discord</a></li>
+</ul>
+<p>The list grows. The ecosystem also is vast, fast, and exciting. Below are some few that I've used in the past:</p>
+<ul>
+<li><a href="https://www.pola.rs/">Pola.rs</a> is faster than Pandas for datascience.</li>
+<li><a href="https://github.com/PyO3/pyo3">PyO3</a> enables interop with Python.</li>
+<li><a href="https://cxx.rs/">cxx</a> and <a href="https://github.com/rust-lang/rust-bindgen">bindgen</a> both enable C++ interop.</li>
+<li><a href="https://bevyengine.org/">bevy</a> a datadriven Game engine written in Rust.</li>
+</ul>
+<p><strong>The list continues to grow and many communities continue to onboard onto Rust. But is all these news just another bandwagon or is there something more?</strong></p>
+<h2>Comparing Rust to Modern C++</h2>
+<p>My goal in today's post is to compare Rust in a more pragmatic setting. <strong>By Modern C++ I mean</strong>:</p>
+<ul>
+<li>C++11</li>
+<li>C++14</li>
+</ul>
+<p>More specifically, coding techniques introduced by <em>Scott Meyers</em> in his series of books. Most notably <strong>Effective Modern C++</strong>.
+I myself have had the pleasure of taking the official C++ training course under <a href="https://cpp.training/">Jon Kalb</a> (go <a href="https://www.youtube.com/watch?v=fv--IKZFVO8">east const</a>!)
+(Jon, if you are reading this, I have much appreciation for C++ and your course is a great recommendation.)</p>
+<p>My thesis:</p>
+<blockquote>
+<p>Modern C++ is arguably filled with gotcha's, edgecases, and solutions to problems stemming from C++ limitations.</p>
+<p>As a result, Rust benefits from faster design cycles, more efficient code, and is arguablely an easier language to maintain even with its current rough edges in certain edge cases.</p>
+</blockquote>
+<p>Let's begin, I'll be highlighting some common approaches in Modern C++ and arguably why Rust could be better (or worse.)</p>
+<h3>Overview of Articles Forthcoming</h3>
+<p>I would like to start out bottom-up. Going from comparing syntax and day-to-day sanity impact, up to higher level concepts like
+owernship / borrow checkers, and more. Then finally ending in specific use-cases that may not apply to everyone. This will be a long ride so buckle up!</p>
+<p>The road map:</p>
+<ul>
+<li>The Basics: Datastructures, Lambdas, and Heap</li>
+<li>Traits and Ownership</li>
+<li>Macros: Metaprogramming Made Simple</li>
+<li>Cargo: The Rust Packages Ecosystem</li>
+<li>C Interop and Unsafe Rust: The Dark Arts</li>
+</ul>
+<h2>Intializing your Datastructures</h2>
+<h3>List Intializers</h3>
+<p>Auto-intializers are an interesting construct. Imagine you are trying to hard-code a <code>vector</code> array into C++.
+How would the runtime be able to generate an array of values hard-coded inside the code? <code>Vector</code> is considered a class that requires
+data from the heap and requires memory resolution during runtime.</p>
+<p>Introducing <code>initializer lists</code>, a special proxy types that resolve during runtime.</p>
+<pre><code class="language-cpp">#include&lt;unordered_map&gt;
+#include&lt;vector&gt;
+#include&lt;algorithms&gt;
+#include&lt;iostream&gt;
+using namespace std;
+
+// Auto-intializer lists.
+vector&lt;int32_t&gt; vec = {1, 2, 3};
+
+map&lt;string, string&gt; myMap = {
+    {&quot;an example&quot;, &quot;pair&quot;},
+    {&quot;yet another&quot;, &quot;hi&quot;}
+};
+</code></pre>
+<p>Auto-intializers look great until we start to get into edge-cases. C++11 treats <code>initializer lists</code> as proxy types which means each std library can override its behavior.
+When constructing classes and operators, <strong>you can override them</strong> leading to complicated results and weird casting behaviors:</p>
+<pre><code class="language-cpp">// A new class that will take an intializer short hand for convenience.
+// Which constructor is called for `Example({1, 2, 3})`?
+class Example {
+public:
+    vector&lt;int32_t&gt; v;
+    Example(initializer_list&lt;int32_t&gt; l) : v(l) { cout &lt;&lt; &quot;called?&quot; &lt;&lt; endl; }
+    Example(vector&lt;int32_t&gt; vec) : v(vec) {}
+}
+</code></pre>
+<p>Realistically, designers should try to avoid conflict in classes and/or use <code>explicit</code> keywords. However the point of this exercise
+shows how by making <code>intializer lists</code> a proxy type accessible during runtime, we run into type inference ambiguity in which the compiler
+won't fail during auto-casting.</p>
+<p>In this case, C++ falls-back to the more narrower type so <code>intializer_list</code> constructor is called. There are more gotcha's
+with <code>auto-initializers</code> and <code>list-intializer</code> constructors:</p>
+<pre><code class="language-cpp">// C++ can sometimes make list-intializer syntax optional:
+auto ex = Example{1, 2, 3} // Equal to Example(1, 2, 3)
+// This is also the same
+auto ex = Example{{1, 2, 3}}
+
+// However we can run into ambiguity.
+class ExampleB {
+public:
+    vector&lt;int32_t&gt; v;
+    ExampleB(initializer_list&lt;int32_t&gt; l) : v(l) { }
+    ExampleB(float a, float b) {}
+};
+auto ex = ExampleB{1.1, 2.2} // Does not equal Example(1.1, 2.2)
+</code></pre>
+<h3>Rust Macros</h3>
+<p>Rust says no to run-time proxy types. Instead, Rust offers native and <code>macro</code> based solution which removes the edge-cases and ambiguity:</p>
+<pre><code class="language-rust">// An std implemented macro prevents all the complexity of intializer list proxy type.
+use std::vec::Vec;
+let c: Vec&lt;i32&gt; = vec![1, 2, 3];
+// Macro is auto-expanded into a block with inserts.
+// { c.insert(1); c.insert(2); c.insert(3); }
+
+use std::collections::HashMap;
+// Rust does not natively have a macro with HashMap.
+let m = HashMap::from([
+    (&quot;hello&quot;, &quot;world&quot;),
+    (&quot;good&quot;, &quot;day&quot;)
+]);
+</code></pre>
+<p><strong>Rust's Macro system has access to the AST during compilation and is super flexible. We will get more into this in Part 2.</strong>
+With an extra crate, you can have even higher-level syntax:</p>
+<pre><code class="language-rust">use std::collections::HashMap;
+use common_macros::hash_map;
+let m = hash_map!{
+    &quot;hello&quot; =&gt; &quot;world&quot;,
+    &quot;good&quot; =&gt; &quot;day&quot;
+};
+</code></pre>
+<p>With Rust's powerful packaging and build system, these extra crates are readily available with a single install command.
+More on this in part 3. <strong>Rust by-passes the issues with intializer lists by removing proxy types and instead opting for a powerful macros system that
+can do the heavy lifting.</strong></p>
+<h2>Iterating and Processing</h2>
+<p>C++ and Rust both use iterators in order to iterate through data as iterators have been around for some time.
+Both have similar concepts however Rust makes certain cases easier. Let's take a look. Here's how C++ does it.</p>
+<pre><code class="language-cpp">using namespace std;
+// With modern C++ we can use short-hand loops
+vector&lt;int32_t&gt; vec = {1, 2, 3};
+// Constant iteration
+for (auto const&amp; v : vec) {
+    cout &lt;&lt; v &lt;&lt; endl;
+}
+
+// Non-constant
+for (auto&amp; v: vec) {
+    cout &lt;&lt; v &lt;&lt; endl;
+}
+</code></pre>
+<p>Likewise Rust can do the same, note that Rust assumes const unless otherwise but Rust also allows for range based iteration:</p>
+<pre><code class="language-rust">use std::vec::Vec;
+let mut vec = vec![1, 2, 3];
+
+for v in vec {
+    println!(&quot;{}&quot;, v);
+}
+
+for v in &amp;mut vec {
+    println!(&quot;{}&quot;, v);
+}
+
+let n = 3;
+for i in 0..n {
+    println!(&quot;C++ requires libraries like Boost.&quot;)
+}
+</code></pre>
+<p>Now let's say we want to apply common functional techniques to our data. C++ requires chaining individual helpers that require iterator input:</p>
+<pre><code class="language-cpp">// Suppose we only want the sum of numbers greater than some tolerance T.
+// We implement a immutable variant where the original vector is not modified.
+auto v = {1, 2, 3};
+auto T = 5;
+vector&lt;int&gt; buffer;
+
+copy_if(vec.begin(), vec.end(), buffer, [](int x) { return x &gt;= T; }));
+auto result = accumulate(buffer.begin(), buffer.end(), 0);
+</code></pre>
+<p>You can save a character using <code>std::end()</code> and <code>std::begin()</code> if you really wanted.</p>
+<p>Let's take a look at how Rust borrows from its functional counterparts:</p>
+<pre><code class="language-rust">let v = vec![1, 3, 5, 7];
+let T = 5;
+let result: i32 = v.iter()
+                   .filter(|&amp;&amp;x| x &gt;= T) // Filter generates a slice of vector and no copy is made.
+                   .sum();
+</code></pre>
+<p>There is significantly less text to process and the chaining reads like what it should be doing.</p>
+<p>Now, one may cry out, &quot;but we don't neccesarily want to chain multiple procedures!&quot; or perhaps, &quot;we can create a helper function anyways!&quot;
+For the later, I agree, in C++, we write helper functions. But going back to my thesis, it is these little quirks that add up to large maintenance costs that focus
+not on the problem we are trying to solve but on the limitations of the language.</p>
+<p>As for the former, high level functional programs and even C++ require many of these common patterns and these iterator type
+algorithms are also highly parallelizable in many cases.</p>
+<h3>Zero Cost Abstractions</h3>
+<p>I would also like to note how there is no overhead here with Rust's implementation. Rust is very much a strict language.
+Unless <code>iter_mut()</code> is used no data is mutable, unless <code>filter().clone()</code> is used no copy is made. In this case, <code>filter()</code> will return a slice
+of the existing array and sum over it.</p>
+<p><strong>With Rust's helpful compiler, it is always working for performance. One can rest assured that the code generated is the fasted you can implement.
+With C++, you have to try to get rid of <code>buffer</code> variable to reduce memory usage, figure out l-values and r-values so-forth.</strong></p>
+<h2>Lambdas</h2>
+<p>C++ lambda requires explicit capturing:</p>
+<pre><code class="language-rust">// Capture everything by reference.
+auto y = 1;
+auto func = [&amp;](auto x){ return x + 1; };
+// Everything by value.
+func = [=](auto x){ return x + 1; };
+
+// Capture by value.
+func = [y](auto x){ return x + y + 1;};
+
+// Capture by reference
+func = [&amp;y](auto x){ return x + y + 1;};
+</code></pre>
+<p>Rust, on the other hand, due to the borrow checker rules, we are pretty much going to copy by reference to save memory
+unless we cannot, and a clone/copy of the object is made.</p>
+<pre><code class="language-rust">let y = 1;
+// This is always an immutable borrow as a reference to prevent copy
+let f = |x|{ x + y + 1};
+
+// Only if both the variable and lambda are mutable can we borrow
+// as reference and modify the reference.
+let mut t = 1;
+let mut f = |x| { t = x + t };
+
+// We can even go one layer deep and the compiler will enforce `mut` in order to compile:
+let mut m = || { f(2) };
+
+// We can force a move to make an explicit copy of each variable.
+// This is almost never used trivially like this however. Unless we return lambdas from functions. See more below.
+let h = move |x| { t = t + x }; // original t is not modified
+</code></pre>
+<p>Though the explicit <code>move</code> is an manual option, I rarely seen it used trivially. Instead, it is used in a very specific use case.</p>
+<p>There are one more rules that I am not covering here but you can find out more <a href="https://stackoverflow.com/questions/71240735/do-rust-closures-capture-context-by-reference-or-by-value">here</a>.
+One more rule is a unique edge case.</p>
+<p>Might I also add just how much cleaner the lambda notation is for Rust? C++ requires a semicolon, bracket, and then a semicolon again to close a lambda. A return is also required.
+All for a single addition statement!</p>
+<h3>Unique Immutable Borrows in Captures</h3>
+<p>It seems in C++ and Rust, when dealing with <code>const</code>-ness in C++ or <code>mut</code> ownership in Rust, there are some unique edgecases that each have to address.
+Though the mechanisms driving the below scenarios are different, I group them together because they:</p>
+<ul>
+<li>Show how const/mut properties are propogated (or lack thereof.)</li>
+<li>How each compiler handles const / mut. (I see them as opposites of the same coin.)</li>
+</ul>
+<p>I see <code>const</code> and <code>mut</code> as opposites of the same coin. <code>const</code> exists because everything is <code>mut</code> in C++ meanwhile <code>mut</code> exists
+because everything else is <code>const</code> in Rust.</p>
+<p>In C++ you can do a normal cast to modify a const-value without <code>const_cast</code>:</p>
+<pre><code class="language-cpp">int const i = 1;
+// Almost every compiler allows this despite the dangers.
+// This a natural consequence of allowing any type to be casted in C++.
+// However, no explicit compiler check is done here to prevent this operation
+// which in most environments, is an unwanted memory access.
+int *ptr = (int*)&amp;i;
+*ptr += 2;
+</code></pre>
+<p>C++ allows you to do the above but at your discretion because a cast was made.</p>
+<p>Please note that I understand that <code>unsafe</code> Rust does allow you to cast without constraint. However C++ compiler has this
+const edgecase that it does not attempt to warn or prevent. Rust enforces <code>unsafe</code> here, meanwhile C++, even though it has
+constructs like <code>const_cast</code> still allows you to cast away const without error.</p>
+<p>In Rust, the following can occur with <code>mut</code> (as shown in the <a href="https://doc.rust-lang.org/reference/types/closure.html#unique-immutable-borrows-in-captures">Rust book</a>):</p>
+<pre><code class="language-rust">let mut b = false;
+let x = &amp;mut b;
+{
+    let mut c = || { *x = true; };
+    // The following line is an error:
+    // let y = &amp;x;
+    c();
+}
+let z = &amp;x;
+</code></pre>
+<p>Since Rust requires a variable to only have one unique mutable reference, the capture cannot naturally be resolved as <code>&amp;&amp;mut</code> because
+<code>x</code> is not unique.</p>
+<p>Thankfully Rust has got us covered. The compiler will catch this and make a special type of borrow called: <code>Unique Immutable Borrows</code>
+which only occurs in this use-case and is abstracted away by the compiler. It acts like an immutable variable but can be dereferenced and
+the borrow checker will enforce it like a mutable's uniqueness.</p>
+<p><strong>Rust pretty much prevents us from making mistakes by enforcing compiler time checks, even so far as to create a unique edge condition! Futhermore, the Rust compiler
+will attach necessary error messages for you if new users are unsure about these edge-cases:</strong></p>
+<pre><code class="language-bash">error[E0501]: cannot borrow `x` as immutable because previous closure requires unique access
+  --&gt; main.rs:16:17
+   |
+14 |         let mut c = || { *x = true; };
+   |                     --   -- first borrow occurs due to use of `x` in closure
+   |                     |
+   |                     closure construction occurs here
+15 |         // The following line is an error:
+16 |         let y = &amp;x;
+   |                 ^^ second borrow occurs here
+17 |         c();
+   |         - first borrow later used here
+error: aborting due to previous error; 2 warnings emitted
+For more information about this error, try `rustc --explain E0501`.
+</code></pre>
+<p>C++, true to it's philosophy, allows you to go with the cast operation and modify a <code>const</code> rather than
+catching them in the compiler.</p>
+<h3>Returning Lambdas on the Stack</h3>
+<p>This is perhaps one of category of basic Rust that doesn't seem as intuitive.</p>
+<h4>C++ Functional Types</h4>
+<p>With C++, a unique type <code>std::function</code> can be used to define lambdas. Lambdas in C++ are treated as Structs.</p>
+<pre><code class="language-cpp">std::function&lt;int(int)&gt; ret_func(int a) {
+  return [a](int b) { return b / a; };
+}
+
+cout &lt;&lt; ret_func(1)(2) &lt;&lt; endl;
+</code></pre>
+<p>Functions that share the same type signatures share the same type and works as expected:</p>
+<pre><code class="language-cpp">std::function&lt;int(int)&gt; ret_func(int a) {
+  if (a == 0) {
+    return [a](int b) { return 0; };
+  } else {
+    return [a](int b) { return b / a; };
+  }
+}
+</code></pre>
+<p>All works as expected.</p>
+<h4>Rust <code>impl</code> Traits</h4>
+<p>Without getting into too much on traits, we will see how they are used for returning lambdas.</p>
+<p>Unlike C++, <strong>each lambda is a unique type and instead share the same trait.</strong>
+This means that you have to use <code>traits</code> in order to reference lambdas and
+effectively bind each function to return one closure. <code>traits</code> can be a thought as a more powerful interface
+where no-concrete type is necessary to define constraints for an implementation. We will discuss more in detail in future parts.</p>
+<pre><code class="language-rust">fn ret_func(a: i32) -&gt; impl Fn(i32) -&gt; i32 {
+    move |b| b / a
+}
+
+ret_func(2)(3);
+</code></pre>
+<p>The major limitation of lambdas is that they are identical by trait and <strong>not types.</strong> This means that Rust does not allow branching
+returns of lambdas on the stack as of Rust v1.26 and functions can only have one return type:</p>
+<pre><code class="language-rust">fn ret_func(a: i32) -&gt; impl Fn(i32) -&gt; i32 {
+    if a == 0 {
+        return move |b| 0
+    } else {
+        return move |b| b / a
+    }
+}
+
+ret_func(2)(3);
+</code></pre>
+<p>The error from Rust also mentions this and recommends an alternative approach:</p>
+<pre><code class="language-bash">1 | fn ret_func(a: i32) -&gt; impl Fn(i32) -&gt; i32 {
+  |                        ------------------- expected `[closure@src/main.rs:3:16: 3:24]` because of return type
+2 |     if a == 0 {
+3 |         return move |b| 0
+  |                -------- the expected closure
+4 |     } else {
+5 |         return move |b| b / a
+  |                ^^^^^^^^^^^^^^ expected closure, found a different closure
+  |
+  = note: expected closure `[closure@src/main.rs:3:16: 3:24]`
+             found closure `[closure@src/main.rs:5:16: 5:24]`
+  = note: no two closures, even if identical, have the same type
+  = help: consider boxing your closure and/or using it as a trait object
+</code></pre>
+<p>Instead, we are forced to define the function in the heap:</p>
+<pre><code class="language-rust">fn ret_fun(a: i32) -&gt; Box&lt;dyn Fn(i32) -&gt; i32&gt; {
+    if a == 0 {
+        return Box::new(move |b| 0)
+    } else {
+        return Box::new(move |b| b / a)
+    }
+}
+</code></pre>
+<p>Of course, with Rust's borrow checker rules, heap allocations aren't that dangerous in this use-case. However, we do lose some
+performance compared to C++. This is a great segue into our final section for this part, heaps via smart pointers!</p>
+<p>The implications of traits and their implementation details are ripe with discussion and potential contribution.
+Here is one on <code>impl Trait</code>: <a href="https://github.com/rust-lang/rust/issues/63066">Meta tracking issue for <code>impl Trait</code></a>.</p>
+<h2>Addressing Memory on the Heap</h2>
+<p>C++ and Rust both have similar ways of being &quot;smart&quot; about tracking memory in the heap:</p>
+<h3>Smart Pointers</h3>
+<p>In Modern C++, you almost always never use <code>malloc</code> and <code>free</code>. Instead, a smart pointer is used instead:</p>
+<pre><code class="language-cpp">auto iptr = shared_ptr&lt;int&gt;(new int{});
+
+// It is recommended to not use `new` by some Modern C++ courses to
+// avoid using this &quot;dangerous&quot; keyword all together.
+auto iptr = std::make_shared&lt;int&gt;();
+</code></pre>
+<p><code>shared_ptr</code> is most commonly used as usually multiple sources will want to read from the heap.
+Only when all references are gone will the <code>shared_ptr</code> be released. <code>unique_ptr</code> is used for single ownership.</p>
+<h3>Arc and Boxes</h3>
+<p>Rust, on the other hand, is slightly different and offers many more solutions we will not get into today. Two examples:</p>
+<pre><code class="language-rust">// `Box` is a `unique_ptr` resolved during build time. No actual reference counting during runtime exists.
+let b_int: Box&lt;int&gt; = Box::new(3);
+
+// `Arc` can be thought of as an `unique_ptr` resolved during runtime.
+// Interestingly, most teach about Rc first, which is the non-thread safe counter part to Arc.
+let a_int: Box&lt;int&gt; = Arc::new(3);
+</code></pre>
+<p>Here is a nice <a href="https://users.rust-lang.org/t/box-and-rc-and-their-equivalents-in-c/49671/8">thread discussion</a>.
+But basically:</p>
+<ul>
+<li><code>std::unique_ptr&lt;T&gt;</code> is like <code>Option&lt;Box&lt;T&gt;&gt;</code></li>
+<li><code>std::shared_ptr&lt;const T&gt;</code> is like <code>Option&lt;Arc&lt;T&gt;&gt;</code></li>
+</ul>
+<p>If we want to get technical:</p>
+<ul>
+<li><code>Arc</code> is the threadsafe equivalent of <code>Rc</code></li>
+</ul>
+<p>But there are some questions as to if shared_ptr are truly atomic as in the thread above (<a href="https://snf.github.io/2019/02/13/shared-ptr-optimization/">blog here</a>).
+Thus it may actually be more like <code>shared_ptr</code> is to <code>Rc</code> as <code>atomic_shared_ptr</code> is to <code>Arc</code>.</p>
+<p>As a consequence the Rust borrow checker, <code>Box</code> is able to act like an <code>unique_ptr</code> so long as we are provablely able to do so.
+<code>Arc</code> and <code>Rc</code> is necessary when we can no longer prove, during build time, ownership constraints. They are also much more dangerous as
+they can cause runtime errors.</p>
+<p>The Rust handbook does a much better job at describing this than me so I will leave a link: <a href="https://doc.rust-lang.org/book/ch15-04-rc.html">Rc</a>
+and <a href="https://doc.rust-lang.org/book/ch15-01-box.html">Box</a></p>
+<p>Smart pointers in Rust arguably is both powerful (providing true multithreading support) but also complicated (weak links, cells, inner mutability, etc.)
+The handbook covers most edge-cases. We will cover more in the borrow checker sections.</p>
+<h2>Conclusion</h2>
+<p>We've seen several different sections on a several Modern C++ constructs and their Rust counter parts.
+Below are my summaries of each section and which is easier to code in:</p>
+<ul>
+<li>Datastructures: <strong>Rust</strong>
+<ul>
+<li>Much flexibility that Rust provides with macros and arguably much cleaner.</li>
+</ul>
+</li>
+<li>Iteration: <strong>Rust</strong>
+<ul>
+<li>Once more, Rust wins in convenience, readability, and still just as fast.</li>
+</ul>
+</li>
+<li>Lambdas: <strong>Rust</strong>
+<ul>
+<li>Though a bit rough around the patches of lambda return types, the rest is cleaner and tighter.</li>
+<li>Boxes solve most edge-cases surrounding lambda returns. Any more complex and you probably want a type.</li>
+</ul>
+</li>
+<li>Smart Pointers: <strong>C++</strong>
+<ul>
+<li>I have to give C++ this point. C++ is so much less complicated. Building a mutable tree in Rust is difficult.</li>
+</ul>
+</li>
+</ul>
+<p>There you have it! Rust wins 3/4 four parts in this first part of the series, in my opion.
+Smart pointers are definitely a bit rough around the edges with the variety of ways to manage memory and we will explore more in
+the borrw checker section of our article.</p>
+<p>Until next time, peace!</p>
+
+        </div>
+      </div>
+
+      <div class="article-layout-sidebar">
+        <div class="side-bar-island">
+            <h2 id="table-of-contents-header"> Table of Contents </h2>
+            <div class="table-of-contents">
+                Ruh-roh. Looks like something went wrong :(
+                <br />
+            </div>
+        
+            <h2> Related Articles </h2>
+            <div class="related-articles">
+                <br />
+                        <ul>
+                            <li> 
+                            <a href="/blog\content\2023\08\23\sand-simulator">Writing a Particle Pixel Simulator in Rust</a>
+                            </li>
+                        </ul>
+            </div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
+]]></description><link>https://programmingincluded.com/blog/content/2023/01/18/rust-vs-cpp</link><guid isPermaLink="true">https://programmingincluded.com/blog/content/2023/01/18/rust-vs-cpp</guid><dc:creator><![CDATA[Charles Chen]]></dc:creator><pubDate>Wed, 18 Jan 2023 08:16:00 GMT</pubDate></item><item><title><![CDATA[Things I've Learned Making&#58; Lunar=Nox]]></title><description><![CDATA[<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark-reasonable.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script>hljs.highlightAll();</script>
+
+    <title>
+      Things I've Learned Making&#58; Lunar=Nox
+    </title>
+
+    <link type="text/css" rel="stylesheet" href="/stylesheets/pblog.css">
+
+    <script src="/javascripts/anime.min.js"></script>
+    <script src="/javascripts/jquery-3.6.0.min.js"></script>
+    <script src="/javascripts/nav.js"></script>
+  </head>
+  <body>
+    <div class="top-banner-cont">
+        <div class="top-banner-center">
+            <br />
+            <br />
+            <a href="/" style="text-decoration: none;">
+                <image src="/images/site_wide/pilogo.gif" width="50rem" id="pi_logo" />
+            </a>
+             <br />
+            Programming Included
+        </div>
+    </div>
+    <nav class="article-layout-nav">
+        <ul>
+        <li><a href="/aboutme">About</a></li>
+        <li><a href="/blog">Blog</a></li>
+        </ul>
+    </nav>
+
+    <div class="article-layout">
+      <div class="article-layout-main">
+        <div class="article_title_div">
+
+          <h1 class="article_title">Things I've Learned Making&#58; Lunar=Nox</h1>
+
+          <h2 class="article_subtitle">A Game Jame 2020 Submission</h2>
+
+          <div class="article_pub">
+            <a href="/aboutme">Charles Chen</a> |
+            Sun 2021-11-14 12:26 PM GMT-8
+          </div>
+
+        </div>
+
+        <div class="mid-bar-island">
+          <h2> Table of Contents </h2>
+          <div class="table-of-contents">
+          </div>
+        </div>
+
+        <div class="article-layout-main-body">
+          <div class="image-unit"><a href="https://programmingincluded.itch.io/lunarequinox" class="image-link"><image src="/images/pblog/2021/equinox_thumbnail.png" width="100%" alt="Game Jame 202 Submission! Click to play!" target="blank" /></a><br /><i class="image-subtitle"> image: Game Jame 202 Submission! Click to play!</i></div>
+<p>It has been 2 years since I've posted! So many things have happened since then, things that I have thought of sharing
+but have not been around to do so. There are also more projects on the horizon. Hopefully I can spend a few weekends to
+recap some projects that have occurred since last year as well as some current projects.</p>
+<h2>Game Jam 2020</h2>
+<p>Last year around this time, one of my friends brought up the idea of participating in Game Jame 2020 hosted on itch.io.</p>
+<p>After some talk and discussion, our team was pieced together: three engineers working at decently sized companies, a market-designer working at a start-up, and a music engineer.
+We had roughly one month (the month of November). The first day of November we had received our theme: <strong>Moonshot</strong></p>
+<div class="image-unit"><image src="/images/pblog/2021/equinox_staffroll.jpg" width="100%" alt="staff credits" target="blank" /><br /><i class="image-subtitle"> image: staff credits</i></div>
+<h3>The Concept of the Game</h3>
+<p>Us all having experience with <i>tohou</i> and/or &lt;%= link_to &quot;sh'mups&quot;, &quot;https://en.wikipedia.org/wiki/Shoot_%27em_up&quot; %&gt; growing up,
+we slowly narrowed down to that idea. However instead of a generic 2d bullet shooter, we needed a novel concept that can be worth exploring. Eventually
+our team narrowed down to the following ideas (we ended up only doing the first two):</p>
+<ul>
+<li>Time Manipulation</li>
+<li>Rewarding Risky Gameplay</li>
+<li>3D Mechanics</li>
+</ul>
+<p>Given our time tables, our objectives were clear: get a game out in a some-what polished state; don't make it too ambituous.
+Despite the theme, our goal is to first create a game and release it. All of us had a part that we were still trying to learn.
+As an a programmer by trade, a large chunk of my time was spent on art work making rather than coding. Later onwards most of my time
+would be spent drawing then coding some parts of the code with more architectural discussions.</p>
+<h3>Lunar=Nox</h3>
+<p>After many meetings, discussions, mood boards, and more designs we slowly honed in our game. Thus began our idea:</p>
+<pre><code class="language-text">&quot;Ex corruptione emerget lux aeterna.&quot; Out of corruption comes eternal light.
+In the edge of sector 4 lies Selene, the all-driver for space explorer SPECK.
+With Selene's great insight, using her last remaining life source, SPECK barely escapes the corrupt
+crystals of Karth. With its life force now fully depleted, SPECK floats lifeless in the orbit of
+Planet #1423. With the last remaining bioorganic crew disintegrated for the sake of maintaining the
+barely breathing all-driver, SPECK automated systems initiates its final emergency plan.
+Within a dark control room, on the dimly lit terminal:
+&quot;Stations critical. Initiating Project Moonshot: LUNAR=N0X. Launching probes... Selene must survive.&quot;
+</code></pre>
+<p>Actually, our idea didn't start with that description. In fact, the description is incredibly last-minute addition. Rather, we started with basic ideas and a theme board
+for designing themes. We threw themes together that we thought were simlar to our ideas of the team.</p>
+<h2>Highlights</h2>
+<p>Our music designer did an AMAZING jobs at the music. Trying to get into the music industry, he definitely knocked it out of the park. Our programmers did an excellent job in
+understanding implementing things in such a short notice. Especially during those last few days. Our graphics definitely gave the a game a very unique look!</p>
+<h3>Things I've Learned</h3>
+<p>One of the major things I've learned is how time consuming can be! It took me about 2 hours to draw a basic sprite based background for our single stable scroll.
+By the end of the jam, I was scrambling to push assets and reject certain animations.</p>
+<p>Being a novice, I expected there to be a lot of slow downs. However, having to both code and draw was quite a challenge.</p>
+
+        </div>
+      </div>
+
+      <div class="article-layout-sidebar">
+        <div class="side-bar-island">
+            <h2 id="table-of-contents-header"> Table of Contents </h2>
+            <div class="table-of-contents">
+                Ruh-roh. Looks like something went wrong :(
+                <br />
+            </div>
+        
+            <h2> Related Articles </h2>
+            <div class="related-articles">
+                <br />
+                        <ul>
+                            <li> 
+                            <a href="/blog\content\2023\08\23\sand-simulator">Writing a Particle Pixel Simulator in Rust</a>
+                            </li>
+                        </ul>
+            </div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
+]]></description><link>https://programmingincluded.com/blog/content/2021/11/14/lunarequinox</link><guid isPermaLink="true">https://programmingincluded.com/blog/content/2021/11/14/lunarequinox</guid><dc:creator><![CDATA[Charles Chen]]></dc:creator><pubDate>Sun, 14 Nov 2021 20:26:00 GMT</pubDate></item><item><title><![CDATA[Raspberry's Game of Life]]></title><description><![CDATA[<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark-reasonable.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script>hljs.highlightAll();</script>
+
+    <title>
+      Raspberry's Game of Life
+    </title>
+
+    <link type="text/css" rel="stylesheet" href="/stylesheets/pblog.css">
+
+    <script src="/javascripts/anime.min.js"></script>
+    <script src="/javascripts/jquery-3.6.0.min.js"></script>
+    <script src="/javascripts/nav.js"></script>
+  </head>
+  <body>
+    <div class="top-banner-cont">
+        <div class="top-banner-center">
+            <br />
+            <br />
+            <a href="/" style="text-decoration: none;">
+                <image src="/images/site_wide/pilogo.gif" width="50rem" id="pi_logo" />
+            </a>
+             <br />
+            Programming Included
+        </div>
+    </div>
+    <nav class="article-layout-nav">
+        <ul>
+        <li><a href="/aboutme">About</a></li>
+        <li><a href="/blog">Blog</a></li>
+        </ul>
+    </nav>
+
+    <div class="article-layout">
+      <div class="article-layout-main">
+        <div class="article_title_div">
+
+          <h1 class="article_title">Raspberry's Game of Life</h1>
+
+          <h2 class="article_subtitle">Understanding Linux with Games</h2>
+
+          <div class="article_pub">
+            <a href="/aboutme">Charles Chen</a> |
+            Sun 2019-12-29 02:38 PM GMT-8
+          </div>
+
+        </div>
+
+        <div class="mid-bar-island">
+          <h2> Table of Contents </h2>
+          <div class="table-of-contents">
+          </div>
+        </div>
+
+        <div class="article-layout-main-body">
+          <h2>Raspberry Pi Kernels and Game of Life</h2>
+<div class="image-unit"><image src="/images/pblog/2019/conway_turing_pi.jpg" width="500rem" alt="" target="blank" /></div>
+<p><em>Raspberry Pi 4 running Conway's Game of Life <a href="https://www.conwaylife.com/wiki/Turing_machine">Turing Machine</a>
+at roughly 20-25 fps. <br />
+You can find the code on <a href="https://github.com/ProgrammingIncluded/RaspberryConway%22">Github</a>.</em></p>
+<p>How often do we remember our first programs? Was it hello world? Or perhaps a simple calculator?
+One of my firsts was Conway's Game of Life in my Java programming class. Having just recently bought a Raspberry Pi 4, I decided it would a
+great time to get myself acquainted with Linux kernels. Conway's Game of Life seemed simple at first to program,
+but turns out the rabbit hole can be deep.</p>
+<p>In the span of about 3-4 days I wrote Conway's Game of Life
+on Raspberry Pi 4 using a simple matrix based implementation with Raspberry Pi 4 specific setup in order to optimize the implementation.
+At the end, I was averaging around 23 fps on a 2000 by 2000 size grid with roughly 4 threads no GPU. The program was controlled via a terminal
+that can remotely change the display of the Raspberry Pi regardless of the state of the Pi's display. The game was controllable via ssh
+and any other forms of communication that support TTY.</p>
+<h2>&quot;What is Conway's Game of Life?&quot;</h2>
+<p>The game had been known to show how simple rules can produce complicated results. Just like how the cell is to the human body.
+For those of new to Conway's Game of Life, the idea is simple, have a board space where each space on the board is
+represented by a pixel. Each pixel is either alive (colored) or dead (blank). There are simple sets of rules to dictate if a pixel is alive or dead:</p>
+<br />
+<pre><code class="language-python"># Basic high level implementation example of life rules
+# There is a more compact way to write the rule, can you think of it?
+def cellAlive(cell):
+    if cell.alive:
+        # Cell can live if two or more surounds it but dies otherwise due
+        # to overpopulation or underpopulation
+        return alive(cell.surrounding) == 2 or alive(cell.surrounding) == 2
+    else:
+        # Stricter rule for a dead cell to live
+        return alive(cell.surrounding) == 3
+</code></pre>
+<br />
+<p>With just these rules, some crazy patterns can arise:</p>
+<iframe src="https://www.youtube.com/embed/b5E-f1NTS10" width="560" height="315" frameborder="0" class="ytv" allowfullscreen></iframe>
+<p>There is much that has already been said about Conway's Game of Life.
+I recommend checking out the
+<a href="https://en.wikipedia.org/wiki/Conway%27s_Game_of_Life">Wikipedia Page</a>
+or the <a href="https://www.conwaylife.com/wiki/Main_Page">official Game of Life Wiki</a>
+which contains various different information on game board configurations. Below you will find some
+recent things that I've learned in the domain of Conway's Game of Life while implementing the algorithms.</p>
+<h2>Developing for Raspberry Pi 4</h2>
+<p>The main goal of diving through this exercise was to understand more about Linux, particularly the Raspberry Pi 4
+with Raspbian installed with no GUI. I ended up developing Conway's Game of Life</p>
+<p>Here were some highlights while developing the features:</p>
+<h3>Direct Framebuffer Writes</h3>
+<p>I initially wanted to keep development as simple as possible. Instead of attempting to tinker around with the on-board
+GPU/QPU (see later pointer for more details) I thought it would be best to be able to blitz to screen immediately.
+Windows API had something similar to this. Looking at <a href="https://www.kernel.org/doc/Documentation/fb/framebuffer.txt">the documentation</a>,
+I was able to find out that Raspbian allows directly writes
+to <code>/dev/fb0</code>. This allows any writes to this device on Linux to be automatically shown on screen. All I had to do was
+<code>mmap</code> it in the program and write to it directly:</p>
+<pre><code class="language-cpp">// Raspberry Conway: source/app.cpp
+void setupFrameBuffer() {
+    // Prep buffer for writing
+    FDSCREEN = open(FRAMEBUFFER, O_RDWR);
+    fb_var_screeninfo varInfo;
+    ioctl(FDSCREEN, FBIOGET_VSCREENINFO, &amp;varInfo);
+
+    // Print Screen Info
+    SCREEN_X = varInfo.xres;
+    SCREEN_Y = varInfo.yres;
+
+    // Write back file description
+    ioctl(FDSCREEN,FBIOPUT_VSCREENINFO, &amp;varInfo);
+    DISPLAY = (uint *) mmap(
+                            0,
+                            SCREEN_X * SCREEN_Y * sizeof(uint),
+                            PROT_WRITE | PROT_READ,
+                            MAP_SHARED,
+                            FDSCREEN,
+                            0
+                        );
+}
+</code></pre>
+<p>But wait, there's more! If you run this code by itself, you will quickly notice that the terminal cursor will still
+be drawn upon the application. This is because of the graphics mode. By default, tty, or the terminal, defaults to <code>TEXT_MODE</code>
+which means that any graphics rendered will have terminal text rendered over as priority! We can disable this via <code>KDSETMODE</code>
+and setting the mode to graphics mode (see app.cpp for the code).</p>
+<h3>Key Input Through SSH Using TTY</h3>
+<p>What do you think of when you think of key input on Linux? Do you think <code>ncurses</code> or perhaps <code>QT</code>?
+If you thought so, congrats! You are numbered among the many who have recommended this approach to capture control input.
+I did not want to use either because I wanted to see if I can learn more about the kernel and also reduce overhead. Turns out to implement a simple,
+key input system through ssh, it was as simple as changing a file descriptor! The secret sauce is to disable canonical and echo flags for tty:</p>
+<pre><code class="language-cpp">// Rasberry Conway: app.cpp
+void setupKeyInputs() {
+    // Get the terminal process, may not be necessary
+    INPUT = ttyname(STDIN_FILENO);
+
+    // Set terminal mode for listening to input
+    termios termios_p;
+    tcgetattr(STDIN_FILENO, &amp;termios_p);
+    // Set non-canonical mode and remove echo
+    termios_p.c_lflag = termios_p.c_lflag &amp; !ICANON &amp; !ECHO;
+    tcsetattr(STDIN_FILENO, TCSANOW, &amp;termios_p);
+
+    // Open for reading
+    FDKEY = open(INPUT, O_RDONLY | O_NONBLOCK);
+}
+</code></pre>
+<h3>Squeezing the Every Last Drop of Power</h3>
+<p>The Pi 4 is powerful but not powerful enough. Originally with a 2000 x 2000 board, I could only run around 1 fps.
+Here are the ways that I was able to speed things up.</p>
+<h3>Multi-Threading</h3>
+<p>The game was embarassingly easy to multithread. Split the image up into multiple rows (rows for cache friendliness),
+and then run multiple threads. Since each compute is per pixel with reads across other rows, there is no need to atomize operations.
+This can be done for both game updates and blitzing to screen via CPU. This optimization sped up the rendering the most (which was the bottleneck)
+and allowed for 20-25 fps increases almost immediately.</p>
+<h3>Algorithmic Approaches</h3>
+<p>There were a few algorithmic specific approaches. Some amazing internet coders have written life in binary implementations
+to incredibly efficient algorithms. I did not have time to implement every single algorithm, but I was able to take some ideas and learn a bunch more.
+There are code specific implementations that can be optimized such as the rule for calculating life:</p>
+<pre><code class="language-cpp">// Raspberry Conway: source/game.hpp
+inline bool life (
+    bool nw, bool nn, bool ne,
+    bool ww, bool cc, bool ee,
+    bool sw, bool ss, bool se
+) {
+    uint count = nw + nn + ne + ww + ee + sw + ss + se;
+    return (count == 2) ? cc : (count == 3);
+}
+</code></pre>
+<p>There are other approaches to representing life efficiently. By using a quadtree, one can hash the board space
+to skip calculations per pixel over time. This implementation is called Hashlife. I was not able to finish implementing this
+algorithm at the time of writing this article but plan to dive more into this algorithm the next blog as I could not find a simple
+succinct way to summarize this algorithm without diving through code. Please stayed tuned.</p>
+<h2>Future Goals</h2>
+<h3>OpenGLES Support</h3>
+<p>Dear Raspberry Pi development team, please do not delay official support for OpenGLES. As of December 2019, there are still no
+officially supported OpenGLES implementations for Raspberry Pi 4. Part of the reason for this breakage was because of a new
+chip: VideoCore 6 which is different from VideoCore 4 from Raspberry Pi 3. VC6 was closer to VC5 than VC4 is to VC6. As a result
+most OpenGLES demo examples packaged with the Pi under <code>/opt/vc</code> simply do not work.</p>
+<p>Last I looked into this, however, there are ongoing talks to get rid of the old way of binding devices for the GPU and instead
+focus on DRM and OpenGLES API based approach which is more common for Linux desktops today. I attempted to pull and work with the active
+upstream <a href="https://gitlab.freedesktop.org/mesa/mesa/">Mesa</a> repository which housed the upto date Raspberry Pi 4 graphics demo but did not have time to complete it without spending
+hours of reading and building expertise on the graphics pipeline. At this point, I'll wait until the Raspberry Pi team solidifies the API.
+Until then, the project code has experimental build flags to use opengl header files but do not compile successfully.</p>
+<h2>Conclusion</h2>
+<p>Overall this project has been an amazing experience. Being able to write for an embedded system with a small memory has been a
+great way for me to push myself to optimize where it matters. There is still much to discuss in the real of Conway's Game of Life itself.
+Specific algorithms and all. I look forward to be able to share that knowledge another time.</p>
+
+        </div>
+      </div>
+
+      <div class="article-layout-sidebar">
+        <div class="side-bar-island">
+            <h2 id="table-of-contents-header"> Table of Contents </h2>
+            <div class="table-of-contents">
+                Ruh-roh. Looks like something went wrong :(
+                <br />
+            </div>
+        
+            <h2> Related Articles </h2>
+            <div class="related-articles">
+                <br />
+                        <ul>
+                            <li> 
+                            <a href="/blog\content\2023\08\23\sand-simulator">Writing a Particle Pixel Simulator in Rust</a>
+                            </li>
+                        </ul>
+                        <ul>
+                            <li> 
+                            <a href="/blog\content\2018\02\26\developing-a-2048-ai">Developing a 2048 AI</a>
+                            </li>
+                        </ul>
+                        <ul>
+                            <li> 
+                            <a href="/blog\content\2017\12\16\recording-a-piano-using-sub-par-equipment">Recording a Piano Using Sub-Par Equipment</a>
+                            </li>
+                        </ul>
+            </div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
+]]></description><link>https://programmingincluded.com/blog/content/2019/12/29/raspberryconway</link><guid isPermaLink="true">https://programmingincluded.com/blog/content/2019/12/29/raspberryconway</guid><dc:creator><![CDATA[Charles Chen]]></dc:creator><pubDate>Sun, 29 Dec 2019 22:38:00 GMT</pubDate></item><item><title><![CDATA[Developing a 2048 AI]]></title><description><![CDATA[<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark-reasonable.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script>hljs.highlightAll();</script>
+
+    <title>
+      Developing a 2048 AI
+    </title>
+
+    <link type="text/css" rel="stylesheet" href="/stylesheets/pblog.css">
+
+    <script src="/javascripts/anime.min.js"></script>
+    <script src="/javascripts/jquery-3.6.0.min.js"></script>
+    <script src="/javascripts/nav.js"></script>
+  </head>
+  <body>
+    <div class="top-banner-cont">
+        <div class="top-banner-center">
+            <br />
+            <br />
+            <a href="/" style="text-decoration: none;">
+                <image src="/images/site_wide/pilogo.gif" width="50rem" id="pi_logo" />
+            </a>
+             <br />
+            Programming Included
+        </div>
+    </div>
+    <nav class="article-layout-nav">
+        <ul>
+        <li><a href="/aboutme">About</a></li>
+        <li><a href="/blog">Blog</a></li>
+        </ul>
+    </nav>
+
+    <div class="article-layout">
+      <div class="article-layout-main">
+        <div class="article_title_div">
+
+          <h1 class="article_title">Developing a 2048 AI</h1>
+
+          <h2 class="article_subtitle">Winter Break 2017 Final Project</h2>
+
+          <div class="article_pub">
+            <a href="/aboutme">Charles Chen</a> |
+            Mon 2018-02-26 07:29 AM GMT-8
+          </div>
+
+        </div>
+
+        <div class="mid-bar-island">
+          <h2> Table of Contents </h2>
+          <div class="table-of-contents">
+          </div>
+        </div>
+
+        <div class="article-layout-main-body">
+          <iframe src="https://www.youtube.com/embed/2u7EFS9j-8c" width="560" height="315" frameborder="0" class="ytv" allowfullscreen></iframe>
+<p>This project was the finale for Winterbreak 2017. Enjoy!</p>
+<p>Really wanted to focus on the delivery of content of the video,
+as a result took longer to edit. Never got the chance to post until now due to school.</p>
+<p>For the evaluation function, more can be done to speed-up the search. Furthermore, different
+learning techniques can be done better. Such as temporal difference learning.</p>
+
+        </div>
+      </div>
+
+      <div class="article-layout-sidebar">
+        <div class="side-bar-island">
+            <h2 id="table-of-contents-header"> Table of Contents </h2>
+            <div class="table-of-contents">
+                Ruh-roh. Looks like something went wrong :(
+                <br />
+            </div>
+        
+            <h2> Related Articles </h2>
+            <div class="related-articles">
+                <br />
+                        <ul>
+                            <li> 
+                            <a href="/blog\content\2019\12\29\raspberryconway">Raspberry's Game of Life</a>
+                            </li>
+                        </ul>
+                        <ul>
+                            <li> 
+                            <a href="/blog\content\2017\12\16\recording-a-piano-using-sub-par-equipment">Recording a Piano Using Sub-Par Equipment</a>
+                            </li>
+                        </ul>
+            </div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
+]]></description><link>https://programmingincluded.com/blog/content/2018/02/26/developing-a-2048-ai</link><guid isPermaLink="true">https://programmingincluded.com/blog/content/2018/02/26/developing-a-2048-ai</guid><dc:creator><![CDATA[Charles Chen]]></dc:creator><pubDate>Mon, 26 Feb 2018 15:29:00 GMT</pubDate></item><item><title><![CDATA[Blog v0.2&#58; Improving the Blog Reading User Experience]]></title><description><![CDATA[<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark-reasonable.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script>hljs.highlightAll();</script>
+
+    <title>
+      Blog v0.2&#58; Improving the Blog Reading User Experience
+    </title>
+
+    <link type="text/css" rel="stylesheet" href="/stylesheets/pblog.css">
+
+    <script src="/javascripts/anime.min.js"></script>
+    <script src="/javascripts/jquery-3.6.0.min.js"></script>
+    <script src="/javascripts/nav.js"></script>
+  </head>
+  <body>
+    <div class="top-banner-cont">
+        <div class="top-banner-center">
+            <br />
+            <br />
+            <a href="/" style="text-decoration: none;">
+                <image src="/images/site_wide/pilogo.gif" width="50rem" id="pi_logo" />
+            </a>
+             <br />
+            Programming Included
+        </div>
+    </div>
+    <nav class="article-layout-nav">
+        <ul>
+        <li><a href="/aboutme">About</a></li>
+        <li><a href="/blog">Blog</a></li>
+        </ul>
+    </nav>
+
+    <div class="article-layout">
+      <div class="article-layout-main">
+        <div class="article_title_div">
+
+          <h1 class="article_title">Blog v0.2&#58; Improving the Blog Reading User Experience</h1>
+
+          <h2 class="article_subtitle">Comment Sections, Buttons, and Aesthetics</h2>
+
+
+        </div>
+
+        <div class="mid-bar-island">
+          <h2> Table of Contents </h2>
+          <div class="table-of-contents">
+          </div>
+        </div>
+
+        <div class="article-layout-main-body">
+          <p>As the new year begins and as the winter quarter is about to start, I wanted to update the website once more.
+For those who have been following the website layouts, there are several changes to the website that I have been doing incrementally.
+This post will be an attempt to capture most, if not, all of the changes that were significant.</p>
+<h2>Article Sections</h2>
+<p>Look up, what do you see? Why, it's an article section! These title sections were introduced while writing the blog:
+<a href="/blog/content/2017/10/05/introduction-to-community-driven-incentives/">Handmade Hero and D3js</a></p>
+<p>These sections were introduced in hopes that the pages may be easier to skim through and read. I plan on doing
+more with them in the future.</p>
+<p>The blog has been suffering through a lot of changes interms of the content width. The width of the content is detrimental to user retention because
+users generally skim articles in specific fashions. Having the content width be a little too long or too short may cause the user to skim
+content variably. The header sections are placed in hopes to combat this incase the width was too large. I did not design a full scale
+experiement to test the optimal width and do not plan to do it in the near future.</p>
+<p>Fun fact: Within the Recent Posts/Blogs page, the article headers do not exhibit section lines in order to remove confusion between article divisions.</p>
+<h2>Aesthetic Changes</h2>
+<p>Immediately after posting v0.1, I made a change to the logo. A change was made to the logo cursor so that a sleeker, thinner feel can be given.</p>
+<div class="image-unit"><image src="/images/pblog/2018-1/logo_snapshot.gif" width="50rem" alt="" target="blank" /></div>
+<p>Furthermore, this logo plays better with the placing of the logo. Now I utilize HTML font underneath to represent the website's name.
+Overall this gives a more aesthetic feel and more 21st century computer-like method.</p>
+<p>Somethings I want to be able to do in the future is to be able to add captions to blog images and create centering in order to make the blogs
+easier to skim and read. Really this is all about ease of use for the user in this case.</p>
+<div class="image-unit"><image src="/images/pblog/2018-1/snapshot.jpg" width="5000rem" alt="" target="blank" /></div>
+<p>Finally there was a change to the placement of the logo. The logo has now been moved to the top. I did this because the website felt a little cramped
+and having that header space helps lighten up the feeling.</p>
+<p>All of these changes have an equivalent mobile version that allows mobile viewing. I am looking forward to improving this version as the mobile
+aesthetics are not perfect yet.</p>
+<h2>New Functions</h2>
+<p>I introduced a comment section down below each blog. I used a service <a href="https://disqus.com/">Disqus</a> to do this. The service websites that are
+static in nature, that is, without any backend, to host comments (Comments require a backend support in order to store data.)</p>
+<div class="image-unit"><image src="/images/pblog/2018-1/disqus.jpg" width="5000rem" alt="" target="blank" /></div>
+<p>My decision to implement a discussion sections is in hopes that people will be able to ask any questions in the future. Currently the content in the blog is not
+much, however, this may change as the blog starts to gain momentum.</p>
+<h2>Invisible Changes</h2>
+<p>There are some internal changes too! HTML has been updated with paragraph tags in order to better update the website in the future.
+This also helps any bots that may crawl the site for SEO. But sadly also bad for scrappers :/
+I added some custom helpers to help with some blog formatting. All of these changes are plans to better format and change the blog when needed in the future.</p>
+<p>For those who are interested in making their own blog and would like to know what tools I am using: I am using Middleman with Github as hosting.
+Until next time! Looking forward to continuous updates in the future.</p>
+
+        </div>
+      </div>
+
+      <div class="article-layout-sidebar">
+        <div class="side-bar-island">
+            <h2 id="table-of-contents-header"> Table of Contents </h2>
+            <div class="table-of-contents">
+                Ruh-roh. Looks like something went wrong :(
+                <br />
+            </div>
+        
+            <h2> Related Articles </h2>
+            <div class="related-articles">
+                <br />
+                        <ul>
+                            <li> 
+                            <a href="/blog\content\2017\09\08\starting">Blog v0.1&#58; Starting a New Blog</a>
+                            </li>
+                        </ul>
+                        <ul>
+                            <li> 
+                            <a href="/blog\content\2017\09\08\on-the-site-logo">On the Site Logo</a>
+                            </li>
+                        </ul>
+            </div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
+]]></description><link>https://programmingincluded.com/blog/content/2018/01/04/blog-v0-2-improving-the-user-experience</link><guid isPermaLink="true">https://programmingincluded.com/blog/content/2018/01/04/blog-v0-2-improving-the-user-experience</guid><dc:creator><![CDATA[Charles H. Chen]]></dc:creator><pubDate>Thu, 04 Jan 2018 17:32:00 GMT</pubDate></item><item><title><![CDATA[DMV Datascience]]></title><description><![CDATA[<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark-reasonable.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script>hljs.highlightAll();</script>
+
+    <title>
+      DMV Datascience
+    </title>
+
+    <link type="text/css" rel="stylesheet" href="/stylesheets/pblog.css">
+
+    <script src="/javascripts/anime.min.js"></script>
+    <script src="/javascripts/jquery-3.6.0.min.js"></script>
+    <script src="/javascripts/nav.js"></script>
+  </head>
+  <body>
+    <div class="top-banner-cont">
+        <div class="top-banner-center">
+            <br />
+            <br />
+            <a href="/" style="text-decoration: none;">
+                <image src="/images/site_wide/pilogo.gif" width="50rem" id="pi_logo" />
+            </a>
+             <br />
+            Programming Included
+        </div>
+    </div>
+    <nav class="article-layout-nav">
+        <ul>
+        <li><a href="/aboutme">About</a></li>
+        <li><a href="/blog">Blog</a></li>
+        </ul>
+    </nav>
+
+    <div class="article-layout">
+      <div class="article-layout-main">
+        <div class="article_title_div">
+
+          <h1 class="article_title">DMV Datascience</h1>
+
+          <h2 class="article_subtitle">Using Python, Numpy, and Pandas</h2>
+
+          <div class="article_pub">
+            <a href="/aboutme">Charles Chen</a> |
+            Fri 2017-12-22 12:03 AM GMT-8
+          </div>
+
+        </div>
+
+        <div class="mid-bar-island">
+          <h2> Table of Contents </h2>
+          <div class="table-of-contents">
+          </div>
+        </div>
+
+        <div class="article-layout-main-body">
+          <iframe src="https://www.youtube.com/embed/lqqU_yJXcSg" width="560" height="315" frameborder="0" class="ytv" allowfullscreen></iframe>
+<p>Enjoy! As a sidenote, no I do not do this often.</p>
+<p>It was more of curiosity and an attempt to find a project for the day.</p>
+
+        </div>
+      </div>
+
+      <div class="article-layout-sidebar">
+        <div class="side-bar-island">
+            <h2 id="table-of-contents-header"> Table of Contents </h2>
+            <div class="table-of-contents">
+                Ruh-roh. Looks like something went wrong :(
+                <br />
+            </div>
+        
+            <h2> Related Articles </h2>
+            <div class="related-articles">
+                <br />
+                        <ul>
+                            <li> 
+                            <a href="/blog\content\2017\10\06\texture-mapping-the-design-process">Design Process&#58; Texture Mapping</a>
+                            </li>
+                        </ul>
+                        <ul>
+                            <li> 
+                            <a href="/blog\content\2017\10\05\introduction-to-community-driven-incentives">Handmade Hero and D3js</a>
+                            </li>
+                        </ul>
+            </div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
+]]></description><link>https://programmingincluded.com/blog/content/2017/12/22/dmv-datascience</link><guid isPermaLink="true">https://programmingincluded.com/blog/content/2017/12/22/dmv-datascience</guid><dc:creator><![CDATA[Charles Chen]]></dc:creator><pubDate>Fri, 22 Dec 2017 08:03:00 GMT</pubDate></item><item><title><![CDATA[Recording a Piano Using Sub-Par Equipment]]></title><description><![CDATA[<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark-reasonable.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script>hljs.highlightAll();</script>
+
+    <title>
+      Recording a Piano Using Sub-Par Equipment
+    </title>
+
+    <link type="text/css" rel="stylesheet" href="/stylesheets/pblog.css">
+
+    <script src="/javascripts/anime.min.js"></script>
+    <script src="/javascripts/jquery-3.6.0.min.js"></script>
+    <script src="/javascripts/nav.js"></script>
+  </head>
+  <body>
+    <div class="top-banner-cont">
+        <div class="top-banner-center">
+            <br />
+            <br />
+            <a href="/" style="text-decoration: none;">
+                <image src="/images/site_wide/pilogo.gif" width="50rem" id="pi_logo" />
+            </a>
+             <br />
+            Programming Included
+        </div>
+    </div>
+    <nav class="article-layout-nav">
+        <ul>
+        <li><a href="/aboutme">About</a></li>
+        <li><a href="/blog">Blog</a></li>
+        </ul>
+    </nav>
+
+    <div class="article-layout">
+      <div class="article-layout-main">
+        <div class="article_title_div">
+
+          <h1 class="article_title">Recording a Piano Using Sub-Par Equipment</h1>
+
+          <h2 class="article_subtitle">An Attempt</h2>
+
+          <div class="article_pub">
+            <a href="/aboutme">Charles Chen</a> |
+            Sat 2017-12-16 01:08 PM GMT-8
+          </div>
+
+        </div>
+
+        <div class="mid-bar-island">
+          <h2> Table of Contents </h2>
+          <div class="table-of-contents">
+          </div>
+        </div>
+
+        <div class="article-layout-main-body">
+          <iframe src="https://www.youtube.com/embed/LY_eq821Lg0" width="560" height="315" frameborder="0" class="ytv" allowfullscreen></iframe>
+<p>Since Winter Break started I decided to document fun things that I would do around the house.
+I hope that this will be entertaining as it is also educational.</p>
+<p>Post-Video Comments:</p>
+<p>Overall the audio quality after production was slightly better.
+But again, I could only do so much.
+I noticed that both mics captured the higher notes very strongly,
+so the lower notes were more difficult to capture.
+At the end, after all the digital manipulation, I could only get so much juice for boosting the
+low frequencies. So the moral of the story is, good mics still matter! Or do they?</p>
+
+        </div>
+      </div>
+
+      <div class="article-layout-sidebar">
+        <div class="side-bar-island">
+            <h2 id="table-of-contents-header"> Table of Contents </h2>
+            <div class="table-of-contents">
+                Ruh-roh. Looks like something went wrong :(
+                <br />
+            </div>
+        
+            <h2> Related Articles </h2>
+            <div class="related-articles">
+                <br />
+                        <ul>
+                            <li> 
+                            <a href="/blog\content\2019\12\29\raspberryconway">Raspberry's Game of Life</a>
+                            </li>
+                        </ul>
+                        <ul>
+                            <li> 
+                            <a href="/blog\content\2018\02\26\developing-a-2048-ai">Developing a 2048 AI</a>
+                            </li>
+                        </ul>
+                        <ul>
+                            <li> 
+                            <a href="/blog\content\2017\09\12\writing-music">Writing Music, Creative Endeavors, and the Growth Mindset</a>
+                            </li>
+                        </ul>
+            </div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
+]]></description><link>https://programmingincluded.com/blog/content/2017/12/16/recording-a-piano-using-sub-par-equipment</link><guid isPermaLink="true">https://programmingincluded.com/blog/content/2017/12/16/recording-a-piano-using-sub-par-equipment</guid><dc:creator><![CDATA[Charles Chen]]></dc:creator><pubDate>Sat, 16 Dec 2017 21:08:00 GMT</pubDate></item><item><title><![CDATA[Design Process&#58; Texture Mapping]]></title><description><![CDATA[<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark-reasonable.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script>hljs.highlightAll();</script>
+
+    <title>
+      Design Process&#58; Texture Mapping
+    </title>
+
+    <link type="text/css" rel="stylesheet" href="/stylesheets/pblog.css">
+
+    <script src="/javascripts/anime.min.js"></script>
+    <script src="/javascripts/jquery-3.6.0.min.js"></script>
+    <script src="/javascripts/nav.js"></script>
+  </head>
+  <body>
+    <div class="top-banner-cont">
+        <div class="top-banner-center">
+            <br />
+            <br />
+            <a href="/" style="text-decoration: none;">
+                <image src="/images/site_wide/pilogo.gif" width="50rem" id="pi_logo" />
+            </a>
+             <br />
+            Programming Included
+        </div>
+    </div>
+    <nav class="article-layout-nav">
+        <ul>
+        <li><a href="/aboutme">About</a></li>
+        <li><a href="/blog">Blog</a></li>
+        </ul>
+    </nav>
+
+    <div class="article-layout">
+      <div class="article-layout-main">
+        <div class="article_title_div">
+
+          <h1 class="article_title">Design Process&#58; Texture Mapping</h1>
+
+          <h2 class="article_subtitle">My Thoughts on Panel in HandMadeCon 2016</h2>
+
+          <div class="article_pub">
+            <a href="/aboutme">Charles Chen</a> |
+            Thu 2017-10-05 08:23 PM GMT-7
+          </div>
+
+        </div>
+
+        <div class="mid-bar-island">
+          <h2> Table of Contents </h2>
+          <div class="table-of-contents">
+          </div>
+        </div>
+
+        <div class="article-layout-main-body">
+          <iframe src="https://www.youtube.com/embed/xn76r0JxqNM" width="560" height="315" frameborder="0" class="ytv" allowfullscreen></iframe>
+<p>In the design lab that I research at, we often talk about the concept of going through the interation process.</p>
+<p>When working on a project, often times we do not know the exact final product, however, we know the needs from the client.
+So much of the things we have today, we take for granted.
+I think this video illustrates this point very well. I have always been very greatful for Handmade Con.
+For Muratori to take the history of computer graphics and explain with clarity. The Handmade Con lives with this spirit in mind.</p>
+<p>I recommend checking out this video when anyone has the chance. It talks a lot about tinkering around with unknowns and trying to figure out what to do.
+Furthermore, the video mentions something very interesting: the theory picked up after the design.
+The people who were working with texture mapping were prototyping more and worrying less about the math.
+This is a lot with the mentality of research. Calculus was invented as a process to describe Physics. Vice versa.</p>
+
+        </div>
+      </div>
+
+      <div class="article-layout-sidebar">
+        <div class="side-bar-island">
+            <h2 id="table-of-contents-header"> Table of Contents </h2>
+            <div class="table-of-contents">
+                Ruh-roh. Looks like something went wrong :(
+                <br />
+            </div>
+        
+            <h2> Related Articles </h2>
+            <div class="related-articles">
+                <br />
+                        <ul>
+                            <li> 
+                            <a href="/blog\content\2017\12\22\dmv-datascience">DMV Datascience</a>
+                            </li>
+                        </ul>
+                        <ul>
+                            <li> 
+                            <a href="/blog\content\2017\10\05\introduction-to-community-driven-incentives">Handmade Hero and D3js</a>
+                            </li>
+                        </ul>
+            </div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
+]]></description><link>https://programmingincluded.com/blog/content/2017/10/06/texture-mapping-the-design-process</link><guid isPermaLink="true">https://programmingincluded.com/blog/content/2017/10/06/texture-mapping-the-design-process</guid><dc:creator><![CDATA[Charles Chen]]></dc:creator><pubDate>Fri, 06 Oct 2017 03:23:00 GMT</pubDate></item><item><title><![CDATA[Handmade Hero and D3js]]></title><description><![CDATA[<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark-reasonable.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script>hljs.highlightAll();</script>
+
+    <title>
+      Handmade Hero and D3js
+    </title>
+
+    <link type="text/css" rel="stylesheet" href="/stylesheets/pblog.css">
+
+    <script src="/javascripts/anime.min.js"></script>
+    <script src="/javascripts/jquery-3.6.0.min.js"></script>
+    <script src="/javascripts/nav.js"></script>
+  </head>
+  <body>
+    <div class="top-banner-cont">
+        <div class="top-banner-center">
+            <br />
+            <br />
+            <a href="/" style="text-decoration: none;">
+                <image src="/images/site_wide/pilogo.gif" width="50rem" id="pi_logo" />
+            </a>
+             <br />
+            Programming Included
+        </div>
+    </div>
+    <nav class="article-layout-nav">
+        <ul>
+        <li><a href="/aboutme">About</a></li>
+        <li><a href="/blog">Blog</a></li>
+        </ul>
+    </nav>
+
+    <div class="article-layout">
+      <div class="article-layout-main">
+        <div class="article_title_div">
+
+          <h1 class="article_title">Handmade Hero and D3js</h1>
+
+          <h2 class="article_subtitle">An Introduction for the Future</h2>
+
+          <div class="article_pub">
+            <a href="/aboutme">Charles Chen</a> |
+            Thu 2017-10-05 05:24 AM GMT-7
+          </div>
+
+        </div>
+
+        <div class="mid-bar-island">
+          <h2> Table of Contents </h2>
+          <div class="table-of-contents">
+          </div>
+        </div>
+
+        <div class="article-layout-main-body">
+          <p>I would like to use this article as an opportunity to introduce two big concepts/communities.</p>
+<h2>Handmade Hero</h2>
+<p>I am very grateful for <a href="https://handmadehero.org/">HandMade Hero</a>. I remember when it first started a couple years back. <br />
+The time when Casey Muratori was teaching how the Windows API worked and how everything came together. He taught me a lot in the how and why.
+Why is this function call in place? How does this function work? How does one create a window callback function?</p>
+<p>He really helped unveil the inner workings of modern libraries and how they work with the OS.
+It has been 2-3 years now and I have to say the series and the community has grown tremendously. The community is deeply focused on game programming with understanding of why we have the system the way we have today.</p>
+<p>In my current standing after graduating with a CS degree and now working on a masters, I do not think I will be going back to the series, even though I would say I still have a lot to learn.
+This is because I realized there is a lot we can continue to learn in CS. Whether that is in OS, computer graphics, ML, AI, deep learning, etc. But eventually we have to focus on one area to work on for our day to day work.</p>
+<p>I deeply appreciate what Muratori has done but I think what is more important is getting the gist of computational thinking. I think his course provides that. There comes a time in a programmer's life where we can say with some
+degree of instinct on how a program or API works. After much exposure, we see larger, deeper patterns to the design that can be exploited.</p>
+<h2>D3js</h2>
+<p>Each API has a different flavor but has a general flow. For example, recently I was in a conversation about the D3js library. A Javascript library designed specifically for data science oriented graphs.</p>
+<p>What I came to realize quickly was that the app was designed very similarly to other common gui libraries. Such as Android XML files or Python's Kiwi. There was some kind of scaffolding involved in the system. In D3js we have the SVG scaffolding.</p>
+<p>What made D3js unique, I concluded, was its community and two key features it promoted. First was the ability to couple with data by allowing it to be set as a input and manipulated as an ouput to DOM elements.
+Second is the ability for D3js to have some basic libraries for visual manipulation such as interpolation or forces.
+These features cater to better data science applications.</p>
+<p>Turns out after talking to my advisor, indeed! There are many forks of the D3js library that promote this type of community building. With various examples of data visualizations and what not.</p>
+
+        </div>
+      </div>
+
+      <div class="article-layout-sidebar">
+        <div class="side-bar-island">
+            <h2 id="table-of-contents-header"> Table of Contents </h2>
+            <div class="table-of-contents">
+                Ruh-roh. Looks like something went wrong :(
+                <br />
+            </div>
+        
+            <h2> Related Articles </h2>
+            <div class="related-articles">
+                <br />
+                        <ul>
+                            <li> 
+                            <a href="/blog\content\2017\12\22\dmv-datascience">DMV Datascience</a>
+                            </li>
+                        </ul>
+                        <ul>
+                            <li> 
+                            <a href="/blog\content\2017\10\06\texture-mapping-the-design-process">Design Process&#58; Texture Mapping</a>
+                            </li>
+                        </ul>
+            </div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
+]]></description><link>https://programmingincluded.com/blog/content/2017/10/05/introduction-to-community-driven-incentives</link><guid isPermaLink="true">https://programmingincluded.com/blog/content/2017/10/05/introduction-to-community-driven-incentives</guid><dc:creator><![CDATA[Charles Chen]]></dc:creator><pubDate>Thu, 05 Oct 2017 12:24:00 GMT</pubDate></item><item><title><![CDATA[Writing Music, Creative Endeavors, and the Growth Mindset]]></title><description><![CDATA[<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark-reasonable.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script>hljs.highlightAll();</script>
+
+    <title>
+      Writing Music, Creative Endeavors, and the Growth Mindset
+    </title>
+
+    <link type="text/css" rel="stylesheet" href="/stylesheets/pblog.css">
+
+    <script src="/javascripts/anime.min.js"></script>
+    <script src="/javascripts/jquery-3.6.0.min.js"></script>
+    <script src="/javascripts/nav.js"></script>
+  </head>
+  <body>
+    <div class="top-banner-cont">
+        <div class="top-banner-center">
+            <br />
+            <br />
+            <a href="/" style="text-decoration: none;">
+                <image src="/images/site_wide/pilogo.gif" width="50rem" id="pi_logo" />
+            </a>
+             <br />
+            Programming Included
+        </div>
+    </div>
+    <nav class="article-layout-nav">
+        <ul>
+        <li><a href="/aboutme">About</a></li>
+        <li><a href="/blog">Blog</a></li>
+        </ul>
+    </nav>
+
+    <div class="article-layout">
+      <div class="article-layout-main">
+        <div class="article_title_div">
+
+          <h1 class="article_title">Writing Music, Creative Endeavors, and the Growth Mindset</h1>
+
+          <h2 class="article_subtitle">My Thoughts on Discipline</h2>
+
+          <div class="article_pub">
+            <a href="/aboutme">Charles Chen</a> |
+            Tue 2017-09-12 05:00 AM GMT-7
+          </div>
+
+        </div>
+
+        <div class="mid-bar-island">
+          <h2> Table of Contents </h2>
+          <div class="table-of-contents">
+          </div>
+        </div>
+
+        <div class="article-layout-main-body">
+          <p>When I grew up, I recall remembering vividly the mentality of being good at either arts or science, but not both.
+There was this idea that if you were good at math, programming, you would some how be weak at art and music.
+Growing up, I was really into math, physics, programming... basically anything to do with science. Yet I also had a passion for music.</p>
+<p>The music I liked to play was music from the Romantic Era or Neo-Classical music. Songs by Chopin, Liszt, Hisaishi, to name a few.
+I did not really enjoy Baroque, contrary to popular believe. You see, there was this mentality that since I really enjoyed sciences, somehow
+I would enjoy the Baroque style of calculated voices and intertwining of them. Yet, I disagree.</p>
+<p>This is where the idea of growth mindset comes in. The mind is not a fixed machine that is good at only doing one thing
+and cannot learn new things. Just because you are talented in one thing does not mean you can not do other things.
+The brain is a fascinating thing! It is feedback machine that constantly learns and grows with every new experience.
+To put it more technically, the brain is not simply a top-down mechanism, but also a bottom-up.</p>
+<p>The growth mindset, aptly put, is the concept that the brain is a muscle. If you keep training the brain, it can be good at what it is trained to do.
+Of course, it does not deal with aging and the problems of plasticity becoming lower as people age. However it says that if you keep practicing,
+with enough time, you can train yourself to do something! In otherwords, discipline is the issue, not an innate capability.</p>
+<p>The growth mindset, however, does not say anything about talent. Talent definitely exists, some people are more primed to do certain thing
+than others. However, by no means does that also mean a talented person does not need to practice! A non-talented person can discpline themselves to
+the same level of the talented.</p>
+<p>Talent is most probably what we see as why people would generalize the idea of science people being bad at art.
+Generally speaking, we enjoy doing what we are good at because it takes less effort to do so.</p>
+<p>With this mindset, we can see why I can thoroughly enjoy playing piano and be decent at it. Because my motivation allowed me to practice daily
+and it allowed me to excel in that particular field.</p>
+
+        </div>
+      </div>
+
+      <div class="article-layout-sidebar">
+        <div class="side-bar-island">
+            <h2 id="table-of-contents-header"> Table of Contents </h2>
+            <div class="table-of-contents">
+                Ruh-roh. Looks like something went wrong :(
+                <br />
+            </div>
+        
+            <h2> Related Articles </h2>
+            <div class="related-articles">
+                <br />
+                        <ul>
+                            <li> 
+                            <a href="/blog\content\2017\12\16\recording-a-piano-using-sub-par-equipment">Recording a Piano Using Sub-Par Equipment</a>
+                            </li>
+                        </ul>
+            </div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
+]]></description><link>https://programmingincluded.com/blog/content/2017/09/12/writing-music</link><guid isPermaLink="true">https://programmingincluded.com/blog/content/2017/09/12/writing-music</guid><dc:creator><![CDATA[Charles Chen]]></dc:creator><pubDate>Tue, 12 Sep 2017 12:00:00 GMT</pubDate></item><item><title><![CDATA[On the Site Logo]]></title><description><![CDATA[<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark-reasonable.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script>hljs.highlightAll();</script>
+
+    <title>
+      On the Site Logo
+    </title>
+
+    <link type="text/css" rel="stylesheet" href="/stylesheets/pblog.css">
+
+    <script src="/javascripts/anime.min.js"></script>
+    <script src="/javascripts/jquery-3.6.0.min.js"></script>
+    <script src="/javascripts/nav.js"></script>
+  </head>
+  <body>
+    <div class="top-banner-cont">
+        <div class="top-banner-center">
+            <br />
+            <br />
+            <a href="/" style="text-decoration: none;">
+                <image src="/images/site_wide/pilogo.gif" width="50rem" id="pi_logo" />
+            </a>
+             <br />
+            Programming Included
+        </div>
+    </div>
+    <nav class="article-layout-nav">
+        <ul>
+        <li><a href="/aboutme">About</a></li>
+        <li><a href="/blog">Blog</a></li>
+        </ul>
+    </nav>
+
+    <div class="article-layout">
+      <div class="article-layout-main">
+        <div class="article_title_div">
+
+          <h1 class="article_title">On the Site Logo</h1>
+
+          <h2 class="article_subtitle">What Does the Site Logo Represent and How do GIFS Work?</h2>
+
+          <div class="article_pub">
+            <a href="/aboutme">Charles Chen</a> |
+            Fri 2017-09-08 01:42 PM GMT-7
+          </div>
+
+        </div>
+
+        <div class="mid-bar-island">
+          <h2> Table of Contents </h2>
+          <div class="table-of-contents">
+          </div>
+        </div>
+
+        <div class="article-layout-main-body">
+          <p>I guess the first thing I would like to write about would be to discuss the site logo.</p>
+<div class="image-unit"><image src="/images/site_wide/pilogo.gif" width="50rem" alt="" target="blank" /></div>
+<p>The logo represents a P and a I for Programming Included and the I acts as a cursor
+to edit the text.
+Now this wouldn't be <em>Programming</em> Included without something more technical!</p>
+<p>I found it interesting how many sites forgo GIFs for their static, consistent portions of the logos.
+Although not many sites mention why this is the case, I do think that most worry about the size of the GIF. However, this GIF is only 2.27 kB compared to 13.1 kB for Google's logo!
+GIF's can be seen as simple playback images that display images in succession or differences in images in succession. As a result, any change that occurs need to be shown as an image and is limited by consistent playback by each layer.</p>
+<p>In other words, each layer would represent a fixed time slice.
+You can imagine the complexity increases as the object in the GIF involves more and more movement.
+If the GIF experiences rapid movement without a particular pattern, differences occur in different time intervals.
+This means that we need to provide as many images as there are the lowest delay between frames (delta time) that do not illustrate the object moving, otherwise we would suffer loss or choppiness.</p>
+<p>Our logo can be considered as two images worth 128 x 128 pixels each.
+This is because we only have two states, the I there and not:</p>
+<div class="image-unit"><image src="/images/pblog/2017-9/logo_process.jpg" width="50rem" alt="" target="blank" /></div>
+<p>Above shows the two actual images that are encoded. Notice the seperation between the I and P. The P acts as the base image.
+While the I stores the difference between the first and second frames. This is GIF animation optimizing that is supported in Gimp.</p>
+<p>There is indepth documentation on each byte/bit of the gif which can be found online. I hope everyone who read the word GIF read it as GIF and not GIF ;)</p>
+
+        </div>
+      </div>
+
+      <div class="article-layout-sidebar">
+        <div class="side-bar-island">
+            <h2 id="table-of-contents-header"> Table of Contents </h2>
+            <div class="table-of-contents">
+                Ruh-roh. Looks like something went wrong :(
+                <br />
+            </div>
+        
+            <h2> Related Articles </h2>
+            <div class="related-articles">
+                <br />
+                        <ul>
+                            <li> 
+                            <a href="/blog\content\2018\01\04\blog-v0-2-improving-the-user-experience">Blog v0.2&#58; Improving the Blog Reading User Experience</a>
+                            </li>
+                        </ul>
+                        <ul>
+                            <li> 
+                            <a href="/blog\content\2017\09\08\starting">Blog v0.1&#58; Starting a New Blog</a>
+                            </li>
+                        </ul>
+            </div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
+]]></description><link>https://programmingincluded.com/blog/content/2017/09/08/on-the-site-logo</link><guid isPermaLink="true">https://programmingincluded.com/blog/content/2017/09/08/on-the-site-logo</guid><dc:creator><![CDATA[Charles Chen]]></dc:creator><pubDate>Fri, 08 Sep 2017 20:42:00 GMT</pubDate></item><item><title><![CDATA[Blog v0.1&#58; Starting a New Blog]]></title><description><![CDATA[<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark-reasonable.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script>hljs.highlightAll();</script>
+
+    <title>
+      Blog v0.1&#58; Starting a New Blog
+    </title>
+
+    <link type="text/css" rel="stylesheet" href="/stylesheets/pblog.css">
+
+    <script src="/javascripts/anime.min.js"></script>
+    <script src="/javascripts/jquery-3.6.0.min.js"></script>
+    <script src="/javascripts/nav.js"></script>
+  </head>
+  <body>
+    <div class="top-banner-cont">
+        <div class="top-banner-center">
+            <br />
+            <br />
+            <a href="/" style="text-decoration: none;">
+                <image src="/images/site_wide/pilogo.gif" width="50rem" id="pi_logo" />
+            </a>
+             <br />
+            Programming Included
+        </div>
+    </div>
+    <nav class="article-layout-nav">
+        <ul>
+        <li><a href="/aboutme">About</a></li>
+        <li><a href="/blog">Blog</a></li>
+        </ul>
+    </nav>
+
+    <div class="article-layout">
+      <div class="article-layout-main">
+        <div class="article_title_div">
+
+          <h1 class="article_title">Blog v0.1&#58; Starting a New Blog</h1>
+
+          <h2 class="article_subtitle">Paving the Way Forward</h2>
+
+          <div class="article_pub">
+            <a href="/aboutme">Charles Chen</a> |
+            Fri 2017-09-08 12:10 AM GMT-7
+          </div>
+
+        </div>
+
+        <div class="mid-bar-island">
+          <h2> Table of Contents </h2>
+          <div class="table-of-contents">
+          </div>
+        </div>
+
+        <div class="article-layout-main-body">
+          <p>Hello World!</p>
+<p>I hope this blog finds your way to you. This marks the first official blog of the Programming Included blog!
+My hope is that we can learn and discuss new things related to what I have learned. The blog will be aimed towards heavy emphasis on Computer Science related topics or thinking.
+Computational thinking is something that can cross into various domains and so we will not be restricted to only coding!</p>
+<p>Okay, for future reference, here is the snapshot of the current site! There is still a lot to be implemented but it works for now!</p>
+<div class="image-unit"><image src="/images/pblog/2017-9/blog_snapshot.jpg" width="100%" alt="" target="blank" /></div>
+<p>So far there are no footers, no working contact buttons. Consider this a v0.1 release with future releases. Since this is a blog, precise change logs will not be found in articles, rather they will be in their own page.
+Which will be linked... eventually. Only big updates will have blog posts to showcase them. Since I consider this site itself to be a project as well! M E T A</p>
+
+        </div>
+      </div>
+
+      <div class="article-layout-sidebar">
+        <div class="side-bar-island">
+            <h2 id="table-of-contents-header"> Table of Contents </h2>
+            <div class="table-of-contents">
+                Ruh-roh. Looks like something went wrong :(
+                <br />
+            </div>
+        
+            <h2> Related Articles </h2>
+            <div class="related-articles">
+                <br />
+                        <ul>
+                            <li> 
+                            <a href="/blog\content\2018\01\04\blog-v0-2-improving-the-user-experience">Blog v0.2&#58; Improving the Blog Reading User Experience</a>
+                            </li>
+                        </ul>
+                        <ul>
+                            <li> 
+                            <a href="/blog\content\2017\09\08\on-the-site-logo">On the Site Logo</a>
+                            </li>
+                        </ul>
+            </div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
+]]></description><link>https://programmingincluded.com/blog/content/2017/09/08/starting</link><guid isPermaLink="true">https://programmingincluded.com/blog/content/2017/09/08/starting</guid><dc:creator><![CDATA[Charles Chen]]></dc:creator><pubDate>Fri, 08 Sep 2017 07:10:00 GMT</pubDate></item></channel></rss>
