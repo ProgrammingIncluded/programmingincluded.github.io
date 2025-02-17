@@ -1,415 +1,513 @@
-<!doctype html> <html> <head> <meta charset=utf-8> <meta http-equiv=x-ua-compatible content="ie=edge"> <meta name=viewport content="width=device-width, initial-scale=1, shrink-to-fit=no"> <title>Rust vs Modern C++ Part 1 | Programming Included</title> <link href="/stylesheets/highlighting.css" rel=stylesheet /> <link href="/stylesheets/pblog.css" rel=stylesheet /> <script src="/javascripts/anime.min.js"></script> <script src="/javascripts/jquery-3.6.0.min.js"></script> <script src="/javascripts/nav.js"></script> </head> <body> <div class=top-banner-cont> <div class=top-banner-center> <br/> <br/> <a href="/" style="text-decoration: none;"> <img src="/images/site_wide/pilogo.gif" width=50rem id=pi_logo alt=""/> </a> <br/> Programming Included </div> </div> <nav class=article-layout-nav> <ul> <li><a href="/aboutme">About</a></li> <li><a href="/blog">Blog</a> </li> </ul> </nav> <div class=article-layout> <div class=article-layout-main> <div class=article_title_div> <h1 class=article_title>Rust vs Modern C++ Part 1</h1> <h2 class=article_subtitle>The Basics&#58; Datastructures, Lambdas, and Heap</h2> <div class=article_pub> <a href="/aboutme">Charles Chen</a> | 2023-01-18 00:16 PST </div> </div> <div class=mid-bar-island> <h2> Table of Contents </h2> <div class=table-of-contents> </div> </div> <div class=article-layout-main-body> <h2 id=yet-another-rust-introduction>Yet Another Rust Introduction</h2> <p>These past few months, we have seen a rise in the usage of Rust throughout many different organizations. Rust was written in 2010, designed by <em>Graydon Hoare</em> at Mozilla research. Much have been said about the benefits of Rust already but to name a few. Rust can:</p> <ul> <li>Guarantee memory safety outside of <code>unsafe</code> blocks.</li> <li>High level, zero-cost abstractions enable fast performance.</li> <li>Rust is almost as fast C and can even beat out C++ (<a href="https://benchmarksgame-team.pages.debian.net/benchmarksgame/fastest/rust.html">source</a>).</li> </ul> <p>Several well-known, battle-tested teams are switching over to Rust:</p> <ul> <li>Rust is now in <a href="https://security.googleblog.com/2021/04/rust-in-linux-kernel.html">Android</a></li> <li>Rust is slowly growing in <a href="https://github.com/Rust-for-Linux">Linux</a></li> <li>Rust was swapped with Go at <a href="https://discord.com/blog/why-discord-is-switching-from-go-to-rust">Discord</a></li> </ul> <p>The list grows. The ecosystem also is vast, fast, and exciting. Below are some few that I've used in the past:</p> <ul> <li><a href="https://www.pola.rs/">Pola.rs</a> is faster than Pandas for datascience.</li> <li><a href="https://github.com/PyO3/pyo3">PyO3</a> enables interop with Python.</li> <li><a href="https://cxx.rs/">cxx</a> and <a href="https://github.com/rust-lang/rust-bindgen">bindgen</a> both enable C++ interop.</li> <li><a href="https://bevyengine.org/">bevy</a> a datadriven Game engine written in Rust.</li> </ul> <p><strong>The list continues to grow and many communities continue to onboard onto Rust. But is all these news just another bandwagon or is there something more?</strong></p> <h2 id=comparing-rust-to-modern-c>Comparing Rust to Modern C++</h2> <p>My goal in today's post is to compare Rust in a more pragmatic setting. <strong>By Modern C++ I mean</strong>:</p> <ul> <li>C++11</li> <li>C++14</li> </ul> <p>More specifically, coding techniques introduced by <em>Scott Meyers</em> in his series of books. Most notably <strong>Effective Modern C++</strong>. I myself have had the pleasure of taking the official C++ training course under <a href="https://cpp.training/">Jon Kalb</a> (go <a href="https://www.youtube.com/watch?v=fv--IKZFVO8">east const</a>!) (Jon, if you are reading this, I have much appreciation for C++ and your course is a great recommendation.)</p> <p>My thesis:</p> <blockquote> <p>Modern C++ is arguably filled with gotcha's, edgecases, and solutions to problems stemming from C++ limitations.</p> <p>As a result, Rust benefits from faster design cycles, more efficient code, and is arguablely an easier language to maintain even with its current rough edges in certain edge cases.</p> </blockquote> <p>Let's begin, I'll be highlighting some common approaches in Modern C++ and arguably why Rust could be better (or worse.)</p> <h3 id=overview-of-articles-forthcoming>Overview of Articles Forthcoming</h3> <p>I would like to start out bottom-up. Going from comparing syntax and day-to-day sanity impact, up to higher level concepts like owernship / borrow checkers, and more. Then finally ending in specific use-cases that may not apply to everyone. This will be a long ride so buckle up!</p> <p>The road map:</p> <ul> <li>The Basics: Datastructures, Lambdas, and Heap</li> <li>Traits and Ownership</li> <li>Macros: Metaprogramming Made Simple</li> <li>Cargo: The Rust Packages Ecosystem</li> <li>C Interop and Unsafe Rust: The Dark Arts</li> </ul> <h2 id=intializing-your-datastructures>Intializing your Datastructures</h2> <h3 id=list-intializers>List Intializers</h3> <p>Auto-intializers are an interesting construct. Imagine you are trying to hard-code a <code>vector</code> array into C++. How would the runtime be able to generate an array of values hard-coded inside the code? <code>Vector</code> is considered a class that requires data from the heap and requires memory resolution during runtime.</p> <p>Introducing <code>initializer lists</code>, a special proxy types that resolve during runtime.</p> <div class=highlight><pre class="highlight cpp"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
-2
-3
-4
-5
-6
-7
-8
-9
-10
-11
-12
-13
-</pre></td><td class=rouge-code><pre><span class="cp">#include</span><span class="cpf">&lt;unordered_map&gt;</span><span class="cp">
-#include</span><span class="cpf">&lt;vector&gt;</span><span class="cp">
-#include</span><span class="cpf">&lt;algorithms&gt;</span><span class="cp">
-#include</span><span class="cpf">&lt;iostream&gt;</span><span class="cp">
-</span><span class="k">using</span> <span class="k">namespace</span> <span class="n">std</span><span class="p">;</span>
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1, shrink-to-fit=no">
 
-<span class="c1">// Auto-intializer lists.</span>
-<span class="n">vector</span><span class="o">&lt;</span><span class="kt">int32_t</span><span class="o">&gt;</span> <span class="n">vec</span> <span class="o">=</span> <span class="p">{</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">};</span>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark-reasonable.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script>hljs.highlightAll();</script>
 
-<span class="n">map</span><span class="o">&lt;</span><span class="n">string</span><span class="p">,</span> <span class="n">string</span><span class="o">&gt;</span> <span class="n">myMap</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="p">{</span><span class="s">"an example"</span><span class="p">,</span> <span class="s">"pair"</span><span class="p">},</span>
-    <span class="p">{</span><span class="s">"yet another"</span><span class="p">,</span> <span class="s">"hi"</span><span class="p">}</span>
-<span class="p">};</span>
-</pre></td></tr></tbody></table></code></pre></div> <p>Auto-intializers look great until we start to get into edge-cases. C++11 treats <code>initializer lists</code> as proxy types which means each std library can override its behavior. When constructing classes and operators, <strong>you can override them</strong> leading to complicated results and weird casting behaviors:</p> <div class=highlight><pre class="highlight cpp"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
-2
-3
-4
-5
-6
-7
-8
-</pre></td><td class=rouge-code><pre><span class="c1">// A new class that will take an intializer short hand for convenience.</span>
-<span class="c1">// Which constructor is called for `Example({1, 2, 3})`?</span>
-<span class="k">class</span> <span class="nc">Example</span> <span class="p">{</span>
-<span class="nl">public:</span>
-    <span class="n">vector</span><span class="o">&lt;</span><span class="kt">int32_t</span><span class="o">&gt;</span> <span class="n">v</span><span class="p">;</span>
-    <span class="n">Example</span><span class="p">(</span><span class="n">initializer_list</span><span class="o">&lt;</span><span class="kt">int32_t</span><span class="o">&gt;</span> <span class="n">l</span><span class="p">)</span> <span class="o">:</span> <span class="n">v</span><span class="p">(</span><span class="n">l</span><span class="p">)</span> <span class="p">{</span> <span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="s">"called?"</span> <span class="o">&lt;&lt;</span> <span class="n">endl</span><span class="p">;</span> <span class="p">}</span>
-    <span class="n">Example</span><span class="p">(</span><span class="n">vector</span><span class="o">&lt;</span><span class="kt">int32_t</span><span class="o">&gt;</span> <span class="n">vec</span><span class="p">)</span> <span class="o">:</span> <span class="n">v</span><span class="p">(</span><span class="n">vec</span><span class="p">)</span> <span class="p">{}</span>
-<span class="p">}</span>
-</pre></td></tr></tbody></table></code></pre></div> <p>Realistically, designers should try to avoid conflict in classes and/or use <code>explicit</code> keywords. However the point of this exercise shows how by making <code>intializer lists</code> a proxy type accessible during runtime, we run into type inference ambiguity in which the compiler won't fail during auto-casting.</p> <p>In this case, C++ falls-back to the more narrower type so <code>intializer_list</code> constructor is called. There are more gotcha's with <code>auto-initializers</code> and <code>list-intializer</code> constructors:</p> <div class=highlight><pre class="highlight cpp"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
-2
-3
-4
-5
-6
-7
-8
-9
-10
-11
-12
-13
-</pre></td><td class=rouge-code><pre><span class="c1">// C++ can sometimes make list-intializer syntax optional:</span>
-<span class="k">auto</span> <span class="n">ex</span> <span class="o">=</span> <span class="n">Example</span><span class="p">{</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">}</span> <span class="c1">// Equal to Example(1, 2, 3)</span>
-<span class="c1">// This is also the same</span>
-<span class="k">auto</span> <span class="n">ex</span> <span class="o">=</span> <span class="n">Example</span><span class="p">{{</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">}}</span>
+    <title>
+      Rust vs Modern C++ Part 1
+    </title>
 
-<span class="c1">// However we can run into ambiguity.</span>
-<span class="k">class</span> <span class="nc">ExampleB</span> <span class="p">{</span>
-<span class="nl">public:</span>
-    <span class="n">vector</span><span class="o">&lt;</span><span class="kt">int32_t</span><span class="o">&gt;</span> <span class="n">v</span><span class="p">;</span>
-    <span class="n">ExampleB</span><span class="p">(</span><span class="n">initializer_list</span><span class="o">&lt;</span><span class="kt">int32_t</span><span class="o">&gt;</span> <span class="n">l</span><span class="p">)</span> <span class="o">:</span> <span class="n">v</span><span class="p">(</span><span class="n">l</span><span class="p">)</span> <span class="p">{</span> <span class="p">}</span>
-    <span class="n">ExampleB</span><span class="p">(</span><span class="kt">float</span> <span class="n">a</span><span class="p">,</span> <span class="kt">float</span> <span class="n">b</span><span class="p">)</span> <span class="p">{}</span>
-<span class="p">};</span>
-<span class="k">auto</span> <span class="n">ex</span> <span class="o">=</span> <span class="n">ExampleB</span><span class="p">{</span><span class="mf">1.1</span><span class="p">,</span> <span class="mf">2.2</span><span class="p">}</span> <span class="c1">// Does not equal Example(1.1, 2.2)</span>
-</pre></td></tr></tbody></table></code></pre></div> <h3 id=rust-macros>Rust Macros</h3> <p>Rust says no to run-time proxy types. Instead, Rust offers native and <code>macro</code> based solution which removes the edge-cases and ambiguity:</p> <div class=highlight><pre class="highlight rust"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
-2
-3
-4
-5
-6
-7
-8
-9
-10
-11
-12
-</pre></td><td class=rouge-code><pre><span class="c1">// An std implemented macro prevents all the complexity of intializer list proxy type.</span>
-<span class="k">use</span> <span class="nn">std</span><span class="p">::</span><span class="nn">vec</span><span class="p">::</span><span class="nb">Vec</span><span class="p">;</span>
-<span class="k">let</span> <span class="n">c</span><span class="p">:</span> <span class="nb">Vec</span><span class="o">&lt;</span><span class="nb">i32</span><span class="o">&gt;</span> <span class="o">=</span> <span class="nd">vec!</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">];</span>
-<span class="c1">// Macro is auto-expanded into a block with inserts.</span>
-<span class="c1">// { c.insert(1); c.insert(2); c.insert(3); }</span>
+    <link type="text/css" rel="stylesheet" href="/stylesheets/pblog.css">
 
-<span class="k">use</span> <span class="nn">std</span><span class="p">::</span><span class="nn">collections</span><span class="p">::</span><span class="n">HashMap</span><span class="p">;</span>
-<span class="c1">// Rust does not natively have a macro with HashMap.</span>
-<span class="k">let</span> <span class="n">m</span> <span class="o">=</span> <span class="nn">HashMap</span><span class="p">::</span><span class="nf">from</span><span class="p">([</span>
-    <span class="p">(</span><span class="s">"hello"</span><span class="p">,</span> <span class="s">"world"</span><span class="p">),</span>
-    <span class="p">(</span><span class="s">"good"</span><span class="p">,</span> <span class="s">"day"</span><span class="p">)</span>
-<span class="p">]);</span>
-</pre></td></tr></tbody></table></code></pre></div> <p><strong>Rust's Macro system has access to the AST during compilation and is super flexible. We will get more into this in Part 2.</strong> With an extra crate, you can have even higher-level syntax:</p> <div class=highlight><pre class="highlight rust"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
-2
-3
-4
-5
-6
-</pre></td><td class=rouge-code><pre><span class="k">use</span> <span class="nn">std</span><span class="p">::</span><span class="nn">collections</span><span class="p">::</span><span class="n">HashMap</span><span class="p">;</span>
-<span class="k">use</span> <span class="nn">common_macros</span><span class="p">::</span><span class="n">hash_map</span><span class="p">;</span>
-<span class="k">let</span> <span class="n">m</span> <span class="o">=</span> <span class="nd">hash_map!</span><span class="p">{</span>
-    <span class="s">"hello"</span> <span class="k">=&gt;</span> <span class="s">"world"</span><span class="p">,</span>
-    <span class="s">"good"</span> <span class="k">=&gt;</span> <span class="s">"day"</span>
-<span class="p">};</span>
-</pre></td></tr></tbody></table></code></pre></div> <p>With Rust's powerful packaging and build system, these extra crates are readily available with a single install command. More on this in part 3. <strong>Rust by-passes the issues with intializer lists by removing proxy types and instead opting for a powerful macros system that can do the heavy lifting.</strong></p> <h2 id=iterating-and-processing>Iterating and Processing</h2> <p>C++ and Rust both use iterators in order to iterate through data as iterators have been around for some time. Both have similar concepts however Rust makes certain cases easier. Let's take a look. Here's how C++ does it.</p> <div class=highlight><pre class="highlight cpp"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
-2
-3
-4
-5
-6
-7
-8
-9
-10
-11
-12
-</pre></td><td class=rouge-code><pre><span class="k">using</span> <span class="k">namespace</span> <span class="n">std</span><span class="p">;</span>
-<span class="c1">// With modern C++ we can use short-hand loops</span>
-<span class="n">vector</span><span class="o">&lt;</span><span class="kt">int32_t</span><span class="o">&gt;</span> <span class="n">vec</span> <span class="o">=</span> <span class="p">{</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">};</span>
-<span class="c1">// Constant iteration</span>
-<span class="k">for</span> <span class="p">(</span><span class="k">auto</span> <span class="k">const</span><span class="o">&amp;</span> <span class="n">v</span> <span class="o">:</span> <span class="n">vec</span><span class="p">)</span> <span class="p">{</span>
-    <span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="n">v</span> <span class="o">&lt;&lt;</span> <span class="n">endl</span><span class="p">;</span>
-<span class="p">}</span>
+    <script src="/javascripts/anime.min.js"></script>
+    <script src="/javascripts/jquery-3.6.0.min.js"></script>
+    <script src="/javascripts/nav.js"></script>
+  </head>
+  <body>
+    <div class="top-banner-cont">
+        <div class="top-banner-center">
+            <br />
+            <br />
+            <a href="/" style="text-decoration: none;">
+                <image src="/images/site_wide/pilogo.gif" width="50rem" id="pi_logo" />
+            </a>
+             <br />
+            Programming Included
+        </div>
+    </div>
+    <nav class="article-layout-nav">
+        <ul>
+        <li><a href="/aboutme">About</a></li>
+        <li><a href="/blog">Blog</a></li>
+        </ul>
+    </nav>
 
-<span class="c1">// Non-constant</span>
-<span class="k">for</span> <span class="p">(</span><span class="k">auto</span><span class="o">&amp;</span> <span class="n">v</span><span class="o">:</span> <span class="n">vec</span><span class="p">)</span> <span class="p">{</span>
-    <span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="n">v</span> <span class="o">&lt;&lt;</span> <span class="n">endl</span><span class="p">;</span>
-<span class="p">}</span>
-</pre></td></tr></tbody></table></code></pre></div> <p>Likewise Rust can do the same, note that Rust assumes const unless otherwise but Rust also allows for range based iteration:</p> <div class=highlight><pre class="highlight rust"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
-2
-3
-4
-5
-6
-7
-8
-9
-10
-11
-12
-13
-14
-15
-</pre></td><td class=rouge-code><pre><span class="k">use</span> <span class="nn">std</span><span class="p">::</span><span class="nn">vec</span><span class="p">::</span><span class="nb">Vec</span><span class="p">;</span>
-<span class="k">let</span> <span class="k">mut</span> <span class="n">vec</span> <span class="o">=</span> <span class="nd">vec!</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">];</span>
+    <div class="article-layout">
+      <div class="article-layout-main">
+        <div class="article_title_div">
 
-<span class="k">for</span> <span class="n">v</span> <span class="k">in</span> <span class="n">vec</span> <span class="p">{</span>
-    <span class="nd">println!</span><span class="p">(</span><span class="s">"{}"</span><span class="p">,</span> <span class="n">v</span><span class="p">);</span>
-<span class="p">}</span>
+          <h1 class="article_title">Rust vs Modern C++ Part 1</h1>
 
-<span class="k">for</span> <span class="n">v</span> <span class="k">in</span> <span class="o">&amp;</span><span class="k">mut</span> <span class="n">vec</span> <span class="p">{</span>
-    <span class="nd">println!</span><span class="p">(</span><span class="s">"{}"</span><span class="p">,</span> <span class="n">v</span><span class="p">);</span>
-<span class="p">}</span>
+          <h2 class="article_subtitle">The Basics&#58; Datastructures, Lambdas, and Heap</h2>
 
-<span class="k">let</span> <span class="n">n</span> <span class="o">=</span> <span class="mi">3</span><span class="p">;</span>
-<span class="k">for</span> <span class="n">i</span> <span class="k">in</span> <span class="mi">0</span><span class="o">..</span><span class="n">n</span> <span class="p">{</span>
-    <span class="nd">println!</span><span class="p">(</span><span class="s">"C++ requires libraries like Boost."</span><span class="p">)</span>
-<span class="p">}</span>
-</pre></td></tr></tbody></table></code></pre></div> <p>Now let's say we want to apply common functional techniques to our data. C++ requires chaining individual helpers that require iterator input:</p> <div class=highlight><pre class="highlight cpp"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
-2
-3
-4
-5
-6
-7
-8
-</pre></td><td class=rouge-code><pre><span class="c1">// Suppose we only want the sum of numbers greater than some tolerance T.</span>
-<span class="c1">// We implement a immutable variant where the original vector is not modified.</span>
-<span class="k">auto</span> <span class="n">v</span> <span class="o">=</span> <span class="p">{</span><span class="mi">1</span><span class="p">,</span> <span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">};</span>
-<span class="k">auto</span> <span class="n">T</span> <span class="o">=</span> <span class="mi">5</span><span class="p">;</span>
-<span class="n">vector</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span> <span class="n">buffer</span><span class="p">;</span>
+          <div class="article_pub">
+            <a href="/aboutme">Charles Chen</a> |
+            February 16, 2025
+          </div>
 
-<span class="n">copy_if</span><span class="p">(</span><span class="n">vec</span><span class="p">.</span><span class="n">begin</span><span class="p">(),</span> <span class="n">vec</span><span class="p">.</span><span class="n">end</span><span class="p">(),</span> <span class="n">buffer</span><span class="p">,</span> <span class="p">[](</span><span class="kt">int</span> <span class="n">x</span><span class="p">)</span> <span class="p">{</span> <span class="k">return</span> <span class="n">x</span> <span class="o">&gt;=</span> <span class="n">T</span><span class="p">;</span> <span class="p">}));</span>
-<span class="k">auto</span> <span class="n">result</span> <span class="o">=</span> <span class="n">accumulate</span><span class="p">(</span><span class="n">buffer</span><span class="p">.</span><span class="n">begin</span><span class="p">(),</span> <span class="n">buffer</span><span class="p">.</span><span class="n">end</span><span class="p">(),</span> <span class="mi">0</span><span class="p">);</span>
-</pre></td></tr></tbody></table></code></pre></div> <p>You can save a character using <code>std::end()</code> and <code>std::begin()</code> if you really wanted.</p> <p>Let's take a look at how Rust borrows from its functional counterparts:</p> <div class=highlight><pre class="highlight rust"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
-2
-3
-4
-5
-</pre></td><td class=rouge-code><pre><span class="k">let</span> <span class="n">v</span> <span class="o">=</span> <span class="nd">vec!</span><span class="p">[</span><span class="mi">1</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">5</span><span class="p">,</span> <span class="mi">7</span><span class="p">];</span>
-<span class="k">let</span> <span class="n">T</span> <span class="o">=</span> <span class="mi">5</span><span class="p">;</span>
-<span class="k">let</span> <span class="n">result</span><span class="p">:</span> <span class="nb">i32</span> <span class="o">=</span> <span class="n">v</span><span class="nf">.iter</span><span class="p">()</span>
-                   <span class="nf">.filter</span><span class="p">(|</span><span class="o">&amp;&amp;</span><span class="n">x</span><span class="p">|</span> <span class="n">x</span> <span class="o">&gt;=</span> <span class="n">T</span><span class="p">)</span> <span class="c1">// Filter generates a slice of vector and no copy is made.</span>
-                   <span class="nf">.sum</span><span class="p">();</span>
-</pre></td></tr></tbody></table></code></pre></div> <p>There is significantly less text to process and the chaining reads like what it should be doing.</p> <p>Now, one may cry out, "but we don't neccesarily want to chain multiple procedures!" or perhaps, "we can create a helper function anyways!" For the later, I agree, in C++, we write helper functions. But going back to my thesis, it is these little quirks that add up to large maintenance costs that focus not on the problem we are trying to solve but on the limitations of the language.</p> <p>As for the former, high level functional programs and even C++ require many of these common patterns and these iterator type algorithms are also highly parallelizable in many cases.</p> <h3 id=zero-cost-abstractions>Zero Cost Abstractions</h3> <p>I would also like to note how there is no overhead here with Rust's implementation. Rust is very much a strict language. Unless <code>iter_mut()</code> is used no data is mutable, unless <code>filter().clone()</code> is used no copy is made. In this case, <code>filter()</code> will return a slice of the existing array and sum over it.</p> <p><strong>With Rust's helpful compiler, it is always working for performance. One can rest assured that the code generated is the fasted you can implement. With C++, you have to try to get rid of <code>buffer</code> variable to reduce memory usage, figure out l-values and r-values so-forth.</strong></p> <h2 id=lambdas>Lambdas</h2> <p>C++ lambda requires explicit capturing:</p> <div class=highlight><pre class="highlight cpp"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
-2
-3
-4
-5
-6
-7
-8
-9
-10
-11
-</pre></td><td class=rouge-code><pre><span class="c1">// Capture everything by reference.</span>
-<span class="k">auto</span> <span class="n">y</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
-<span class="k">auto</span> <span class="n">func</span> <span class="o">=</span> <span class="p">[</span><span class="o">&amp;</span><span class="p">](</span><span class="k">auto</span> <span class="n">x</span><span class="p">){</span> <span class="k">return</span> <span class="n">x</span> <span class="o">+</span> <span class="mi">1</span><span class="p">;</span> <span class="p">};</span>
-<span class="c1">// Everything by value.</span>
-<span class="n">func</span> <span class="o">=</span> <span class="p">[</span><span class="o">=</span><span class="p">](</span><span class="k">auto</span> <span class="n">x</span><span class="p">){</span> <span class="k">return</span> <span class="n">x</span> <span class="o">+</span> <span class="mi">1</span><span class="p">;</span> <span class="p">};</span>
+        </div>
 
-<span class="c1">// Capture by value.</span>
-<span class="n">func</span> <span class="o">=</span> <span class="p">[</span><span class="n">y</span><span class="p">](</span><span class="k">auto</span> <span class="n">x</span><span class="p">){</span> <span class="k">return</span> <span class="n">x</span> <span class="o">+</span> <span class="n">y</span> <span class="o">+</span> <span class="mi">1</span><span class="p">;};</span>
+        <div class="mid-bar-island">
+          <h2> Table of Contents </h2>
+          <div class="table-of-contents">
+          </div>
+        </div>
 
-<span class="c1">// Capture by reference</span>
-<span class="n">func</span> <span class="o">=</span> <span class="p">[</span><span class="o">&amp;</span><span class="n">y</span><span class="p">](</span><span class="k">auto</span> <span class="n">x</span><span class="p">){</span> <span class="k">return</span> <span class="n">x</span> <span class="o">+</span> <span class="n">y</span> <span class="o">+</span> <span class="mi">1</span><span class="p">;};</span>
-</pre></td></tr></tbody></table></code></pre></div> <p>Rust, on the other hand, due to the borrow checker rules, we are pretty much going to copy by reference to save memory unless we cannot, and a clone/copy of the object is made.</p> <div class=highlight><pre class="highlight rust"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
-2
-3
-4
-5
-6
-7
-8
-9
-10
-11
-12
-13
-14
-15
-</pre></td><td class=rouge-code><pre><span class="k">let</span> <span class="n">y</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
-<span class="c1">// This is always an immutable borrow as a reference to prevent copy</span>
-<span class="k">let</span> <span class="n">f</span> <span class="o">=</span> <span class="p">|</span><span class="n">x</span><span class="p">|{</span> <span class="n">x</span> <span class="o">+</span> <span class="n">y</span> <span class="o">+</span> <span class="mi">1</span><span class="p">};</span>
+        <div class="article-layout-main-body">
+          <h2>Yet Another Rust Introduction</h2>
+<p>These past few months, we have seen a rise in the usage of Rust throughout many different organizations.
+Rust was written in 2010, designed by <em>Graydon Hoare</em> at Mozilla research. Much have been said about the benefits of Rust already but to name a few. Rust can:</p>
+<ul>
+<li>Guarantee memory safety outside of <code>unsafe</code> blocks.</li>
+<li>High level, zero-cost abstractions enable fast performance.</li>
+<li>Rust is almost as fast C and can even beat out C++ (<a href="https://benchmarksgame-team.pages.debian.net/benchmarksgame/fastest/rust.html">source</a>).</li>
+</ul>
+<p>Several well-known, battle-tested teams are switching over to Rust:</p>
+<ul>
+<li>Rust is now in <a href="https://security.googleblog.com/2021/04/rust-in-linux-kernel.html">Android</a></li>
+<li>Rust is slowly growing in <a href="https://github.com/Rust-for-Linux">Linux</a></li>
+<li>Rust was swapped with Go at <a href="https://discord.com/blog/why-discord-is-switching-from-go-to-rust">Discord</a></li>
+</ul>
+<p>The list grows. The ecosystem also is vast, fast, and exciting. Below are some few that I've used in the past:</p>
+<ul>
+<li><a href="https://www.pola.rs/">Pola.rs</a> is faster than Pandas for datascience.</li>
+<li><a href="https://github.com/PyO3/pyo3">PyO3</a> enables interop with Python.</li>
+<li><a href="https://cxx.rs/">cxx</a> and <a href="https://github.com/rust-lang/rust-bindgen">bindgen</a> both enable C++ interop.</li>
+<li><a href="https://bevyengine.org/">bevy</a> a datadriven Game engine written in Rust.</li>
+</ul>
+<p><strong>The list continues to grow and many communities continue to onboard onto Rust. But is all these news just another bandwagon or is there something more?</strong></p>
+<h2>Comparing Rust to Modern C++</h2>
+<p>My goal in today's post is to compare Rust in a more pragmatic setting. <strong>By Modern C++ I mean</strong>:</p>
+<ul>
+<li>C++11</li>
+<li>C++14</li>
+</ul>
+<p>More specifically, coding techniques introduced by <em>Scott Meyers</em> in his series of books. Most notably <strong>Effective Modern C++</strong>.
+I myself have had the pleasure of taking the official C++ training course under <a href="https://cpp.training/">Jon Kalb</a> (go <a href="https://www.youtube.com/watch?v=fv--IKZFVO8">east const</a>!)
+(Jon, if you are reading this, I have much appreciation for C++ and your course is a great recommendation.)</p>
+<p>My thesis:</p>
+<blockquote>
+<p>Modern C++ is arguably filled with gotcha's, edgecases, and solutions to problems stemming from C++ limitations.</p>
+<p>As a result, Rust benefits from faster design cycles, more efficient code, and is arguablely an easier language to maintain even with its current rough edges in certain edge cases.</p>
+</blockquote>
+<p>Let's begin, I'll be highlighting some common approaches in Modern C++ and arguably why Rust could be better (or worse.)</p>
+<h3>Overview of Articles Forthcoming</h3>
+<p>I would like to start out bottom-up. Going from comparing syntax and day-to-day sanity impact, up to higher level concepts like
+owernship / borrow checkers, and more. Then finally ending in specific use-cases that may not apply to everyone. This will be a long ride so buckle up!</p>
+<p>The road map:</p>
+<ul>
+<li>The Basics: Datastructures, Lambdas, and Heap</li>
+<li>Traits and Ownership</li>
+<li>Macros: Metaprogramming Made Simple</li>
+<li>Cargo: The Rust Packages Ecosystem</li>
+<li>C Interop and Unsafe Rust: The Dark Arts</li>
+</ul>
+<h2>Intializing your Datastructures</h2>
+<h3>List Intializers</h3>
+<p>Auto-intializers are an interesting construct. Imagine you are trying to hard-code a <code>vector</code> array into C++.
+How would the runtime be able to generate an array of values hard-coded inside the code? <code>Vector</code> is considered a class that requires
+data from the heap and requires memory resolution during runtime.</p>
+<p>Introducing <code>initializer lists</code>, a special proxy types that resolve during runtime.</p>
+<pre><code class="language-cpp">#include&lt;unordered_map&gt;
+#include&lt;vector&gt;
+#include&lt;algorithms&gt;
+#include&lt;iostream&gt;
+using namespace std;
 
-<span class="c1">// Only if both the variable and lambda are mutable can we borrow</span>
-<span class="c1">// as reference and modify the reference.</span>
-<span class="k">let</span> <span class="k">mut</span> <span class="n">t</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
-<span class="k">let</span> <span class="k">mut</span> <span class="n">f</span> <span class="o">=</span> <span class="p">|</span><span class="n">x</span><span class="p">|</span> <span class="p">{</span> <span class="n">t</span> <span class="o">=</span> <span class="n">x</span> <span class="o">+</span> <span class="n">t</span> <span class="p">};</span>
+// Auto-intializer lists.
+vector&lt;int32_t&gt; vec = {1, 2, 3};
 
-<span class="c1">// We can even go one layer deep and the compiler will enforce `mut` in order to compile:</span>
-<span class="k">let</span> <span class="k">mut</span> <span class="n">m</span> <span class="o">=</span> <span class="p">||</span> <span class="p">{</span> <span class="nf">f</span><span class="p">(</span><span class="mi">2</span><span class="p">)</span> <span class="p">};</span>
+map&lt;string, string&gt; myMap = {
+    {&quot;an example&quot;, &quot;pair&quot;},
+    {&quot;yet another&quot;, &quot;hi&quot;}
+};
+</code></pre>
+<p>Auto-intializers look great until we start to get into edge-cases. C++11 treats <code>initializer lists</code> as proxy types which means each std library can override its behavior.
+When constructing classes and operators, <strong>you can override them</strong> leading to complicated results and weird casting behaviors:</p>
+<pre><code class="language-cpp">// A new class that will take an intializer short hand for convenience.
+// Which constructor is called for `Example({1, 2, 3})`?
+class Example {
+public:
+    vector&lt;int32_t&gt; v;
+    Example(initializer_list&lt;int32_t&gt; l) : v(l) { cout &lt;&lt; &quot;called?&quot; &lt;&lt; endl; }
+    Example(vector&lt;int32_t&gt; vec) : v(vec) {}
+}
+</code></pre>
+<p>Realistically, designers should try to avoid conflict in classes and/or use <code>explicit</code> keywords. However the point of this exercise
+shows how by making <code>intializer lists</code> a proxy type accessible during runtime, we run into type inference ambiguity in which the compiler
+won't fail during auto-casting.</p>
+<p>In this case, C++ falls-back to the more narrower type so <code>intializer_list</code> constructor is called. There are more gotcha's
+with <code>auto-initializers</code> and <code>list-intializer</code> constructors:</p>
+<pre><code class="language-cpp">// C++ can sometimes make list-intializer syntax optional:
+auto ex = Example{1, 2, 3} // Equal to Example(1, 2, 3)
+// This is also the same
+auto ex = Example{{1, 2, 3}}
 
-<span class="c1">// We can force a move to make an explicit copy of each variable.</span>
-<span class="c1">// This is almost never used trivially like this however. Unless we return lambdas from functions. See more below.</span>
-<span class="k">let</span> <span class="n">h</span> <span class="o">=</span> <span class="k">move</span> <span class="p">|</span><span class="n">x</span><span class="p">|</span> <span class="p">{</span> <span class="n">t</span> <span class="o">=</span> <span class="n">t</span> <span class="o">+</span> <span class="n">x</span> <span class="p">};</span> <span class="c1">// original t is not modified</span>
-</pre></td></tr></tbody></table></code></pre></div> <p>Though the explicit <code>move</code> is an manual option, I rarely seen it used trivially. Instead, it is used in a very specific use case.</p> <p>There are one more rules that I am not covering here but you can find out more <a href="https://stackoverflow.com/questions/71240735/do-rust-closures-capture-context-by-reference-or-by-value">here</a>. One more rule is a unique edge case.</p> <p>Might I also add just how much cleaner the lambda notation is for Rust? C++ requires a semicolon, bracket, and then a semicolon again to close a lambda. A return is also required. All for a single addition statement!</p> <h3 id=unique-immutable-borrows-in-captures>Unique Immutable Borrows in Captures</h3> <p>It seems in C++ and Rust, when dealing with <code>const</code>-ness in C++ or <code>mut</code> ownership in Rust, there are some unique edgecases that each have to address. Though the mechanisms driving the below scenarios are different, I group them together because they:</p> <ul> <li>Show how const/mut properties are propogated (or lack thereof.)</li> <li>How each compiler handles const / mut. (I see them as opposites of the same coin.)</li> </ul> <p>I see <code>const</code> and <code>mut</code> as opposites of the same coin. <code>const</code> exists because everything is <code>mut</code> in C++ meanwhile <code>mut</code> exists because everything else is <code>const</code> in Rust.</p> <p>In C++ you can do a normal cast to modify a const-value without <code>const_cast</code>:</p> <div class=highlight><pre class="highlight cpp"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
-2
-3
-4
-5
-6
-7
-</pre></td><td class=rouge-code><pre><span class="kt">int</span> <span class="k">const</span> <span class="n">i</span> <span class="o">=</span> <span class="mi">1</span><span class="p">;</span>
-<span class="c1">// Almost every compiler allows this despite the dangers.</span>
-<span class="c1">// This a natural consequence of allowing any type to be casted in C++.</span>
-<span class="c1">// However, no explicit compiler check is done here to prevent this operation</span>
-<span class="c1">// which in most environments, is an unwanted memory access.</span>
-<span class="kt">int</span> <span class="o">*</span><span class="n">ptr</span> <span class="o">=</span> <span class="p">(</span><span class="kt">int</span><span class="o">*</span><span class="p">)</span><span class="o">&amp;</span><span class="n">i</span><span class="p">;</span>
-<span class="o">*</span><span class="n">ptr</span> <span class="o">+=</span> <span class="mi">2</span><span class="p">;</span>
-</pre></td></tr></tbody></table></code></pre></div> <p>C++ allows you to do the above but at your discretion because a cast was made.</p> <p>Please note that I understand that <code>unsafe</code> Rust does allow you to cast without constraint. However C++ compiler has this const edgecase that it does not attempt to warn or prevent. Rust enforces <code>unsafe</code> here, meanwhile C++, even though it has constructs like <code>const_cast</code> still allows you to cast away const without error.</p> <p>In Rust, the following can occur with <code>mut</code> (as shown in the <a href="https://doc.rust-lang.org/reference/types/closure.html#unique-immutable-borrows-in-captures">Rust book</a>):</p> <div class=highlight><pre class="highlight rust"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
-2
-3
-4
-5
-6
-7
-8
-9
-</pre></td><td class=rouge-code><pre><span class="k">let</span> <span class="k">mut</span> <span class="n">b</span> <span class="o">=</span> <span class="k">false</span><span class="p">;</span>
-<span class="k">let</span> <span class="n">x</span> <span class="o">=</span> <span class="o">&amp;</span><span class="k">mut</span> <span class="n">b</span><span class="p">;</span>
-<span class="p">{</span>
-    <span class="k">let</span> <span class="k">mut</span> <span class="n">c</span> <span class="o">=</span> <span class="p">||</span> <span class="p">{</span> <span class="o">*</span><span class="n">x</span> <span class="o">=</span> <span class="k">true</span><span class="p">;</span> <span class="p">};</span>
-    <span class="c1">// The following line is an error:</span>
-    <span class="c1">// let y = &amp;x;</span>
-    <span class="nf">c</span><span class="p">();</span>
-<span class="p">}</span>
-<span class="k">let</span> <span class="n">z</span> <span class="o">=</span> <span class="o">&amp;</span><span class="n">x</span><span class="p">;</span>
-</pre></td></tr></tbody></table></code></pre></div> <p>Since Rust requires a variable to only have one unique mutable reference, the capture cannot naturally be resolved as <code>&amp;&amp;mut</code> because <code>x</code> is not unique.</p> <p>Thankfully Rust has got us covered. The compiler will catch this and make a special type of borrow called: <code>Unique Immutable Borrows</code> which only occurs in this use-case and is abstracted away by the compiler. It acts like an immutable variable but can be dereferenced and the borrow checker will enforce it like a mutable's uniqueness.</p> <p><strong>Rust pretty much prevents us from making mistakes by enforcing compiler time checks, even so far as to create a unique edge condition! Futhermore, the Rust compiler will attach necessary error messages for you if new users are unsure about these edge-cases:</strong></p> <div class=highlight><pre class="highlight shell"><code>error[E0501]: cannot borrow <span class="sb">`</span>x<span class="sb">`</span> as immutable because previous closure requires unique access
-  <span class="nt">--</span><span class="o">&gt;</span> main.rs:16:17
+// However we can run into ambiguity.
+class ExampleB {
+public:
+    vector&lt;int32_t&gt; v;
+    ExampleB(initializer_list&lt;int32_t&gt; l) : v(l) { }
+    ExampleB(float a, float b) {}
+};
+auto ex = ExampleB{1.1, 2.2} // Does not equal Example(1.1, 2.2)
+</code></pre>
+<h3>Rust Macros</h3>
+<p>Rust says no to run-time proxy types. Instead, Rust offers native and <code>macro</code> based solution which removes the edge-cases and ambiguity:</p>
+<pre><code class="language-rust">// An std implemented macro prevents all the complexity of intializer list proxy type.
+use std::vec::Vec;
+let c: Vec&lt;i32&gt; = vec![1, 2, 3];
+// Macro is auto-expanded into a block with inserts.
+// { c.insert(1); c.insert(2); c.insert(3); }
+
+use std::collections::HashMap;
+// Rust does not natively have a macro with HashMap.
+let m = HashMap::from([
+    (&quot;hello&quot;, &quot;world&quot;),
+    (&quot;good&quot;, &quot;day&quot;)
+]);
+</code></pre>
+<p><strong>Rust's Macro system has access to the AST during compilation and is super flexible. We will get more into this in Part 2.</strong>
+With an extra crate, you can have even higher-level syntax:</p>
+<pre><code class="language-rust">use std::collections::HashMap;
+use common_macros::hash_map;
+let m = hash_map!{
+    &quot;hello&quot; =&gt; &quot;world&quot;,
+    &quot;good&quot; =&gt; &quot;day&quot;
+};
+</code></pre>
+<p>With Rust's powerful packaging and build system, these extra crates are readily available with a single install command.
+More on this in part 3. <strong>Rust by-passes the issues with intializer lists by removing proxy types and instead opting for a powerful macros system that
+can do the heavy lifting.</strong></p>
+<h2>Iterating and Processing</h2>
+<p>C++ and Rust both use iterators in order to iterate through data as iterators have been around for some time.
+Both have similar concepts however Rust makes certain cases easier. Let's take a look. Here's how C++ does it.</p>
+<pre><code class="language-cpp">using namespace std;
+// With modern C++ we can use short-hand loops
+vector&lt;int32_t&gt; vec = {1, 2, 3};
+// Constant iteration
+for (auto const&amp; v : vec) {
+    cout &lt;&lt; v &lt;&lt; endl;
+}
+
+// Non-constant
+for (auto&amp; v: vec) {
+    cout &lt;&lt; v &lt;&lt; endl;
+}
+</code></pre>
+<p>Likewise Rust can do the same, note that Rust assumes const unless otherwise but Rust also allows for range based iteration:</p>
+<pre><code class="language-rust">use std::vec::Vec;
+let mut vec = vec![1, 2, 3];
+
+for v in vec {
+    println!(&quot;{}&quot;, v);
+}
+
+for v in &amp;mut vec {
+    println!(&quot;{}&quot;, v);
+}
+
+let n = 3;
+for i in 0..n {
+    println!(&quot;C++ requires libraries like Boost.&quot;)
+}
+</code></pre>
+<p>Now let's say we want to apply common functional techniques to our data. C++ requires chaining individual helpers that require iterator input:</p>
+<pre><code class="language-cpp">// Suppose we only want the sum of numbers greater than some tolerance T.
+// We implement a immutable variant where the original vector is not modified.
+auto v = {1, 2, 3};
+auto T = 5;
+vector&lt;int&gt; buffer;
+
+copy_if(vec.begin(), vec.end(), buffer, [](int x) { return x &gt;= T; }));
+auto result = accumulate(buffer.begin(), buffer.end(), 0);
+</code></pre>
+<p>You can save a character using <code>std::end()</code> and <code>std::begin()</code> if you really wanted.</p>
+<p>Let's take a look at how Rust borrows from its functional counterparts:</p>
+<pre><code class="language-rust">let v = vec![1, 3, 5, 7];
+let T = 5;
+let result: i32 = v.iter()
+                   .filter(|&amp;&amp;x| x &gt;= T) // Filter generates a slice of vector and no copy is made.
+                   .sum();
+</code></pre>
+<p>There is significantly less text to process and the chaining reads like what it should be doing.</p>
+<p>Now, one may cry out, &quot;but we don't neccesarily want to chain multiple procedures!&quot; or perhaps, &quot;we can create a helper function anyways!&quot;
+For the later, I agree, in C++, we write helper functions. But going back to my thesis, it is these little quirks that add up to large maintenance costs that focus
+not on the problem we are trying to solve but on the limitations of the language.</p>
+<p>As for the former, high level functional programs and even C++ require many of these common patterns and these iterator type
+algorithms are also highly parallelizable in many cases.</p>
+<h3>Zero Cost Abstractions</h3>
+<p>I would also like to note how there is no overhead here with Rust's implementation. Rust is very much a strict language.
+Unless <code>iter_mut()</code> is used no data is mutable, unless <code>filter().clone()</code> is used no copy is made. In this case, <code>filter()</code> will return a slice
+of the existing array and sum over it.</p>
+<p><strong>With Rust's helpful compiler, it is always working for performance. One can rest assured that the code generated is the fasted you can implement.
+With C++, you have to try to get rid of <code>buffer</code> variable to reduce memory usage, figure out l-values and r-values so-forth.</strong></p>
+<h2>Lambdas</h2>
+<p>C++ lambda requires explicit capturing:</p>
+<pre><code class="language-rust">// Capture everything by reference.
+auto y = 1;
+auto func = [&amp;](auto x){ return x + 1; };
+// Everything by value.
+func = [=](auto x){ return x + 1; };
+
+// Capture by value.
+func = [y](auto x){ return x + y + 1;};
+
+// Capture by reference
+func = [&amp;y](auto x){ return x + y + 1;};
+</code></pre>
+<p>Rust, on the other hand, due to the borrow checker rules, we are pretty much going to copy by reference to save memory
+unless we cannot, and a clone/copy of the object is made.</p>
+<pre><code class="language-rust">let y = 1;
+// This is always an immutable borrow as a reference to prevent copy
+let f = |x|{ x + y + 1};
+
+// Only if both the variable and lambda are mutable can we borrow
+// as reference and modify the reference.
+let mut t = 1;
+let mut f = |x| { t = x + t };
+
+// We can even go one layer deep and the compiler will enforce `mut` in order to compile:
+let mut m = || { f(2) };
+
+// We can force a move to make an explicit copy of each variable.
+// This is almost never used trivially like this however. Unless we return lambdas from functions. See more below.
+let h = move |x| { t = t + x }; // original t is not modified
+</code></pre>
+<p>Though the explicit <code>move</code> is an manual option, I rarely seen it used trivially. Instead, it is used in a very specific use case.</p>
+<p>There are one more rules that I am not covering here but you can find out more <a href="https://stackoverflow.com/questions/71240735/do-rust-closures-capture-context-by-reference-or-by-value">here</a>.
+One more rule is a unique edge case.</p>
+<p>Might I also add just how much cleaner the lambda notation is for Rust? C++ requires a semicolon, bracket, and then a semicolon again to close a lambda. A return is also required.
+All for a single addition statement!</p>
+<h3>Unique Immutable Borrows in Captures</h3>
+<p>It seems in C++ and Rust, when dealing with <code>const</code>-ness in C++ or <code>mut</code> ownership in Rust, there are some unique edgecases that each have to address.
+Though the mechanisms driving the below scenarios are different, I group them together because they:</p>
+<ul>
+<li>Show how const/mut properties are propogated (or lack thereof.)</li>
+<li>How each compiler handles const / mut. (I see them as opposites of the same coin.)</li>
+</ul>
+<p>I see <code>const</code> and <code>mut</code> as opposites of the same coin. <code>const</code> exists because everything is <code>mut</code> in C++ meanwhile <code>mut</code> exists
+because everything else is <code>const</code> in Rust.</p>
+<p>In C++ you can do a normal cast to modify a const-value without <code>const_cast</code>:</p>
+<pre><code class="language-cpp">int const i = 1;
+// Almost every compiler allows this despite the dangers.
+// This a natural consequence of allowing any type to be casted in C++.
+// However, no explicit compiler check is done here to prevent this operation
+// which in most environments, is an unwanted memory access.
+int *ptr = (int*)&amp;i;
+*ptr += 2;
+</code></pre>
+<p>C++ allows you to do the above but at your discretion because a cast was made.</p>
+<p>Please note that I understand that <code>unsafe</code> Rust does allow you to cast without constraint. However C++ compiler has this
+const edgecase that it does not attempt to warn or prevent. Rust enforces <code>unsafe</code> here, meanwhile C++, even though it has
+constructs like <code>const_cast</code> still allows you to cast away const without error.</p>
+<p>In Rust, the following can occur with <code>mut</code> (as shown in the <a href="https://doc.rust-lang.org/reference/types/closure.html#unique-immutable-borrows-in-captures">Rust book</a>):</p>
+<pre><code class="language-rust">let mut b = false;
+let x = &amp;mut b;
+{
+    let mut c = || { *x = true; };
+    // The following line is an error:
+    // let y = &amp;x;
+    c();
+}
+let z = &amp;x;
+</code></pre>
+<p>Since Rust requires a variable to only have one unique mutable reference, the capture cannot naturally be resolved as <code>&amp;&amp;mut</code> because
+<code>x</code> is not unique.</p>
+<p>Thankfully Rust has got us covered. The compiler will catch this and make a special type of borrow called: <code>Unique Immutable Borrows</code>
+which only occurs in this use-case and is abstracted away by the compiler. It acts like an immutable variable but can be dereferenced and
+the borrow checker will enforce it like a mutable's uniqueness.</p>
+<p><strong>Rust pretty much prevents us from making mistakes by enforcing compiler time checks, even so far as to create a unique edge condition! Futhermore, the Rust compiler
+will attach necessary error messages for you if new users are unsure about these edge-cases:</strong></p>
+<pre><code class="language-bash">error[E0501]: cannot borrow `x` as immutable because previous closure requires unique access
+  --&gt; main.rs:16:17
    |
-14 |         <span class="nb">let </span>mut c <span class="o">=</span> <span class="o">||</span> <span class="o">{</span> <span class="k">*</span>x <span class="o">=</span> <span class="nb">true</span><span class="p">;</span> <span class="o">}</span><span class="p">;</span>
-   |                     <span class="nt">--</span>   <span class="nt">--</span> first borrow occurs due to use of <span class="sb">`</span>x<span class="sb">`</span> <span class="k">in </span>closure
+14 |         let mut c = || { *x = true; };
+   |                     --   -- first borrow occurs due to use of `x` in closure
    |                     |
    |                     closure construction occurs here
 15 |         // The following line is an error:
-16 |         <span class="nb">let </span>y <span class="o">=</span> &amp;x<span class="p">;</span>
+16 |         let y = &amp;x;
    |                 ^^ second borrow occurs here
-17 |         c<span class="o">()</span><span class="p">;</span>
+17 |         c();
    |         - first borrow later used here
-error: aborting due to previous error<span class="p">;</span> 2 warnings emitted
-For more information about this error, try <span class="sb">`</span>rustc <span class="nt">--explain</span> E0501<span class="sb">`</span><span class="nb">.</span>
-</code></pre></div> <p>C++, true to it's philosophy, allows you to go with the cast operation and modify a <code>const</code> rather than catching them in the compiler.</p> <h3 id=returning-lambdas-on-the-stack>Returning Lambdas on the Stack</h3> <p>This is perhaps one of category of basic Rust that doesn't seem as intuitive.</p> <h4 id=c-functional-types>C++ Functional Types</h4> <p>With C++, a unique type <code>std::function</code> can be used to define lambdas. Lambdas in C++ are treated as Structs.</p> <div class=highlight><pre class="highlight cpp"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
-2
-3
-4
-5
-</pre></td><td class=rouge-code><pre><span class="n">std</span><span class="o">::</span><span class="n">function</span><span class="o">&lt;</span><span class="kt">int</span><span class="p">(</span><span class="kt">int</span><span class="p">)</span><span class="o">&gt;</span> <span class="n">ret_func</span><span class="p">(</span><span class="kt">int</span> <span class="n">a</span><span class="p">)</span> <span class="p">{</span>
-  <span class="k">return</span> <span class="p">[</span><span class="n">a</span><span class="p">](</span><span class="kt">int</span> <span class="n">b</span><span class="p">)</span> <span class="p">{</span> <span class="k">return</span> <span class="n">b</span> <span class="o">/</span> <span class="n">a</span><span class="p">;</span> <span class="p">};</span>
-<span class="p">}</span>
+error: aborting due to previous error; 2 warnings emitted
+For more information about this error, try `rustc --explain E0501`.
+</code></pre>
+<p>C++, true to it's philosophy, allows you to go with the cast operation and modify a <code>const</code> rather than
+catching them in the compiler.</p>
+<h3>Returning Lambdas on the Stack</h3>
+<p>This is perhaps one of category of basic Rust that doesn't seem as intuitive.</p>
+<h4>C++ Functional Types</h4>
+<p>With C++, a unique type <code>std::function</code> can be used to define lambdas. Lambdas in C++ are treated as Structs.</p>
+<pre><code class="language-cpp">std::function&lt;int(int)&gt; ret_func(int a) {
+  return [a](int b) { return b / a; };
+}
 
-<span class="n">cout</span> <span class="o">&lt;&lt;</span> <span class="n">ret_func</span><span class="p">(</span><span class="mi">1</span><span class="p">)(</span><span class="mi">2</span><span class="p">)</span> <span class="o">&lt;&lt;</span> <span class="n">endl</span><span class="p">;</span>
-</pre></td></tr></tbody></table></code></pre></div> <p>Functions that share the same type signatures share the same type and works as expected:</p> <div class=highlight><pre class="highlight cpp"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
-2
-3
-4
-5
-6
-7
-</pre></td><td class=rouge-code><pre><span class="n">std</span><span class="o">::</span><span class="n">function</span><span class="o">&lt;</span><span class="kt">int</span><span class="p">(</span><span class="kt">int</span><span class="p">)</span><span class="o">&gt;</span> <span class="n">ret_func</span><span class="p">(</span><span class="kt">int</span> <span class="n">a</span><span class="p">)</span> <span class="p">{</span>
-  <span class="k">if</span> <span class="p">(</span><span class="n">a</span> <span class="o">==</span> <span class="mi">0</span><span class="p">)</span> <span class="p">{</span>
-    <span class="k">return</span> <span class="p">[</span><span class="n">a</span><span class="p">](</span><span class="kt">int</span> <span class="n">b</span><span class="p">)</span> <span class="p">{</span> <span class="k">return</span> <span class="mi">0</span><span class="p">;</span> <span class="p">};</span>
-  <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
-    <span class="k">return</span> <span class="p">[</span><span class="n">a</span><span class="p">](</span><span class="kt">int</span> <span class="n">b</span><span class="p">)</span> <span class="p">{</span> <span class="k">return</span> <span class="n">b</span> <span class="o">/</span> <span class="n">a</span><span class="p">;</span> <span class="p">};</span>
-  <span class="p">}</span>
-<span class="p">}</span>
-</pre></td></tr></tbody></table></code></pre></div> <p>All works as expected.</p> <h4 id=rust-impl-traits>Rust <code>impl</code> Traits</h4> <p>Without getting into too much on traits, we will see how they are used for returning lambdas.</p> <p>Unlike C++, <strong>each lambda is a unique type and instead share the same trait.</strong> This means that you have to use <code>traits</code> in order to reference lambdas and effectively bind each function to return one closure. <code>traits</code> can be a thought as a more powerful interface where no-concrete type is necessary to define constraints for an implementation. We will discuss more in detail in future parts.</p> <div class=highlight><pre class="highlight rust"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
-2
-3
-4
-5
-</pre></td><td class=rouge-code><pre><span class="k">fn</span> <span class="nf">ret_func</span><span class="p">(</span><span class="n">a</span><span class="p">:</span> <span class="nb">i32</span><span class="p">)</span> <span class="k">-&gt;</span> <span class="k">impl</span> <span class="nf">Fn</span><span class="p">(</span><span class="nb">i32</span><span class="p">)</span> <span class="k">-&gt;</span> <span class="nb">i32</span> <span class="p">{</span>
-    <span class="k">move</span> <span class="p">|</span><span class="n">b</span><span class="p">|</span> <span class="n">b</span> <span class="o">/</span> <span class="n">a</span>
-<span class="p">}</span>
+cout &lt;&lt; ret_func(1)(2) &lt;&lt; endl;
+</code></pre>
+<p>Functions that share the same type signatures share the same type and works as expected:</p>
+<pre><code class="language-cpp">std::function&lt;int(int)&gt; ret_func(int a) {
+  if (a == 0) {
+    return [a](int b) { return 0; };
+  } else {
+    return [a](int b) { return b / a; };
+  }
+}
+</code></pre>
+<p>All works as expected.</p>
+<h4>Rust <code>impl</code> Traits</h4>
+<p>Without getting into too much on traits, we will see how they are used for returning lambdas.</p>
+<p>Unlike C++, <strong>each lambda is a unique type and instead share the same trait.</strong>
+This means that you have to use <code>traits</code> in order to reference lambdas and
+effectively bind each function to return one closure. <code>traits</code> can be a thought as a more powerful interface
+where no-concrete type is necessary to define constraints for an implementation. We will discuss more in detail in future parts.</p>
+<pre><code class="language-rust">fn ret_func(a: i32) -&gt; impl Fn(i32) -&gt; i32 {
+    move |b| b / a
+}
 
-<span class="nf">ret_func</span><span class="p">(</span><span class="mi">2</span><span class="p">)(</span><span class="mi">3</span><span class="p">);</span>
-</pre></td></tr></tbody></table></code></pre></div> <p>The major limitation of lambdas is that they are identical by trait and <strong>not types.</strong> This means that Rust does not allow branching returns of lambdas on the stack as of Rust v1.26 and functions can only have one return type:</p> <div class=highlight><pre class="highlight rust"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
-2
-3
-4
-5
-6
-7
-8
-9
-</pre></td><td class=rouge-code><pre><span class="k">fn</span> <span class="nf">ret_func</span><span class="p">(</span><span class="n">a</span><span class="p">:</span> <span class="nb">i32</span><span class="p">)</span> <span class="k">-&gt;</span> <span class="k">impl</span> <span class="nf">Fn</span><span class="p">(</span><span class="nb">i32</span><span class="p">)</span> <span class="k">-&gt;</span> <span class="nb">i32</span> <span class="p">{</span>
-    <span class="k">if</span> <span class="n">a</span> <span class="o">==</span> <span class="mi">0</span> <span class="p">{</span>
-        <span class="k">return</span> <span class="k">move</span> <span class="p">|</span><span class="n">b</span><span class="p">|</span> <span class="mi">0</span>
-    <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
-        <span class="k">return</span> <span class="k">move</span> <span class="p">|</span><span class="n">b</span><span class="p">|</span> <span class="n">b</span> <span class="o">/</span> <span class="n">a</span>
-    <span class="p">}</span>
-<span class="p">}</span>
+ret_func(2)(3);
+</code></pre>
+<p>The major limitation of lambdas is that they are identical by trait and <strong>not types.</strong> This means that Rust does not allow branching
+returns of lambdas on the stack as of Rust v1.26 and functions can only have one return type:</p>
+<pre><code class="language-rust">fn ret_func(a: i32) -&gt; impl Fn(i32) -&gt; i32 {
+    if a == 0 {
+        return move |b| 0
+    } else {
+        return move |b| b / a
+    }
+}
 
-<span class="nf">ret_func</span><span class="p">(</span><span class="mi">2</span><span class="p">)(</span><span class="mi">3</span><span class="p">);</span>
-</pre></td></tr></tbody></table></code></pre></div> <p>The error from Rust also mentions this and recommends an alternative approach:</p> <div class=highlight><pre class="highlight shell"><code>1 | fn ret_func<span class="o">(</span>a: i32<span class="o">)</span> -&gt; impl Fn<span class="o">(</span>i32<span class="o">)</span> -&gt; i32 <span class="o">{</span>
-  |                        <span class="nt">-------------------</span> expected <span class="sb">`</span><span class="o">[</span>closure@src/main.rs:3:16: 3:24]<span class="sb">`</span> because of <span class="k">return </span><span class="nb">type
-</span>2 |     <span class="k">if </span>a <span class="o">==</span> 0 <span class="o">{</span>
-3 |         <span class="k">return </span>move |b| 0
-  |                <span class="nt">--------</span> the expected closure
-4 |     <span class="o">}</span> <span class="k">else</span> <span class="o">{</span>
-5 |         <span class="k">return </span>move |b| b / a
+ret_func(2)(3);
+</code></pre>
+<p>The error from Rust also mentions this and recommends an alternative approach:</p>
+<pre><code class="language-bash">1 | fn ret_func(a: i32) -&gt; impl Fn(i32) -&gt; i32 {
+  |                        ------------------- expected `[closure@src/main.rs:3:16: 3:24]` because of return type
+2 |     if a == 0 {
+3 |         return move |b| 0
+  |                -------- the expected closure
+4 |     } else {
+5 |         return move |b| b / a
   |                ^^^^^^^^^^^^^^ expected closure, found a different closure
   |
-  <span class="o">=</span> note: expected closure <span class="sb">`</span><span class="o">[</span>closure@src/main.rs:3:16: 3:24]<span class="sb">`</span>
-             found closure <span class="sb">`</span><span class="o">[</span>closure@src/main.rs:5:16: 5:24]<span class="sb">`</span>
-  <span class="o">=</span> note: no two closures, even <span class="k">if </span>identical, have the same <span class="nb">type</span>
-  <span class="o">=</span> <span class="nb">help</span>: consider boxing your closure and/or using it as a trait object
-</code></pre></div> <p>Instead, we are forced to define the function in the heap:</p> <div class=highlight><pre class="highlight rust"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
-2
-3
-4
-5
-6
-7
-</pre></td><td class=rouge-code><pre><span class="k">fn</span> <span class="nf">ret_fun</span><span class="p">(</span><span class="n">a</span><span class="p">:</span> <span class="nb">i32</span><span class="p">)</span> <span class="k">-&gt;</span> <span class="nb">Box</span><span class="o">&lt;</span><span class="k">dyn</span> <span class="nf">Fn</span><span class="p">(</span><span class="nb">i32</span><span class="p">)</span> <span class="k">-&gt;</span> <span class="nb">i32</span><span class="o">&gt;</span> <span class="p">{</span>
-    <span class="k">if</span> <span class="n">a</span> <span class="o">==</span> <span class="mi">0</span> <span class="p">{</span>
-        <span class="k">return</span> <span class="nn">Box</span><span class="p">::</span><span class="nf">new</span><span class="p">(</span><span class="k">move</span> <span class="p">|</span><span class="n">b</span><span class="p">|</span> <span class="mi">0</span><span class="p">)</span>
-    <span class="p">}</span> <span class="k">else</span> <span class="p">{</span>
-        <span class="k">return</span> <span class="nn">Box</span><span class="p">::</span><span class="nf">new</span><span class="p">(</span><span class="k">move</span> <span class="p">|</span><span class="n">b</span><span class="p">|</span> <span class="n">b</span> <span class="o">/</span> <span class="n">a</span><span class="p">)</span>
-    <span class="p">}</span>
-<span class="p">}</span>
-</pre></td></tr></tbody></table></code></pre></div> <p>Of course, with Rust's borrow checker rules, heap allocations aren't that dangerous in this use-case. However, we do lose some performance compared to C++. This is a great segue into our final section for this part, heaps via smart pointers!</p> <p>The implications of traits and their implementation details are ripe with discussion and potential contribution. Here is one on <code>impl Trait</code>: <a href="https://github.com/rust-lang/rust/issues/63066">Meta tracking issue for <code>impl Trait</code></a>.</p> <h2 id=addressing-memory-on-the-heap>Addressing Memory on the Heap</h2> <p>C++ and Rust both have similar ways of being "smart" about tracking memory in the heap:</p> <h3 id=smart-pointers>Smart Pointers</h3> <p>In Modern C++, you almost always never use <code>malloc</code> and <code>free</code>. Instead, a smart pointer is used instead:</p> <div class=highlight><pre class="highlight cpp"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
-2
-3
-4
-5
-</pre></td><td class=rouge-code><pre><span class="k">auto</span> <span class="n">iptr</span> <span class="o">=</span> <span class="n">shared_ptr</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="p">(</span><span class="k">new</span> <span class="kt">int</span><span class="p">{});</span>
-
-<span class="c1">// It is recommended to not use `new` by some Modern C++ courses to</span>
-<span class="c1">// avoid using this "dangerous" keyword all together.</span>
-<span class="k">auto</span> <span class="n">iptr</span> <span class="o">=</span> <span class="n">std</span><span class="o">::</span><span class="n">make_shared</span><span class="o">&lt;</span><span class="kt">int</span><span class="o">&gt;</span><span class="p">();</span>
-</pre></td></tr></tbody></table></code></pre></div> <p><code>shared_ptr</code> is most commonly used as usually multiple sources will want to read from the heap. Only when all references are gone will the <code>shared_ptr</code> be released. <code>unique_ptr</code> is used for single ownership.</p> <h3 id=arc-and-boxes>Arc and Boxes</h3> <p>Rust, on the other hand, is slightly different and offers many more solutions we will not get into today. Two examples:</p> <div class=highlight><pre class="highlight rust"><code><table class="rouge-table"><tbody><tr><td class="rouge-gutter gl"><pre class="lineno">1
-2
-3
-4
-5
-6
-</pre></td><td class=rouge-code><pre><span class="c1">// `Box` is a `unique_ptr` resolved during build time. No actual reference counting during runtime exists.</span>
-<span class="k">let</span> <span class="n">b_int</span><span class="p">:</span> <span class="nb">Box</span><span class="o">&lt;</span><span class="nb">int</span><span class="o">&gt;</span> <span class="o">=</span> <span class="nn">Box</span><span class="p">::</span><span class="nf">new</span><span class="p">(</span><span class="mi">3</span><span class="p">);</span>
-
-<span class="c1">// `Arc` can be thought of as an `unique_ptr` resolved during runtime.</span>
-<span class="c1">// Interestingly, most teach about Rc first, which is the non-thread safe counter part to Arc.</span>
-<span class="k">let</span> <span class="n">a_int</span><span class="p">:</span> <span class="nb">Box</span><span class="o">&lt;</span><span class="nb">int</span><span class="o">&gt;</span> <span class="o">=</span> <span class="nn">Arc</span><span class="p">::</span><span class="nf">new</span><span class="p">(</span><span class="mi">3</span><span class="p">);</span>
-</pre></td></tr></tbody></table></code></pre></div> <p>Here is a nice <a href="https://users.rust-lang.org/t/box-and-rc-and-their-equivalents-in-c/49671/8">thread discussion</a>. But basically:</p> <ul> <li><code>std::unique_ptr&lt;T&gt;</code> is like <code>Option&lt;Box&lt;T&gt;&gt;</code></li> <li><code>std::shared_ptr&lt;const T&gt;</code> is like <code>Option&lt;Arc&lt;T&gt;&gt;</code></li> </ul> <p>If we want to get technical:</p> <ul> <li><code>Arc</code> is the threadsafe equivalent of <code>Rc</code></li> </ul> <p>But there are some questions as to if shared_ptr are truly atomic as in the thread above (<a href="https://snf.github.io/2019/02/13/shared-ptr-optimization/">blog here</a>). Thus it may actually be more like <code>shared_ptr</code> is to <code>Rc</code> as <code>atomic_shared_ptr</code> is to <code>Arc</code>.</p> <p>As a consequence the Rust borrow checker, <code>Box</code> is able to act like an <code>unique_ptr</code> so long as we are provablely able to do so. <code>Arc</code> and <code>Rc</code> is necessary when we can no longer prove, during build time, ownership constraints. They are also much more dangerous as they can cause runtime errors.</p> <p>The Rust handbook does a much better job at describing this than me so I will leave a link: <a href="https://doc.rust-lang.org/book/ch15-04-rc.html">Rc</a> and <a href="https://doc.rust-lang.org/book/ch15-01-box.html">Box</a></p> <p>Smart pointers in Rust arguably is both powerful (providing true multithreading support) but also complicated (weak links, cells, inner mutability, etc.) The handbook covers most edge-cases. We will cover more in the borrow checker sections.</p> <h2 id=conclusion>Conclusion</h2> <p>We've seen several different sections on a several Modern C++ constructs and their Rust counter parts. Below are my summaries of each section and which is easier to code in:</p> <ul> <li>Datastructures: <strong>Rust</strong> <ul> <li>Much flexibility that Rust provides with macros and arguably much cleaner.</li> </ul> </li> <li>Iteration: <strong>Rust</strong> <ul> <li>Once more, Rust wins in convenience, readability, and still just as fast.</li> </ul> </li> <li>Lambdas: <strong>Rust</strong> <ul> <li>Though a bit rough around the patches of lambda return types, the rest is cleaner and tighter.</li> <li>Boxes solve most edge-cases surrounding lambda returns. Any more complex and you probably want a type.</li> </ul> </li> <li>Smart Pointers: <strong>C++</strong> <ul> <li>I have to give C++ this point. C++ is so much less complicated. Building a mutable tree in Rust is difficult.</li> </ul> </li> </ul> <p>There you have it! Rust wins 3/4 four parts in this first part of the series, in my opion. Smart pointers are definitely a bit rough around the edges with the variety of ways to manage memory and we will explore more in the borrw checker section of our article.</p> <p>Until next time, peace!</p> </div> </div> <div class=article-layout-sidebar> <div class=side-bar-island> <h2 id=table-of-contents-header> Table of Contents </h2> <div class=table-of-contents> Ruh-roh. Looks like something went wrong :( <br/> </div> <h2> Related Articles </h2> <div class=related-articles> <br/> <ul> <li> <a href="/blog/content/2023/08/23/sand-simulator/">Writing a Particle Pixel Simulator in Rust</a> </li> </ul> </div> </div> </div> <div class=comments_section> <div id=disqus_thread></div> <script>
-//<![CDATA[
-                  var disqus_shortname = 'programmingincluded';
-          
-    (function() {
-        var dsq = document.createElement('script'); dsq.type = 'text/javascript'; dsq.async = true;
-        dsq.src = '//' + disqus_shortname + '.disqus.com/embed.js';
-        (document.getElementsByTagName('head')[0] || document.getElementsByTagName('body')[0]).appendChild(dsq);
-    })();
-//]]>
-</script> <noscript>Please enable JavaScript to view the <a href='http://disqus.com/?ref_noscript'>comments powered by Disqus.</a></noscript> <a href='http://disqus.com' class=dsq-brlink>comments powered by <span class=logo-disqus>Disqus</span></a> <script>
-//<![CDATA[
-    var disqus_shortname = 'programmingincluded';
-    (function () {
-        var s = document.createElement('script'); s.async = true;
-        s.type = 'text/javascript';
-        s.src = '//' + disqus_shortname + '.disqus.com/count.js';
-        (document.getElementsByTagName('HEAD')[0] || document.getElementsByTagName('BODY')[0]).appendChild(s);
-    }());
-//]]>
-</script> </div> </div> <script type="text/javascript">
-if (typeof gaJsHost == 'undefined') {
-  var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
-  document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
+  = note: expected closure `[closure@src/main.rs:3:16: 3:24]`
+             found closure `[closure@src/main.rs:5:16: 5:24]`
+  = note: no two closures, even if identical, have the same type
+  = help: consider boxing your closure and/or using it as a trait object
+</code></pre>
+<p>Instead, we are forced to define the function in the heap:</p>
+<pre><code class="language-rust">fn ret_fun(a: i32) -&gt; Box&lt;dyn Fn(i32) -&gt; i32&gt; {
+    if a == 0 {
+        return Box::new(move |b| 0)
+    } else {
+        return Box::new(move |b| b / a)
+    }
 }
-</script>
-<script type="text/javascript">
-try {
-var pageTracker = _gat._getTracker("UA-108057296-1");
-pageTracker._trackPageview();
-} catch(err) {}</script>
-</body> </html>
+</code></pre>
+<p>Of course, with Rust's borrow checker rules, heap allocations aren't that dangerous in this use-case. However, we do lose some
+performance compared to C++. This is a great segue into our final section for this part, heaps via smart pointers!</p>
+<p>The implications of traits and their implementation details are ripe with discussion and potential contribution.
+Here is one on <code>impl Trait</code>: <a href="https://github.com/rust-lang/rust/issues/63066">Meta tracking issue for <code>impl Trait</code></a>.</p>
+<h2>Addressing Memory on the Heap</h2>
+<p>C++ and Rust both have similar ways of being &quot;smart&quot; about tracking memory in the heap:</p>
+<h3>Smart Pointers</h3>
+<p>In Modern C++, you almost always never use <code>malloc</code> and <code>free</code>. Instead, a smart pointer is used instead:</p>
+<pre><code class="language-cpp">auto iptr = shared_ptr&lt;int&gt;(new int{});
+
+// It is recommended to not use `new` by some Modern C++ courses to
+// avoid using this &quot;dangerous&quot; keyword all together.
+auto iptr = std::make_shared&lt;int&gt;();
+</code></pre>
+<p><code>shared_ptr</code> is most commonly used as usually multiple sources will want to read from the heap.
+Only when all references are gone will the <code>shared_ptr</code> be released. <code>unique_ptr</code> is used for single ownership.</p>
+<h3>Arc and Boxes</h3>
+<p>Rust, on the other hand, is slightly different and offers many more solutions we will not get into today. Two examples:</p>
+<pre><code class="language-rust">// `Box` is a `unique_ptr` resolved during build time. No actual reference counting during runtime exists.
+let b_int: Box&lt;int&gt; = Box::new(3);
+
+// `Arc` can be thought of as an `unique_ptr` resolved during runtime.
+// Interestingly, most teach about Rc first, which is the non-thread safe counter part to Arc.
+let a_int: Box&lt;int&gt; = Arc::new(3);
+</code></pre>
+<p>Here is a nice <a href="https://users.rust-lang.org/t/box-and-rc-and-their-equivalents-in-c/49671/8">thread discussion</a>.
+But basically:</p>
+<ul>
+<li><code>std::unique_ptr&lt;T&gt;</code> is like <code>Option&lt;Box&lt;T&gt;&gt;</code></li>
+<li><code>std::shared_ptr&lt;const T&gt;</code> is like <code>Option&lt;Arc&lt;T&gt;&gt;</code></li>
+</ul>
+<p>If we want to get technical:</p>
+<ul>
+<li><code>Arc</code> is the threadsafe equivalent of <code>Rc</code></li>
+</ul>
+<p>But there are some questions as to if shared_ptr are truly atomic as in the thread above (<a href="https://snf.github.io/2019/02/13/shared-ptr-optimization/">blog here</a>).
+Thus it may actually be more like <code>shared_ptr</code> is to <code>Rc</code> as <code>atomic_shared_ptr</code> is to <code>Arc</code>.</p>
+<p>As a consequence the Rust borrow checker, <code>Box</code> is able to act like an <code>unique_ptr</code> so long as we are provablely able to do so.
+<code>Arc</code> and <code>Rc</code> is necessary when we can no longer prove, during build time, ownership constraints. They are also much more dangerous as
+they can cause runtime errors.</p>
+<p>The Rust handbook does a much better job at describing this than me so I will leave a link: <a href="https://doc.rust-lang.org/book/ch15-04-rc.html">Rc</a>
+and <a href="https://doc.rust-lang.org/book/ch15-01-box.html">Box</a></p>
+<p>Smart pointers in Rust arguably is both powerful (providing true multithreading support) but also complicated (weak links, cells, inner mutability, etc.)
+The handbook covers most edge-cases. We will cover more in the borrow checker sections.</p>
+<h2>Conclusion</h2>
+<p>We've seen several different sections on a several Modern C++ constructs and their Rust counter parts.
+Below are my summaries of each section and which is easier to code in:</p>
+<ul>
+<li>Datastructures: <strong>Rust</strong>
+<ul>
+<li>Much flexibility that Rust provides with macros and arguably much cleaner.</li>
+</ul>
+</li>
+<li>Iteration: <strong>Rust</strong>
+<ul>
+<li>Once more, Rust wins in convenience, readability, and still just as fast.</li>
+</ul>
+</li>
+<li>Lambdas: <strong>Rust</strong>
+<ul>
+<li>Though a bit rough around the patches of lambda return types, the rest is cleaner and tighter.</li>
+<li>Boxes solve most edge-cases surrounding lambda returns. Any more complex and you probably want a type.</li>
+</ul>
+</li>
+<li>Smart Pointers: <strong>C++</strong>
+<ul>
+<li>I have to give C++ this point. C++ is so much less complicated. Building a mutable tree in Rust is difficult.</li>
+</ul>
+</li>
+</ul>
+<p>There you have it! Rust wins 3/4 four parts in this first part of the series, in my opion.
+Smart pointers are definitely a bit rough around the edges with the variety of ways to manage memory and we will explore more in
+the borrw checker section of our article.</p>
+<p>Until next time, peace!</p>
+
+        </div>
+      </div>
+
+      <div class="article-layout-sidebar">
+        <div class="side-bar-island">
+            <h2 id="table-of-contents-header"> Table of Contents </h2>
+            <div class="table-of-contents">
+                Ruh-roh. Looks like something went wrong :(
+                <br />
+            </div>
+        
+            <h2> Related Articles </h2>
+            <div class="related-articles">
+                <br />
+                        <ul>
+                            <li> 
+                            <a href="/blog\content\2023\08\23\sand-simulator">Writing a Particle Pixel Simulator in Rust</a>
+                            </li>
+                        </ul>
+            </div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>

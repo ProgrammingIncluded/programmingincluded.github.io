@@ -1,4 +1,33 @@
-<!doctype html> <html> <head> <meta charset=utf-8> <meta http-equiv=x-ua-compatible content="ie=edge"> <meta name=viewport content="width=device-width, initial-scale=1, shrink-to-fit=no"> <link rel=preconnect href="https://fonts.googleapis.com"> <link rel=preconnect href="https://fonts.gstatic.com" crossorigin> <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300&display=swap" rel=stylesheet> <title>Encoder</title> <link href="/stylesheets/config.css" rel=stylesheet /> <link href="/stylesheets/pblog.css" rel=stylesheet /> </head> <body> <script src="/javascripts/jsaes.js"></script> <script src="/javascripts/sjcl.js"></script> <script src="/javascripts/sjcl-bytes.js"></script> <script src="/javascripts/encoder.js"></script> <script src="/javascripts/jquery-3.2.1.min.js"></script> <script>
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300&display=swap" rel="stylesheet">
+
+
+    <!-- Use the title from a page's frontmatter if it has one -->
+    <title>
+      Encoder
+    </title>
+
+    <link type="text/css" rel="stylesheet" href="/stylesheets/config.css">
+    <link type="text/css" rel="stylesheet" href="/stylesheets/pblog.css">
+  </head>
+  <body>
+    
+&lt;script src&#x3D;&quot;/javascripts/jsaes.js&quot;&gt;&lt;/script&gt;
+&lt;script src&#x3D;&quot;/javascripts/encoder.js&quot;&gt;&lt;/script&gt;
+&lt;script src&#x3D;&quot;/javascripts/sjcl.js&quot;&gt;&lt;/script&gt;
+&lt;script src&#x3D;&quot;/javascripts/sjcl-bytes.js&quot;&gt;&lt;/script&gt;
+&lt;script src&#x3D;&quot;/javascripts/jquery-3.6.0.min.js&quot;&gt;&lt;/script&gt;
+&lt;script src&#x3D;&quot;/javascripts/parallax.min.js&quot;&gt;&lt;/script&gt;
+
+<script>
     function encoder() {
         var pass = $("#pass").val();
         var convert = $("#convert").val();
@@ -26,21 +55,33 @@
     $(document).ready(function(){
         $("#encode").click(encoder);
     });
-</script> <div style="padding:2rem;"> <div style="font-size:1rem;"> Below you will find the mechanism used to encode my encoded webpages. This is a simple algorithm with SHA-256 hashing and AES encryption. I use this very site to encode my html before hardcoding it into Javascript. Due to ASCII limitations, the output is in JSON. </div> <br/> <textarea id=pass rows=1 cols=25>
-        Password Here
-    </textarea> <textarea id=convert rows=4 cols=50>
-        Input Text Here
-    </textarea> <br/> <button id=encode type=button>Encode</button> <br/> <br/> <textarea id=output rows=4 cols=50>
-    Output Goes Here
-    </textarea> </div> <script type="text/javascript">
-if (typeof gaJsHost == 'undefined') {
-  var gaJsHost = (("https:" == document.location.protocol) ? "https://ssl." : "http://www.");
-  document.write(unescape("%3Cscript src='" + gaJsHost + "google-analytics.com/ga.js' type='text/javascript'%3E%3C/script%3E"));
-}
 </script>
-<script type="text/javascript">
-try {
-var pageTracker = _gat._getTracker("UA-108057296-1");
-pageTracker._trackPageview();
-} catch(err) {}</script>
-</body> </html>
+<div style="padding:2rem;">
+    <div style="font-size:1rem;">
+    Below you will find the mechanism used to encode my encoded webpages. This is a simple algorithm with SHA-256 hashing and AES encryption.
+    I use this very site to encode my html before hardcoding it into Javascript.
+
+    Due to ASCII limitations, the output is in JSON.
+    </div>
+
+    <br />
+
+    <textarea id="pass" rows="1" cols="25">
+        Password Here
+    </textarea>
+
+    <textarea id="convert" rows="4" cols="50">
+        Input Text Here
+    </textarea>
+
+    <br />
+    <button id="encode" type="button">Encode</button>
+    <br /> <br />
+
+    <textarea id="output" rows="4" cols="50">
+    Output Goes Here
+    </textarea>
+</div>
+
+  </body>
+</html>
