@@ -1,4 +1,536 @@
-<?xml version="1.0" encoding="UTF-8"?><rss xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom" version="2.0"><channel><title><![CDATA[ProgrammingIncluded]]></title><description><![CDATA[ProgrammingIncluded]]></description><link>https://programmingincluded.com/</link><generator>metalsmith-feed</generator><lastBuildDate>Mon, 17 Feb 2025 09:35:02 GMT</lastBuildDate><atom:link href="https://programmingincluded.com/rss.xml" rel="self" type="application/rss+xml"/><author><![CDATA[Charles H. Chen]]></author><item><title><![CDATA[Blog v1&#58; From Ruby to NodeJS]]></title><description><![CDATA[<!doctype html>
+<?xml version="1.0" encoding="UTF-8"?><rss xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom" version="2.0"><channel><title><![CDATA[ProgrammingIncluded]]></title><description><![CDATA[ProgrammingIncluded]]></description><link>https://programmingincluded.com/</link><generator>metalsmith-feed</generator><lastBuildDate>Fri, 04 Apr 2025 03:19:40 GMT</lastBuildDate><atom:link href="https://programmingincluded.com/rss.xml" rel="self" type="application/rss+xml"/><author><![CDATA[Charles H. Chen]]></author><item><title><![CDATA[Rust vs Modern C++ Part 2]]></title><description><![CDATA[<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <meta http-equiv="x-ua-compatible" content="ie=edge">
+    <meta name="viewport"
+          content="width=device-width, initial-scale=1, shrink-to-fit=no">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/styles/atom-one-dark-reasonable.min.css">
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/highlight.js/11.9.0/highlight.min.js"></script>
+    <script>hljs.highlightAll();</script>
+
+    <title>
+      Rust vs Modern C++ Part 2
+    </title>
+
+    <link type="text/css" rel="stylesheet" href="/stylesheets/pblog.css">
+
+    <script src="/javascripts/anime.min.js"></script>
+    <script src="/javascripts/jquery-3.6.0.min.js"></script>
+    <script src="/javascripts/nav.js"></script>
+    <script src="/javascripts/collopsible.js"></script>
+  </head>
+  <body>
+    <div class="top-banner-cont">
+        <div class="top-banner-center">
+            <br />
+            <br />
+            <a href="/" style="text-decoration: none;">
+                <image src="/images/site_wide/pilogo.gif" id="pi_logo" />
+            </a>
+            <br />
+            ProgrammingIncluded
+    
+        <div id="connection-icons">
+            <a href="https://www.linkedin.com/in/chencharlesh/" style="text-decoration: none;">
+                <image src="/images/site_wide/icons8-linked-in-48.png" id="linkedin_logo" />
+            </a>
+            <a href="/rss.xml" style="text-decoration: none;">
+                <image src="/images/site_wide/icons8-rss-48.png" id="rss_logo" />
+            </a>
+        </div>
+        </div>
+    </div>
+    
+    <nav class="article-layout-nav">
+        <ul>
+        <li><a href="/aboutme">About</a></li>
+        <li><a href="/blog">Blog</a></li>
+        </ul>
+    </nav>
+
+    <div class="article-layout">
+      <div class="article-layout-main">
+        <div class="article_title_div">
+
+          <h1 class="article_title">Rust vs Modern C++ Part 2</h1>
+
+          <h2 class="article_subtitle">Let's Borrow the Polymorph Potions</h2>
+
+          <div class="article_pub">
+            <a href="/aboutme">Charles Chen</a> |
+            Thu 2025-04-03 01:50 PM GMT-7
+          </div>
+
+        </div>
+
+        <div class="mid-bar-island">
+          <h2> Table of Contents </h2>
+          <div class="table-of-contents">
+          </div>
+        </div>
+
+        <div class="article-layout-main-body">
+          <h2>Intro</h2>
+<p>Can you believe it has been 2 years since I last wrote my post? These blogs take a long time to write.</p>
+<p>In <a href="/blog/content/2023/01/18/rust-vs-cpp/">Part 1</a>, we kicked off our comparison between Rust and Modern C++ (focusing on C++11/14 standards and philosophies like those in <em>Effective Modern C++</em>). We looked at the basics: initializing data structures, iteration, lambdas, and smart pointers. The verdict? Rust often provided cleaner syntax and less ambiguity (winning 3/4 categories in my opinion), though C++ smart pointers felt simpler initially compared to Rust's <code>Box</code>, <code>Arc</code>, <code>Rc</code>, and the underlying rules.</p>
+<p>My core thesis remains:</p>
+<blockquote>
+<p>Modern C++ is arguably filled with gotcha's, edgecases, and solutions to problems stemming from C++ limitations.</p>
+<p>As a result, Rust benefits from faster design cycles, more efficient code, and is arguablely an easier language to maintain even with its current rough edges in certain edge cases.</p>
+</blockquote>
+<p>Today, we dive into the heart of what makes Rust... well, <em>Rust</em>. We'll explore two foundational concepts: <strong>Traits</strong> (Rust's answer to interfaces and generic constraints) and the infamous <strong>Ownership and Borrowing</strong> system.</p>
+<h3>Recap of the Roadmap</h3>
+<ul>
+<li><s>The Basics: Datastructures, Lambdas, and Heap</s> (<a href="/blog/content/2023/01/18/rust-vs-cpp/">Covered in Part 1</a>)</li>
+<li><strong>Traits and Ownership</strong> (This Post!)</li>
+<li>Macros: Metaprogramming Made Simple</li>
+<li>Cargo: The Rust Packages Ecosystem</li>
+<li>C Interop and Unsafe Rust: The Dark Arts</li>
+</ul>
+<h2>Defining Shared Behavior via Polymorphism</h2>
+<p>As scientists begin to solve problems, it is inevitable we start to see patterns. More specifically, we realize how we interact with different types can be similar.
+Consider the concept of shape. Every concave shape has a defined number of sides. A good programming language should allow for the concept of polymorhism in their data types
+such that different types can be passed to the same function.</p>
+<iframe src="https://www.youtube.com/embed/Nz8ssH7LiB0" width="560" height="315" frameborder="0" class="ytv" allowfullscreen></iframe>
+<p>How do we write generic code that works with different types, ensuring those types can actually <em>do</em> what our code expects? Both languages have mechanisms for this.
+We will be focusing on <strong>polymorphism</strong> which are a property of classes that allow for simlar or shared interfaces.
+<strong>Generics</strong> will also be briefly covered which are used in algorithms or functions but will not be the highlight of this article.</p>
+<h3>The C++ Way: Inheritance, Templates, and Concepts</h3>
+<p>Modern C++ primarily builds off class inheritance and templates as means for type-generics. C++ rather cleanly splits them into runtime based and compile-time based resolutions.</p>
+<h4>Runtime: Class Inheritance &amp; Virtual Functions</h4>
+<p>The classic OOP approach. Define a base class with <code>virtual</code> functions, and derived classes override them. This gives runtime polymorphism but comes with costs: vtable lookup overhead, potential for <a href="https://stackoverflow.com/questions/274626/what-is-object-slicing">object slicing</a>, rigid hierarchies, and the complexities of multiple inheritance (&quot;the diamond problem&quot;).</p>
+<p>Runtime polymorphism is when types are resolved at runtime. Vtables are the primary ways of resolving.</p>
+<h5>Virtual Functions and Inheritance Example</h5>
+<pre><code class="language-cpp">#include &lt;iostream&gt;
+
+struct Drawable {
+    virtual ~Drawable() = default; // Important! Virtual destructor
+    virtual void draw() const = 0; // Pure virtual function (interface)
+};
+
+struct Circle : Drawable {
+    void draw() const override { std::cout &lt;&lt; &quot;Drawing Circle&quot; &lt;&lt; std::endl; }
+};
+
+struct Square : Drawable {
+    void draw() const override { std::cout &lt;&lt; &quot;Drawing Square&quot; &lt;&lt; std::endl; }
+};
+
+void draw_all(const std::vector&lt;std::unique_ptr&lt;Drawable&gt;&gt;&amp; shapes) {
+    for (const auto&amp; shape : shapes) {
+        shape-&gt;draw(); // Dynamic dispatch via vtable
+    }
+}
+</code></pre>
+<h4>Compile Time: Templates</h4>
+<p>C++'s powerhouse for static polymorphism. Instead of waiting for a lookup table during runtime, templates resolve during compile-time.</p>
+<p>Code is generated at compile time for each type used. Blazingly fast during runtime, but historically plagued by <a href="https://i.redd.it/vdos07k5psr61.png">terrible error messages</a> if a type didn't meet implicit requirements (the infamous &quot;template metaprogramming wall of text&quot;). Pre-C++20, techniques like <a href="https://en.cppreference.com/w/cpp/language/sfinae">SFINAE</a> (Substitution Failure Is Not An Error) were used to constrain templates, often leading to complex code.
+Furthermore, compile time can easily increase non-linearlly. Template resolution can easily grow linearly by type and number of typed parameters if developers rely on fall-back implementations as the compiler would need to each combination.</p>
+<p>The <a href="https://www.youtube.com/watch?v=EtU4RDCCsiU&amp;t=491s">rule of Chiel</a> is an example of how developers attempt to optimize and reduce template metaprograms.
+These were rules used when designing the boost library as this <a href="https://stackoverflow.com/questions/2827422/how-to-reduce-compile-time-with-c-templates">SO</a> post mentions:</p>
+<blockquote>
+<p>Optimizations based on the above rules were used when Boost.TMP was designed and developed. As much as possible, avoid top constructs for quick template compilation.</p>
+</blockquote>
+<p>You can find somework on verifying this theory <a href="https://github.com/JPenuchot/rule-of-cheese">here</a>. From highest cost to lowest:</p>
+<h5>SFINAE</h5>
+<p>Otherwise known as: Subsistution Failure is not an Error. A rule that allows C++ to exhaustively try every template definition for a given type if the most likely one fails as a fall-back.
+Much of the conditional templates in C++14 captilize on this behavior to for use in metaprogramming.</p>
+<p>The simple example:</p>
+<pre><code class="language-cpp">template&lt;class T, class U&gt;
+struct is_same : std::false_type {};
+ 
+template&lt;class T&gt;
+struct is_same&lt;T, T&gt; : std::true_type {};
+
+// This example shows how easy it is for C++ to bruteforce templates until one works.
+// The rule of thumb is that the most specific template will be tried first.
+is_same&lt;int, int&gt;() // Resolves to the bottom most template and returns true always.
+is_same&lt;int, bool&gt;() // fails the bottom most template, however SFINAE and goes to the first, always returning false.
+</code></pre>
+<p>Here is a more complex one:</p>
+<pre><code class="language-cpp">template &lt;typename T&gt;
+class Container {
+private:
+    std::vector&lt;T&gt; items;
+
+public:
+    void add(const T&amp; item) {
+        items.push_back(item);
+    }
+
+    void print() const {
+        std::cout &lt;&lt; &quot;Container contents: &quot;;
+        for (const auto&amp; item : items) {
+            std::cout &lt;&lt; item &lt;&lt; &quot; &quot;;
+        }
+        std::cout &lt;&lt; std::endl;
+    }
+
+    // SFINAE in action:
+    // This 'sum()' member function template is enabled ONLY IF std::is_arithmetic&lt;T&gt;::value is true.
+    // We use std::enable_if in the return type.
+    // If the condition (std::is_arithmetic&lt;T&gt;::value) is false, std::enable_if&lt;...&gt;::type is ill-formed.
+    // SFINAE kicks in: this function signature is invalid, so it's removed from the class definition
+    // for non-arithmetic types, instead of causing a hard compiler error.
+    template &lt;typename U = T&gt; // Dummy template param often needed for SFINAE on member fns dependent on class params
+    typename std::enable_if&lt;std::is_arithmetic&lt;U&gt;::value, U&gt;::type
+    sum() const {
+        std::cout &lt;&lt; &quot;(Calculating sum for arithmetic type)&quot; &lt;&lt; std::endl;
+        // Need a default value appropriate for arithmetic types
+        T total = T(); // Default constructor (0 for built-in arithmetic types)
+        return std::accumulate(items.begin(), items.end(), total);
+    }
+};
+</code></pre>
+<h5>Instantiating a function template</h5>
+<pre><code class="language-cpp">void f1(auto);
+void f2(C1 auto);
+
+// Or older syntax
+template &lt;typename T&gt;
+void my_func(T x);
+</code></pre>
+<h5>Instantiating a type</h5>
+<pre><code class="language-cpp">template &lt;typename T&gt;
+class Container {
+private:
+  std::vector&lt;T&gt; items;
+public:
+    void add(T item) {
+        items.push_back(item);
+    }
+};
+
+int main() {
+    Container&lt;int&gt; int_container;
+    Container&lt;std::string&gt; string_container;
+    Container&lt;double&gt; double_container;
+    return 0;
+}
+</code></pre>
+<h5>Calling an alias</h5>
+<pre><code class="language-cpp">template&lt;typename T&gt;
+constexpr void my_function();
+
+template&lt;typename T&gt;
+constexpr auto alias_name = my_function&lt;T&gt;;
+
+alias_name&lt;int&gt;(); // Still has to resolve template but now an extra indirection.
+</code></pre>
+<h5>Adding a parameter to a type</h5>
+<pre><code class="language-cpp">// Template with one parameter
+template &lt;typename T&gt;
+struct SimpleBox {
+    T value;
+};
+
+// Template with three parameters
+template &lt;typename T1, typename T2, int Size&gt;
+struct ComplexBox {
+    T1 value1;
+    T2 value2;
+    int data[Size];
+};
+</code></pre>
+<h5>Adding a parameter to an alias call</h5>
+<pre><code class="language-cpp">// Alias with one parameter
+template &lt;typename T&gt;
+using Vec = std::vector&lt;T&gt;;
+
+// Alias with two parameters (value type and allocator)
+template &lt;typename T, typename Alloc = std::allocator&lt;T&gt;&gt;
+using AllocVec = std::vector&lt;T, Alloc&gt;;
+</code></pre>
+<h5>Looking up a memoized type</h5>
+<p>It wasn't clear to me from <a href="https://www.youtube.com/watch?v=EtU4RDCCsiU&amp;t=491s">the talk</a> what &quot;memoized&quot; meant here however it could either
+mean basic type lookup where resolution is already in memory or if templates are memoized after being resolved:</p>
+<pre><code class="language-cpp">#include &lt;vector&gt;
+#include &lt;iostream&gt;
+
+// Function using std::vector&lt;int&gt;
+void process_int_vector(const std::vector&lt;int&gt;&amp; vec) {
+    std::cout &lt;&lt; &quot;Processing vector with size: &quot; &lt;&lt; vec.size() &lt;&lt; std::endl;
+    // ... process ...
+}
+
+// Another function also using std::vector&lt;int&gt;
+std::vector&lt;int&gt; create_int_vector(int n) {
+    std::vector&lt;int&gt; new_vec; // Requires definition of std::vector&lt;int&gt;
+    for (int i = 0; i &lt; n; ++i) {
+        new_vec.push_back(i * 2);
+    }
+    return new_vec;
+}
+
+int main() {
+    // The compiler needs the definition of std::vector&lt;int&gt; here.
+    // It likely instantiates it fully if this is the first use.
+    std::vector&lt;int&gt; my_vector = create_int_vector(5);
+
+    // The compiler also needs std::vector&lt;int&gt; here.
+    // It can likely reuse (&quot;look up&quot;) the definition it
+    // already generated/instantiated previously. This lookup is
+    // considered relatively cheap compared to a full new instantiation.
+    process_int_vector(my_vector);
+
+    std::vector&lt;int&gt; another_vector; // Reuse again
+
+    return 0;
+}
+</code></pre>
+<h4>Honorable Mention: Concepts in C++20</h4>
+<p>A huge improvement introduced <em>after</em> our C++14 baseline, but essential for a <a href="https://en.cppreference.com/w/cpp/language/constraints">truly modern comparison</a>.
+Concepts allow you to explicitly define requirements and chain them (called, constraints) for template parameters.</p>
+<p>This construct is entirely optional and can be considered as being built on-top of templates. This can be an entire article on its own.</p>
+<p>Concepts effectively allow you to check certain properties about a type, chain these properties together (called constraints) and catch template errors earlier onwards.
+It will probably be the recommended way of template programming C++20 and onwards as error messages are cleaner.</p>
+<pre><code class="language-cpp">#include &lt;concepts&gt; // C++20
+#include &lt;iostream&gt;
+
+// Define a concept 'Drawable' requiring a 'draw()' member function
+template&lt;typename T&gt;
+concept Drawable = requires(const T&amp; t) {
+    { t.draw() } -&gt; std::same_as&lt;void&gt;; // Check if t.draw() exists and returns void
+};
+
+// Constrain the template using the concept
+template&lt;Drawable T&gt;
+void draw_static(const T&amp; shape) {
+    shape.draw(); // Static dispatch
+}
+
+struct Triangle { // Doesn't inherit, just needs the method
+    void draw() const { std::cout &lt;&lt; &quot;Drawing Triangle (Concept)&quot; &lt;&lt; std::endl; }
+};
+
+// Usage:
+// Triangle t;
+// draw_static(t); // Compiles because Triangle satisfies Drawable concept
+</code></pre>
+<p>Error example from <a href="https://en.cppreference.com/w/cpp/language/constraints">cppreference</a> shows how clean errors can be:</p>
+<pre><code class="language-cpp">std::list&lt;int&gt; l = {3, -1, 10};
+std::sort(l.begin(), l.end()); 
+// Typical compiler diagnostic without concepts:
+// invalid operands to binary expression ('std::_List_iterator&lt;int&gt;' and
+// 'std::_List_iterator&lt;int&gt;')
+//                           std::__lg(__last - __first) * 2);
+//                                     ~~~~~~ ^ ~~~~~~~
+// ... 50 lines of output ...
+//
+// Typical compiler diagnostic with concepts:
+// error: cannot call std::sort with std::_List_iterator&lt;int&gt;
+// note:  concept RandomAccessIterator&lt;std::_List_iterator&lt;int&gt;&gt; was not satisfied
+</code></pre>
+<h3>The Rust Way: Traits</h3>
+<p>Rust really only has one supported way of polymorphism for class types and that is through <code>Traits</code>.
+<code>Traits</code> are primarily resolved statically but also incorporate runtime polymorphism.
+You can think of traits as incorporating some parts of C++ &quot;concepts&quot; as a means of &quot;constraining&quot; with interface-like definitions.</p>
+<p>Though we are mainly focusing on classes and struct polymorphism, it can be noted that Rust does support <a href="https://doc.rust-lang.org/rust-by-example/generics.html">functional generics</a> which are essentially similar in syntax to C++ functional templates
+however do not support SFINAE and other complex type-systems that C++ offers.</p>
+<h5>Definition &amp; Implementation</h5>
+<p>Define a contract with <code>trait</code>, implement it with <code>impl Trait for Type</code>. You can think of it as defining &quot;interface&quot; classes but do not have to be purely abstract.</p>
+<pre><code class="language-rust">// Define the trait (interface)
+trait Summary {
+    fn summarize(&amp;self) -&gt; String; // Method signature
+
+    // Traits can also have default implementations
+    fn default_summary(&amp;self) -&gt; String {
+        String::from(&quot;(Read more...)&quot;)
+    }
+}
+
+struct NewsArticle {
+    headline: String,
+    content: String,
+}
+
+// Implement the trait for NewsArticle
+impl Summary for NewsArticle {
+    fn summarize(&amp;self) -&gt; String {
+        format!(&quot;{}, {}&quot;, self.headline, self.default_summary())
+    }
+}
+
+struct Tweet {
+    username: String,
+    content: String,
+}
+
+impl Summary for Tweet {
+    fn summarize(&amp;self) -&gt; String {
+        format!(&quot;{}: {}&quot;, self.username, self.content)
+    }
+}
+</code></pre>
+<h4>Compile Time: Generic Constraints for Traits</h4>
+<p>Use traits to ensure generic functions get types are constrainted by their behavior. It is similar to <code>constraints</code> in C++ however is considered <a href="https://stackoverflow.com/questions/56045846/what-are-the-similarities-and-differences-between-cs-concepts-and-rusts-trai">&quot;nominal type&quot;</a> which is explicit.
+The type must satisfy a struct that derives from this trait, no exceptions. Constraints in C++, however, are entirely optional.</p>
+<pre><code class="language-rust">// Constrain T to types implementing the Summary trait
+fn notify&lt;T: Summary&gt;(item: &amp;T) {
+    println!(&quot;Breaking news! {}&quot;, item.summarize());
+}
+
+// Alternative 'where' clause syntax
+fn notify_verbose&lt;T&gt;(item: &amp;T)
+where
+    T: Summary, // Requires Summary trait
+{
+    println!(&quot;Detailed report: {}&quot;, item.summarize());
+}
+</code></pre>
+<p>More than one constraint can be added per-generic, making this system very powerful:</p>
+<pre><code class="language-rust">// Alternative 'where' clause syntax
+fn notify_verbose&lt;T&gt;(item: &amp;T)
+where
+    T: Summary + AnotherConstraint + YetAnother,
+{
+    println!(&quot;Detailed report: {}&quot;, item.summarize());
+}
+</code></pre>
+<h4>Runtime: Dynamic Dispatch for Traits</h4>
+<p>Traits enable both:</p>
+<ul>
+<li><strong>Static Dispatch (Monomorphization):</strong> Like C++ templates, the compiler generates specialized code for each concrete type used (e.g., <code>notify::&lt;NewsArticle&gt;(...)</code>). This is the default and has zero runtime overhead.</li>
+<li><strong>Dynamic Dispatch (Trait Objects):</strong> Use <code>dyn Trait</code> to create objects that hide the concrete type but guarantee they implement the trait, similar to C++ virtual functions (but explicit). Requires pointers like <code>&amp;dyn Summary</code> or <code>Box&lt;dyn Summary&gt;</code>.</li>
+</ul>
+<pre><code class="language-rust">fn dynamic_notify(item: &amp;dyn Summary) { // Takes a reference to any type implementing Summary
+    println!(&quot;Dynamic dispatch: {}&quot;, item.summarize());
+}
+
+// Usage:
+// let article = NewsArticle { ... };
+// let tweet = Tweet { ... };
+// dynamic_notify(&amp;article);
+// dynamic_notify(&amp;tweet);
+// let summaries: Vec&lt;Box&lt;dyn Summary&gt;&gt; = vec![Box::new(article), Box::new(tweet)];
+</code></pre>
+<h3>Traits vs. C++ Abstraction: The Verdict</h3>
+<p>Let's compare the two languages:</p>
+<ul>
+<li><strong>Unified System:</strong> Rust's Traits provide a single, cohesive system for defining interfaces, constraining generics, and enabling both static and dynamic polymorphism. C++ uses separate mechanisms (inheritance/virtual for dynamic, templates/concepts for static).</li>
+<li><strong>Clarity &amp; Safety:</strong> Traits generally lead to clear compile-time errors if constraints aren't met. C++20 Concepts dramatically improved C++ template errors, bringing them closer to Rust's level of clarity, but pre-C++20 template errors were notoriously difficult.</li>
+<li><strong>Expressiveness:</strong> C++ wins a bit in this regard in terms of expressiveness, though they are different. C++ Concepts allow very fine-grained syntactic checks via <code>requires</code> expressions and <code>constraints</code> on almost any C++ type. While traits are limited to structs and class methods.</li>
+<li><strong>Integration:</strong> Traits are absolutely fundamental to Rust's design and standard library, basically mandatory. Concepts are a powerful <em>layer</em> added onto C++'s existing template system, completely optional.</li>
+<li><strong>Maitenance</strong>: Though the jury is still out on concepts, it seems Rust is less likely to lead to mistakes and maintenance issues given its explicit nominal type. A struct <strong>has</strong> to associate with a trait rather than a soft requirement.</li>
+</ul>
+<p><strong>Verdict:</strong> <strong>Rust</strong>.</p>
+<p>While C++20 Concepts are a fantastic and much-needed addition that significantly narrows the gap (especially regarding clear generic constraints), Rust's trait system feels more foundational, unified, and inherently integrated into the language's approach to abstraction and polymorphism. It avoids the historical baggage and separate mechanisms found in C++.</p>
+<h2>Ownership and the Borrow Checker</h2>
+<p>This is arguably the biggest differentiator. How do we manage resources (especially memory) safely and prevent common bugs like dangling pointers or data races?</p>
+<h3>The C++ Way: RAII and Smart Pointers</h3>
+<p>As discussed in Part 1, Modern C++ relies heavily on <strong>RAII (Resource Acquisition Is Initialization)</strong>. Object lifetime manages resource lifetime. Smart pointers (<code>std::unique_ptr</code>, <code>std::shared_ptr</code>) automate this for heap allocations.</p>
+<ul>
+<li><code>std::unique_ptr</code>: Exclusive ownership. The resource is deleted when the <code>unique_ptr</code> goes out of scope. Cheap, efficient.</li>
+<li><code>std::shared_ptr</code>: Shared ownership via reference counting. The resource is deleted only when the <em>last</em> <code>shared_ptr</code> referencing it is destroyed. Incurs reference counting overhead.</li>
+</ul>
+<p>This system works well <em>most</em> of the time and is much safer than manual <code>new</code>/<code>delete</code>. However, pitfalls remain:</p>
+<ul>
+<li><strong>Dangling pointers/references:</strong> Still possible if using raw pointers, returning references to local variables, or mishandling <code>std::weak_ptr</code> in cyclic <code>shared_ptr</code> scenarios.</li>
+<li><strong>Data Races:</strong> Smart pointers don't inherently prevent data races in multithreaded code. You still need manual synchronization (mutexes, atomics) to protect shared data, which is notoriously hard to get right.</li>
+</ul>
+<p>C++ basically says, the developer has to be the one to ensure safetly. This assumes developers can identify complex code manually and determine if a pointer was left unaddressed or some data race had occurred.</p>
+<h3>The Rust Way: Ownership, Borrowing, Lifetimes</h3>
+<p>Rust enforces memory safety <em>at compile time</em> through a strict set of rules enforced by the &quot;borrow checker&quot; introduced by the compiler on all variables:</p>
+<h4>Ownership</h4>
+<p>Each value in Rust has a single <em>owner</em>:</p>
+<ul>
+<li>When the owner goes out of scope, the value is <em>dropped</em> (memory freed, resources released).</li>
+<li>Ownership <em>moves</em> by default. Assigning a value or passing it to a function transfers ownership (unless it's a <code>Copy</code> type like simple integers).</li>
+</ul>
+<pre><code class="language-rust">{
+    let s1 = String::from(&quot;hello&quot;); // s1 owns the String data
+    let s2 = s1; // Ownership of the String data MOVES from s1 to s2
+    // println!(&quot;{}&quot;, s1); // ERROR! s1 is no longer valid, ownership moved
+    println!(&quot;{}&quot;, s2);
+} // s2 goes out of scope, the String data is dropped
+</code></pre>
+<h4>Borrowing (References)</h4>
+<p>Instead of moving ownership, you can <em>lend</em> access via references (borrows).</p>
+<ul>
+<li>You can have <em>multiple</em> immutable references (<code>&amp;T</code>) simultaneously.</li>
+<li>You can have <em>only one</em> mutable reference (<code>&amp;mut T</code>) at a time.</li>
+<li>Crucially: You cannot have mutable references while immutable references exist. <strong>(This prevents data races!)</strong></li>
+</ul>
+<pre><code class="language-rust">let mut s = String::from(&quot;hello&quot;);
+
+let r1 = &amp;s; // OK - immutable borrow
+let r2 = &amp;s; // OK - another immutable borrow
+println!(&quot;{}, {}&quot;, r1, r2); // OK
+
+// let r3 = &amp;mut s; // ERROR! Cannot borrow `s` as mutable because it is also borrowed as immutable
+
+// Scope of r1 and r2 ends here implicitly because they are no longer used.
+
+let r3 = &amp;mut s; // OK - no other borrows active
+r3.push_str(&quot;, world!&quot;);
+println!(&quot;{}&quot;, r3);
+</code></pre>
+<p><strong>Another way to phrase is it that all variables are constant. If it isn't constant, only one reference can modify it at a time.</strong></p>
+<h4>Lifetimes</h4>
+<p>The compiler tracks the scope for which references are valid, ensuring they never outlive the data they point to (preventing dangling references). Often inferred (elided), but sometimes require explicit annotation (<code>'a</code>).</p>
+<pre><code class="language-rust">// fn dangling_ref() -&gt; &amp;String { // ERROR: returns reference to data owned by the function
+//     let s = String::from(&quot;hello&quot;);
+//     &amp;s // reference to `s`, but `s` will be dropped here!
+// }
+</code></pre>
+<p>The combination of these rules allows Rust to guarantee memory safety and data-race freedom (in safe Rust code) <em>at compile time</em> without needing a garbage collector.</p>
+<h4>How about the Heap or Multi-threading?</h4>
+<p>The rules for the borrow-checker applies for all variables within Rust, however, what about objects that exist on the heap that exist beyond the lifetime of the scope?
+These traits ensure certain properties about the memory being pointed by these variables that ensure the borrow-checker's check on references will propogated to the heap.</p>
+<p>Rust also introduces more traits and concepts for asynchronous coding which we will not be covering in this article. But streams and channels help prevent data-races at a minor overhead.</p>
+<h3>Ownership/Borrowing vs. RAII/Smart Pointers: The Verdict</h3>
+<p>Let's compare the two languages.</p>
+<ul>
+<li><strong>Safety Guarantees:</strong> <strong>Rust</strong> wins, hands down. The borrow checker eliminates entire classes of bugs (use-after-free, double free, data races) at compile time. C++ relies on programmer discipline and runtime tools (sanitizers) to catch these.</li>
+<li><strong>Concurrency:</strong> Rust's &quot;fearless concurrency&quot; stems directly from the borrow checker preventing data races. Writing safe concurrent C++ requires meticulous manual locking. <strong>Rust</strong> wins decisively here.</li>
+<li><strong>Learning Curve:</strong> <strong>C++</strong> smart pointers are generally easier to pick up initially. Rust's borrow checker rules are strict and often frustrating for newcomers, requiring a different way of thinking about program structure.</li>
+<li><strong>Flexibility:</strong> <strong>C++</strong> offers more direct control and ways to structure code, sometimes needed for complex object graphs or performance tuning (though Rust's <code>unsafe</code> provides an escape hatch). Certain patterns (like mutable doubly linked lists) are notoriously harder in safe Rust due to the borrow rules.</li>
+<li><strong>Performance:</strong> <strong>Both</strong> offer excellent theoretical performance. Rust's compile-time checks impose no runtime overhead compared to GC languages. C++ <code>shared_ptr</code> has runtime ref-counting overhead; <code>unique_ptr</code> is closer to Rust's <code>Box</code>.</li>
+</ul>
+<p><strong>Verdict:</strong> This is the core trade-off. <strong>Rust</strong> provides unparalleled safety guarantees enforced by the compiler, especially vital for concurrency, but demands a steeper learning curve. <strong>Modern C++</strong> offers easier initial adoption for resource management via smart pointers but leaves the door open for subtle, dangerous bugs and requires significant developer discipline, especially in concurrent contexts. For safety and maintainability, especially in complex or concurrent systems, the borrow checker's upfront cost pays dividends later.</p>
+<h2>Conclusion</h2>
+<p>We've tackled the heavyweights: Traits and Ownership.</p>
+<ul>
+<li><strong>Traits vs. C++ Abstraction:</strong> Rust's trait system provides a unified, powerful, and safe way to handle abstraction and polymorphism, feeling more cohesive than C++'s mix of inheritance, templates, and (the excellent but newer) concepts. <strong>Rust wins.</strong></li>
+<li><strong>Ownership/Borrowing vs. C++ RAII/Smart Pointers:</strong> Rust's compile-time guarantees against memory errors and data races are revolutionary, making it incredibly robust, especially for concurrency. The cost is a steeper learning curve compared to C++ smart pointers, which are simpler but less safe. <strong>Rust wins on safety, C++ wins on initial simplicity.</strong></li>
+</ul>
+<p>Revisiting the thesis: Do these core Rust features contribute to faster design, efficiency, and maintainability? I believe so. While the borrow checker requires an initial investment, the classes of bugs it <em>prevents</em> significantly reduce debugging time and increase confidence, particularly in large or concurrent systems. Traits provide a clean abstraction mechanism. These factors often outweigh the initial learning curve and the occasional ergonomic challenges compared to the potential pitfalls and complexities lurking in even modern C++.</p>
+<p>Rust isn't perfect (as we saw with returning closures in Part 1 and the complexity of some borrowing patterns), but its foundational design choices around traits and ownership offer compelling advantages.</p>
+<p>In Part 3, we'll look at Rust's metaprogramming powerhouse (Macros) and its universally acclaimed build system and package manager (Cargo). Stay tuned!</p>
+
+        </div>
+      </div>
+
+      <div class="article-layout-sidebar">
+        <div class="side-bar-island">
+            <h2 id="table-of-contents-header"> Table of Contents </h2>
+            <div class="table-of-contents">
+                Ruh-roh. Looks like something went wrong :(
+                <br />
+            </div>
+        
+            <h2> Related Articles </h2>
+            <div class="related-articles">
+                <br />
+                        <ul>
+                            <li> 
+                            <a href="/blog\content\2023\01\18\rust-vs-cpp">Rust vs Modern C++ Part 1</a>
+                            </li>
+                        </ul>
+                        <ul>
+                            <li> 
+                            <a href="/blog\content\2023\08\23\sand-simulator">Writing a Particle Pixel Simulator in Rust</a>
+                            </li>
+                        </ul>
+            </div>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
+]]></description><link>https://programmingincluded.com/blog/content/2025/04/03/rust-vs-cpp-part-2</link><guid isPermaLink="true">https://programmingincluded.com/blog/content/2025/04/03/rust-vs-cpp-part-2</guid><dc:creator><![CDATA[Charles Chen]]></dc:creator><pubDate>Thu, 03 Apr 2025 20:50:00 GMT</pubDate></item><item><title><![CDATA[Blog v1&#58; From Ruby to NodeJS]]></title><description><![CDATA[<!doctype html>
 <html>
   <head>
     <meta charset="utf-8">
@@ -19,6 +551,7 @@
     <script src="/javascripts/anime.min.js"></script>
     <script src="/javascripts/jquery-3.6.0.min.js"></script>
     <script src="/javascripts/nav.js"></script>
+    <script src="/javascripts/collopsible.js"></script>
   </head>
   <body>
     <div class="top-banner-cont">
@@ -355,6 +888,7 @@ Perhaps WebAssembly will replace Javascript? Perhaps.</p>
     <script src="/javascripts/anime.min.js"></script>
     <script src="/javascripts/jquery-3.6.0.min.js"></script>
     <script src="/javascripts/nav.js"></script>
+    <script src="/javascripts/collopsible.js"></script>
   </head>
   <body>
     <div class="top-banner-cont">
@@ -598,6 +1132,11 @@ of a particle body) as well as explosion dynamics. Perhaps we will leave this fo
                 <br />
                         <ul>
                             <li> 
+                            <a href="/blog\content\2025\04\03\rust-vs-cpp-part-2">Rust vs Modern C++ Part 2</a>
+                            </li>
+                        </ul>
+                        <ul>
+                            <li> 
                             <a href="/blog\content\2023\01\18\rust-vs-cpp">Rust vs Modern C++ Part 1</a>
                             </li>
                         </ul>
@@ -638,6 +1177,7 @@ of a particle body) as well as explosion dynamics. Perhaps we will leave this fo
     <script src="/javascripts/anime.min.js"></script>
     <script src="/javascripts/jquery-3.6.0.min.js"></script>
     <script src="/javascripts/nav.js"></script>
+    <script src="/javascripts/collopsible.js"></script>
   </head>
   <body>
     <div class="top-banner-cont">
@@ -803,7 +1343,7 @@ let m = HashMap::from([
     (&quot;good&quot;, &quot;day&quot;)
 ]);
 </code></pre>
-<p><strong>Rust's Macro system has access to the AST during compilation and is super flexible. We will get more into this in Part 2.</strong>
+<p><strong>Rust's Macro system has access to the AST during compilation and is super flexible. We will get more into this in Part 3.</strong>
 With an extra crate, you can have even higher-level syntax:</p>
 <pre><code class="language-rust">use std::collections::HashMap;
 use common_macros::hash_map;
@@ -1131,6 +1671,11 @@ the borrw checker section of our article.</p>
                 <br />
                         <ul>
                             <li> 
+                            <a href="/blog\content\2025\04\03\rust-vs-cpp-part-2">Rust vs Modern C++ Part 2</a>
+                            </li>
+                        </ul>
+                        <ul>
+                            <li> 
                             <a href="/blog\content\2023\08\23\sand-simulator">Writing a Particle Pixel Simulator in Rust</a>
                             </li>
                         </ul>
@@ -1161,6 +1706,7 @@ the borrw checker section of our article.</p>
     <script src="/javascripts/anime.min.js"></script>
     <script src="/javascripts/jquery-3.6.0.min.js"></script>
     <script src="/javascripts/nav.js"></script>
+    <script src="/javascripts/collopsible.js"></script>
   </head>
   <body>
     <div class="top-banner-cont">
@@ -1302,6 +1848,7 @@ By the end of the jam, I was scrambling to push assets and reject certain animat
     <script src="/javascripts/anime.min.js"></script>
     <script src="/javascripts/jquery-3.6.0.min.js"></script>
     <script src="/javascripts/nav.js"></script>
+    <script src="/javascripts/collopsible.js"></script>
   </head>
   <body>
     <div class="top-banner-cont">
@@ -1550,6 +2097,7 @@ Specific algorithms and all. I look forward to be able to share that knowledge a
     <script src="/javascripts/anime.min.js"></script>
     <script src="/javascripts/jquery-3.6.0.min.js"></script>
     <script src="/javascripts/nav.js"></script>
+    <script src="/javascripts/collopsible.js"></script>
   </head>
   <body>
     <div class="top-banner-cont">
@@ -1660,6 +2208,7 @@ learning techniques can be done better. Such as temporal difference learning.</p
     <script src="/javascripts/anime.min.js"></script>
     <script src="/javascripts/jquery-3.6.0.min.js"></script>
     <script src="/javascripts/nav.js"></script>
+    <script src="/javascripts/collopsible.js"></script>
   </head>
   <body>
     <div class="top-banner-cont">
@@ -1802,6 +2351,7 @@ Until next time! Looking forward to continuous updates in the future.</p>
     <script src="/javascripts/anime.min.js"></script>
     <script src="/javascripts/jquery-3.6.0.min.js"></script>
     <script src="/javascripts/nav.js"></script>
+    <script src="/javascripts/collopsible.js"></script>
   </head>
   <body>
     <div class="top-banner-cont">
@@ -1909,6 +2459,7 @@ Until next time! Looking forward to continuous updates in the future.</p>
     <script src="/javascripts/anime.min.js"></script>
     <script src="/javascripts/jquery-3.6.0.min.js"></script>
     <script src="/javascripts/nav.js"></script>
+    <script src="/javascripts/collopsible.js"></script>
   </head>
   <body>
     <div class="top-banner-cont">
@@ -2028,6 +2579,7 @@ low frequencies. So the moral of the story is, good mics still matter! Or do the
     <script src="/javascripts/anime.min.js"></script>
     <script src="/javascripts/jquery-3.6.0.min.js"></script>
     <script src="/javascripts/nav.js"></script>
+    <script src="/javascripts/collopsible.js"></script>
   </head>
   <body>
     <div class="top-banner-cont">
@@ -2142,6 +2694,7 @@ This is a lot with the mentality of research. Calculus was invented as a process
     <script src="/javascripts/anime.min.js"></script>
     <script src="/javascripts/jquery-3.6.0.min.js"></script>
     <script src="/javascripts/nav.js"></script>
+    <script src="/javascripts/collopsible.js"></script>
   </head>
   <body>
     <div class="top-banner-cont">
@@ -2264,6 +2817,7 @@ These features cater to better data science applications.</p>
     <script src="/javascripts/anime.min.js"></script>
     <script src="/javascripts/jquery-3.6.0.min.js"></script>
     <script src="/javascripts/nav.js"></script>
+    <script src="/javascripts/collopsible.js"></script>
   </head>
   <body>
     <div class="top-banner-cont">
@@ -2383,6 +2937,7 @@ and it allowed me to excel in that particular field.</p>
     <script src="/javascripts/anime.min.js"></script>
     <script src="/javascripts/jquery-3.6.0.min.js"></script>
     <script src="/javascripts/nav.js"></script>
+    <script src="/javascripts/collopsible.js"></script>
   </head>
   <body>
     <div class="top-banner-cont">
@@ -2510,6 +3065,7 @@ While the I stores the difference between the first and second frames. This is G
     <script src="/javascripts/anime.min.js"></script>
     <script src="/javascripts/jquery-3.6.0.min.js"></script>
     <script src="/javascripts/nav.js"></script>
+    <script src="/javascripts/collopsible.js"></script>
   </head>
   <body>
     <div class="top-banner-cont">
