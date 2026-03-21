@@ -117,11 +117,22 @@ $(document).ready(() => {
     // Grab location in relative
     let origin = island.offset().top;
 
+    const getCenteredTop = () => {
+        return Math.max(0, ($(window).height() - island.outerHeight()) / 2);
+    }
+
     // Set to absolute
     if ($(window).width() > MAX_MOBILE_WIDTH) {
         island.css({position: "fixed"})
         let newScroll = $(document).scrollTop();
         var animated = (newScroll > LIMIT);
+
+        if (animated) {
+            island.css({top: `${getCenteredTop()}px`});
+        } else {
+            island.css({top: `${-newScroll + origin}px`});
+        }
+
         var animating = false;
         $(window).on("scroll", () => {
             newScroll = $(document).scrollTop();
@@ -137,7 +148,7 @@ $(document).ready(() => {
                 animating = true;
                 anime({
                     targets: island[0],
-                    top: origin,
+                    top: getCenteredTop(),
                     easing: "easeOutQuad",
                     duration: 500,
                     complete: (anim) => { animating = false; }

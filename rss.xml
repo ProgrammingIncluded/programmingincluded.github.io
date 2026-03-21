@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8"?><rss xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom" version="2.0"><channel><title><![CDATA[ProgrammingIncluded]]></title><description><![CDATA[ProgrammingIncluded]]></description><link>https://programmingincluded.com/</link><generator>metalsmith-feed</generator><lastBuildDate>Fri, 04 Apr 2025 03:19:40 GMT</lastBuildDate><atom:link href="https://programmingincluded.com/rss.xml" rel="self" type="application/rss+xml"/><author><![CDATA[Charles H. Chen]]></author><item><title><![CDATA[Rust vs Modern C++ Part 2]]></title><description><![CDATA[<!doctype html>
+<?xml version="1.0" encoding="UTF-8"?><rss xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:content="http://purl.org/rss/1.0/modules/content/" xmlns:atom="http://www.w3.org/2005/Atom" version="2.0"><channel><title><![CDATA[ProgrammingIncluded]]></title><description><![CDATA[ProgrammingIncluded]]></description><link>https://programmingincluded.com/</link><generator>metalsmith-feed</generator><lastBuildDate>Sat, 21 Mar 2026 06:37:08 GMT</lastBuildDate><atom:link href="https://programmingincluded.com/rss.xml" rel="self" type="application/rss+xml"/><author><![CDATA[Charles H. Chen]]></author><item><title><![CDATA[Rust vs Modern C++ Part 2]]></title><description><![CDATA[<!doctype html>
 <html>
   <head>
     <meta charset="utf-8">
@@ -516,12 +516,12 @@ These traits ensure certain properties about the memory being pointed by these v
                 <br />
                         <ul>
                             <li> 
-                            <a href="/blog\content\2023\01\18\rust-vs-cpp">Rust vs Modern C++ Part 1</a>
+                            <a href="/blog/content/2023/01/18/rust-vs-cpp">Rust vs Modern C++ Part 1</a>
                             </li>
                         </ul>
                         <ul>
                             <li> 
-                            <a href="/blog\content\2023\08\23\sand-simulator">Writing a Particle Pixel Simulator in Rust</a>
+                            <a href="/blog/content/2023/08/23/sand-simulator">Writing a Particle Pixel Simulator in Rust</a>
                             </li>
                         </ul>
             </div>
@@ -848,17 +848,17 @@ Perhaps WebAssembly will replace Javascript? Perhaps.</p>
                 <br />
                         <ul>
                             <li> 
-                            <a href="/blog\content\2018\01\04\blog-v0-2-improving-the-user-experience">Blog v0.2&#58; Improving the Blog Reading User Experience</a>
+                            <a href="/blog/content/2018/01/04/blog-v0-2-improving-the-user-experience">Blog v0.2&#58; Improving the Blog Reading User Experience</a>
                             </li>
                         </ul>
                         <ul>
                             <li> 
-                            <a href="/blog\content\2017\09\08\starting">Blog v0.1&#58; Starting a New Blog</a>
+                            <a href="/blog/content/2017/09/08/starting">Blog v0.1&#58; Starting a New Blog</a>
                             </li>
                         </ul>
                         <ul>
                             <li> 
-                            <a href="/blog\content\2017\09\08\on-the-site-logo">On the Site Logo</a>
+                            <a href="/blog/content/2017/09/08/on-the-site-logo">On the Site Logo</a>
                             </li>
                         </ul>
             </div>
@@ -943,32 +943,14 @@ Perhaps WebAssembly will replace Javascript? Perhaps.</p>
         <div class="article-layout-main-body">
           <h2>Particle.rs</h2>
 <p>Below is a simple Sand-game like Simulator game that I wrote over last weekend using Rust and <a href="https://bevyengine.org/">Bevy</a>.</p>
-<script type=module>
-  import init from '/games/particlers_v1/sand_simulator.js';
-  init();
-
-  let setCanvas = () => {
-    let game = $("canvas");
-    game.detach();
-    let outDiv = $("#game");
-    outDiv.append(game);
-
-    let body = $(".article-layout-main-body");
-    let ratio = ((body.width() - 24) / 1024);
-    // Set the margin offsets
-    game.css({
-      "transform-origin": "0 0",
-      "transform": `scale(${ratio})`,
-    });
-
-    outDiv.height(game.height() * ratio);
-    outDiv.width(game.width() * ratio);
-  };
-  $(document).ready(() => {
-      setTimeout(setCanvas, 3000);
-  });
+<div id="game-container" class="game-push-to-play-container">
+  <div id="push-to-play" class="push-to-play-button">PUSH TO PLAY</div>
+  <div id="game"></div>
+</div>
+<script type="module">
+  import { setupPushToPlay } from '/javascripts/game_loader.js';
+  setupPushToPlay({ modulePath: '/games/particlers_v1/sand_simulator.js' });
 </script>
-<div id="game"></div>
 <p>Left-click to emit particles. Press <code>s</code> to emit sand and <code>w</code> to emit water. <code>r</code> to reset the grid. On mobile, hold to spawn particle. Use two fingers and tap to get
 change particle spawn type.</p>
 <h2>What are Particle-Based Simulator Games?</h2>
@@ -1132,22 +1114,22 @@ of a particle body) as well as explosion dynamics. Perhaps we will leave this fo
                 <br />
                         <ul>
                             <li> 
-                            <a href="/blog\content\2025\04\03\rust-vs-cpp-part-2">Rust vs Modern C++ Part 2</a>
+                            <a href="/blog/content/2025/04/03/rust-vs-cpp-part-2">Rust vs Modern C++ Part 2</a>
                             </li>
                         </ul>
                         <ul>
                             <li> 
-                            <a href="/blog\content\2023\01\18\rust-vs-cpp">Rust vs Modern C++ Part 1</a>
+                            <a href="/blog/content/2023/01/18/rust-vs-cpp">Rust vs Modern C++ Part 1</a>
                             </li>
                         </ul>
                         <ul>
                             <li> 
-                            <a href="/blog\content\2021\11\14\lunarequinox">Things I've Learned Making&#58; Lunar=Nox</a>
+                            <a href="/blog/content/2021/11/14/lunarequinox">Things I've Learned Making&#58; Lunar=Nox</a>
                             </li>
                         </ul>
                         <ul>
                             <li> 
-                            <a href="/blog\content\2019\12\29\raspberryconway">Raspberry's Game of Life</a>
+                            <a href="/blog/content/2019/12/29/raspberryconway">Raspberry's Game of Life</a>
                             </li>
                         </ul>
             </div>
@@ -1671,12 +1653,12 @@ the borrw checker section of our article.</p>
                 <br />
                         <ul>
                             <li> 
-                            <a href="/blog\content\2025\04\03\rust-vs-cpp-part-2">Rust vs Modern C++ Part 2</a>
+                            <a href="/blog/content/2025/04/03/rust-vs-cpp-part-2">Rust vs Modern C++ Part 2</a>
                             </li>
                         </ul>
                         <ul>
                             <li> 
-                            <a href="/blog\content\2023\08\23\sand-simulator">Writing a Particle Pixel Simulator in Rust</a>
+                            <a href="/blog/content/2023/08/23/sand-simulator">Writing a Particle Pixel Simulator in Rust</a>
                             </li>
                         </ul>
             </div>
@@ -1769,7 +1751,7 @@ recap some projects that have occurred since last year as well as some current p
 We had roughly one month (the month of November). The first day of November we had received our theme: <strong>Moonshot</strong></p>
 <div class="image-unit"><image src="/images/pblog/2021/equinox_staffroll.jpg" width="100%" alt="staff credits" target="blank" /><br /><i class="image-subtitle"> image: staff credits</i></div>
 <h3>The Concept of the Game</h3>
-<p>Us all having experience with <i>tohou</i> and/or &lt;%= link_to &quot;sh'mups&quot;, &quot;https://en.wikipedia.org/wiki/Shoot_%27em_up&quot; %&gt; growing up,
+<p>Us all having experience with <i>tohou</i> and/or <a href="%22https://en.wikipedia.org/wiki/Shoot_%27em_up%22">sh'mups</a> growing up,
 we slowly narrowed down to that idea. However instead of a generic 2d bullet shooter, we needed a novel concept that can be worth exploring. Eventually
 our team narrowed down to the following ideas (we ended up only doing the first two):</p>
 <ul>
@@ -1818,7 +1800,7 @@ By the end of the jam, I was scrambling to push assets and reject certain animat
                 <br />
                         <ul>
                             <li> 
-                            <a href="/blog\content\2023\08\23\sand-simulator">Writing a Particle Pixel Simulator in Rust</a>
+                            <a href="/blog/content/2023/08/23/sand-simulator">Writing a Particle Pixel Simulator in Rust</a>
                             </li>
                         </ul>
             </div>
@@ -2057,17 +2039,17 @@ Specific algorithms and all. I look forward to be able to share that knowledge a
                 <br />
                         <ul>
                             <li> 
-                            <a href="/blog\content\2023\08\23\sand-simulator">Writing a Particle Pixel Simulator in Rust</a>
+                            <a href="/blog/content/2023/08/23/sand-simulator">Writing a Particle Pixel Simulator in Rust</a>
                             </li>
                         </ul>
                         <ul>
                             <li> 
-                            <a href="/blog\content\2018\02\26\developing-a-2048-ai">Developing a 2048 AI</a>
+                            <a href="/blog/content/2018/02/26/developing-a-2048-ai">Developing a 2048 AI</a>
                             </li>
                         </ul>
                         <ul>
                             <li> 
-                            <a href="/blog\content\2017\12\16\recording-a-piano-using-sub-par-equipment">Recording a Piano Using Sub-Par Equipment</a>
+                            <a href="/blog/content/2017/12/16/recording-a-piano-using-sub-par-equipment">Recording a Piano Using Sub-Par Equipment</a>
                             </li>
                         </ul>
             </div>
@@ -2173,12 +2155,12 @@ learning techniques can be done better. Such as temporal difference learning.</p
                 <br />
                         <ul>
                             <li> 
-                            <a href="/blog\content\2019\12\29\raspberryconway">Raspberry's Game of Life</a>
+                            <a href="/blog/content/2019/12/29/raspberryconway">Raspberry's Game of Life</a>
                             </li>
                         </ul>
                         <ul>
                             <li> 
-                            <a href="/blog\content\2017\12\16\recording-a-piano-using-sub-par-equipment">Recording a Piano Using Sub-Par Equipment</a>
+                            <a href="/blog/content/2017/12/16/recording-a-piano-using-sub-par-equipment">Recording a Piano Using Sub-Par Equipment</a>
                             </li>
                         </ul>
             </div>
@@ -2311,17 +2293,17 @@ Until next time! Looking forward to continuous updates in the future.</p>
                 <br />
                         <ul>
                             <li> 
-                            <a href="/blog\content\2025\02\16\metalsmith-upgrade">Blog v1&#58; From Ruby to NodeJS</a>
+                            <a href="/blog/content/2025/02/16/metalsmith-upgrade">Blog v1&#58; From Ruby to NodeJS</a>
                             </li>
                         </ul>
                         <ul>
                             <li> 
-                            <a href="/blog\content\2017\09\08\starting">Blog v0.1&#58; Starting a New Blog</a>
+                            <a href="/blog/content/2017/09/08/starting">Blog v0.1&#58; Starting a New Blog</a>
                             </li>
                         </ul>
                         <ul>
                             <li> 
-                            <a href="/blog\content\2017\09\08\on-the-site-logo">On the Site Logo</a>
+                            <a href="/blog/content/2017/09/08/on-the-site-logo">On the Site Logo</a>
                             </li>
                         </ul>
             </div>
@@ -2424,12 +2406,12 @@ Until next time! Looking forward to continuous updates in the future.</p>
                 <br />
                         <ul>
                             <li> 
-                            <a href="/blog\content\2017\10\06\texture-mapping-the-design-process">Design Process&#58; Texture Mapping</a>
+                            <a href="/blog/content/2017/10/06/texture-mapping-the-design-process">Design Process&#58; Texture Mapping</a>
                             </li>
                         </ul>
                         <ul>
                             <li> 
-                            <a href="/blog\content\2017\10\05\introduction-to-community-driven-incentives">Handmade Hero and D3js</a>
+                            <a href="/blog/content/2017/10/05/introduction-to-community-driven-incentives">Handmade Hero and D3js</a>
                             </li>
                         </ul>
             </div>
@@ -2539,17 +2521,17 @@ low frequencies. So the moral of the story is, good mics still matter! Or do the
                 <br />
                         <ul>
                             <li> 
-                            <a href="/blog\content\2019\12\29\raspberryconway">Raspberry's Game of Life</a>
+                            <a href="/blog/content/2019/12/29/raspberryconway">Raspberry's Game of Life</a>
                             </li>
                         </ul>
                         <ul>
                             <li> 
-                            <a href="/blog\content\2018\02\26\developing-a-2048-ai">Developing a 2048 AI</a>
+                            <a href="/blog/content/2018/02/26/developing-a-2048-ai">Developing a 2048 AI</a>
                             </li>
                         </ul>
                         <ul>
                             <li> 
-                            <a href="/blog\content\2017\09\12\writing-music">Writing Music, Creative Endeavors, and the Growth Mindset</a>
+                            <a href="/blog/content/2017/09/12/writing-music">Writing Music, Creative Endeavors, and the Growth Mindset</a>
                             </li>
                         </ul>
             </div>
@@ -2659,12 +2641,12 @@ This is a lot with the mentality of research. Calculus was invented as a process
                 <br />
                         <ul>
                             <li> 
-                            <a href="/blog\content\2017\12\22\dmv-datascience">DMV Datascience</a>
+                            <a href="/blog/content/2017/12/22/dmv-datascience">DMV Datascience</a>
                             </li>
                         </ul>
                         <ul>
                             <li> 
-                            <a href="/blog\content\2017\10\05\introduction-to-community-driven-incentives">Handmade Hero and D3js</a>
+                            <a href="/blog/content/2017/10/05/introduction-to-community-driven-incentives">Handmade Hero and D3js</a>
                             </li>
                         </ul>
             </div>
@@ -2782,12 +2764,12 @@ These features cater to better data science applications.</p>
                 <br />
                         <ul>
                             <li> 
-                            <a href="/blog\content\2017\12\22\dmv-datascience">DMV Datascience</a>
+                            <a href="/blog/content/2017/12/22/dmv-datascience">DMV Datascience</a>
                             </li>
                         </ul>
                         <ul>
                             <li> 
-                            <a href="/blog\content\2017\10\06\texture-mapping-the-design-process">Design Process&#58; Texture Mapping</a>
+                            <a href="/blog/content/2017/10/06/texture-mapping-the-design-process">Design Process&#58; Texture Mapping</a>
                             </li>
                         </ul>
             </div>
@@ -2907,7 +2889,7 @@ and it allowed me to excel in that particular field.</p>
                 <br />
                         <ul>
                             <li> 
-                            <a href="/blog\content\2017\12\16\recording-a-piano-using-sub-par-equipment">Recording a Piano Using Sub-Par Equipment</a>
+                            <a href="/blog/content/2017/12/16/recording-a-piano-using-sub-par-equipment">Recording a Piano Using Sub-Par Equipment</a>
                             </li>
                         </ul>
             </div>
@@ -3025,17 +3007,17 @@ While the I stores the difference between the first and second frames. This is G
                 <br />
                         <ul>
                             <li> 
-                            <a href="/blog\content\2025\02\16\metalsmith-upgrade">Blog v1&#58; From Ruby to NodeJS</a>
+                            <a href="/blog/content/2025/02/16/metalsmith-upgrade">Blog v1&#58; From Ruby to NodeJS</a>
                             </li>
                         </ul>
                         <ul>
                             <li> 
-                            <a href="/blog\content\2018\01\04\blog-v0-2-improving-the-user-experience">Blog v0.2&#58; Improving the Blog Reading User Experience</a>
+                            <a href="/blog/content/2018/01/04/blog-v0-2-improving-the-user-experience">Blog v0.2&#58; Improving the Blog Reading User Experience</a>
                             </li>
                         </ul>
                         <ul>
                             <li> 
-                            <a href="/blog\content\2017\09\08\starting">Blog v0.1&#58; Starting a New Blog</a>
+                            <a href="/blog/content/2017/09/08/starting">Blog v0.1&#58; Starting a New Blog</a>
                             </li>
                         </ul>
             </div>
@@ -3143,17 +3125,17 @@ Which will be linked... eventually. Only big updates will have blog posts to sho
                 <br />
                         <ul>
                             <li> 
-                            <a href="/blog\content\2025\02\16\metalsmith-upgrade">Blog v1&#58; From Ruby to NodeJS</a>
+                            <a href="/blog/content/2025/02/16/metalsmith-upgrade">Blog v1&#58; From Ruby to NodeJS</a>
                             </li>
                         </ul>
                         <ul>
                             <li> 
-                            <a href="/blog\content\2018\01\04\blog-v0-2-improving-the-user-experience">Blog v0.2&#58; Improving the Blog Reading User Experience</a>
+                            <a href="/blog/content/2018/01/04/blog-v0-2-improving-the-user-experience">Blog v0.2&#58; Improving the Blog Reading User Experience</a>
                             </li>
                         </ul>
                         <ul>
                             <li> 
-                            <a href="/blog\content\2017\09\08\on-the-site-logo">On the Site Logo</a>
+                            <a href="/blog/content/2017/09/08/on-the-site-logo">On the Site Logo</a>
                             </li>
                         </ul>
             </div>

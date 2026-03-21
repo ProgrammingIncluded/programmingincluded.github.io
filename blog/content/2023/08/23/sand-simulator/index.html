@@ -74,32 +74,14 @@
         <div class="article-layout-main-body">
           <h2>Particle.rs</h2>
 <p>Below is a simple Sand-game like Simulator game that I wrote over last weekend using Rust and <a href="https://bevyengine.org/">Bevy</a>.</p>
-<script type=module>
-  import init from '/games/particlers_v1/sand_simulator.js';
-  init();
-
-  let setCanvas = () => {
-    let game = $("canvas");
-    game.detach();
-    let outDiv = $("#game");
-    outDiv.append(game);
-
-    let body = $(".article-layout-main-body");
-    let ratio = ((body.width() - 24) / 1024);
-    // Set the margin offsets
-    game.css({
-      "transform-origin": "0 0",
-      "transform": `scale(${ratio})`,
-    });
-
-    outDiv.height(game.height() * ratio);
-    outDiv.width(game.width() * ratio);
-  };
-  $(document).ready(() => {
-      setTimeout(setCanvas, 3000);
-  });
+<div id="game-container" class="game-push-to-play-container">
+  <div id="push-to-play" class="push-to-play-button">PUSH TO PLAY</div>
+  <div id="game"></div>
+</div>
+<script type="module">
+  import { setupPushToPlay } from '/javascripts/game_loader.js';
+  setupPushToPlay({ modulePath: '/games/particlers_v1/sand_simulator.js' });
 </script>
-<div id="game"></div>
 <p>Left-click to emit particles. Press <code>s</code> to emit sand and <code>w</code> to emit water. <code>r</code> to reset the grid. On mobile, hold to spawn particle. Use two fingers and tap to get
 change particle spawn type.</p>
 <h2>What are Particle-Based Simulator Games?</h2>
@@ -263,22 +245,22 @@ of a particle body) as well as explosion dynamics. Perhaps we will leave this fo
                 <br />
                         <ul>
                             <li> 
-                            <a href="/blog\content\2025\04\03\rust-vs-cpp-part-2">Rust vs Modern C++ Part 2</a>
+                            <a href="/blog/content/2025/04/03/rust-vs-cpp-part-2">Rust vs Modern C++ Part 2</a>
                             </li>
                         </ul>
                         <ul>
                             <li> 
-                            <a href="/blog\content\2023\01\18\rust-vs-cpp">Rust vs Modern C++ Part 1</a>
+                            <a href="/blog/content/2023/01/18/rust-vs-cpp">Rust vs Modern C++ Part 1</a>
                             </li>
                         </ul>
                         <ul>
                             <li> 
-                            <a href="/blog\content\2021\11\14\lunarequinox">Things I've Learned Making&#58; Lunar=Nox</a>
+                            <a href="/blog/content/2021/11/14/lunarequinox">Things I've Learned Making&#58; Lunar=Nox</a>
                             </li>
                         </ul>
                         <ul>
                             <li> 
-                            <a href="/blog\content\2019\12\29\raspberryconway">Raspberry's Game of Life</a>
+                            <a href="/blog/content/2019/12/29/raspberryconway">Raspberry's Game of Life</a>
                             </li>
                         </ul>
             </div>
